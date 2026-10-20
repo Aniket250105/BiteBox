@@ -25,21 +25,46 @@ const CartCheckout = ({
   const [toast, setToast] = useState({ message: '', type: '' });
   const [lastUpdatedId, setLastUpdatedId] = useState(null);
 
+  const [isLoadingMenu, setIsLoadingMenu] = useState(true);
+
   // Load menu items from API for item details and images
   useEffect(() => {
     if (restaurant?.id) {
+      setIsLoadingMenu(true);
       apiService.fetchRestaurantMenu(restaurant.id)
         .then(res => setMenuItems(res.menu || []))
-        .catch(err => console.warn('Could not load checkout items:', err.message));
+        .catch(err => console.warn('Could not load checkout items:', err.message))
+        .finally(() => setIsLoadingMenu(false));
     }
   }, [restaurant?.id]);
 
-  // Format cart items for server
+  // Cart items display list (strictly items belonging to this restaurant's menu)
+  const cartItems = useMemo(() => {
+    return Object.keys(cart).map(itemId => {
+      const item = menuItems.find(m => m.id === itemId);
+      return item ? { ...item, qty: cart[itemId] } : null;
+    }).filter(Boolean).filter(item => item.qty > 0);
+  }, [cart, menuItems]);
+
+  // Automatically prune any alien items left over from another restaurant
+  useEffect(() => {
+    if (menuItems.length > 0 && cart) {
+      const alienItemIds = Object.keys(cart).filter(id => 
+        (cart[id] || 0) > 0 && !menuItems.some(m => m.id === id)
+      );
+      if (alienItemIds.length > 0) {
+        alienItemIds.forEach(id => updateCart(id, 0));
+      }
+    }
+  }, [menuItems, cart, updateCart]);
+
+  // Format cart items for server (strictly this restaurant's valid items)
   const formattedItems = useMemo(() => {
-    return Object.keys(cart)
-      .filter(id => (cart[id] || 0) > 0)
-      .map(id => ({ menuItemId: id, quantity: cart[id] }));
-  }, [cart]);
+    if (menuItems.length === 0) {
+      return [];
+    }
+    return cartItems.map(item => ({ menuItemId: item.id, quantity: item.qty }));
+  }, [cartItems, menuItems.length]);
 
   // Request order quote from server (database-backed calculations)
   const fetchQuote = useCallback(async (couponToUse = appliedCouponCode) => {
@@ -163,11 +188,24 @@ const CartCheckout = ({
     }
   };
 
-  // Cart items display list
-  const cartItems = Object.keys(cart).map(itemId => {
-    const item = menuItems.find(m => m.id === itemId);
-    return item ? { ...item, qty: cart[itemId] } : null;
-  }).filter(Boolean).filter(item => item.qty > 0);
+  // Loading menu state while fetching details
+  if (isLoadingMenu) {
+    return (
+      <div className="cart-checkout">
+        <div className="header checkout-header">
+          <button className="back-button" onClick={onBack}>←</button>
+          <div>
+            <h2 className="text-lg font-bold">{restaurant?.name || 'Your Cart'}</h2>
+            <p className="text-xs text-secondary">Loading order details...</p>
+          </div>
+        </div>
+        <div className="screen-content" style={{ padding: '24px' }}>
+          <div className="skeleton" style={{ height: '70px', borderRadius: '12px', marginBottom: '16px' }}></div>
+          <div className="skeleton" style={{ height: '140px', borderRadius: '12px' }}></div>
+        </div>
+      </div>
+    );
+  }
 
   // If cart is empty, show empty state
   if (cartItems.length === 0) {
@@ -212,7 +250,21 @@ const CartCheckout = ({
               <span>⚠️</span>
               <span>{quoteError.message}</span>
             </div>
-            {quoteError.itemUnavailable && quoteError.itemName && (
+            {quoteError.message.includes('does not belong to') ? (
+              <button 
+                className="quote-error-action-btn"
+                onClick={() => {
+                  Object.keys(cart).forEach(id => {
+                    if (!menuItems.some(m => m.id === id)) {
+                      updateCart(id, 0);
+                    }
+                  });
+                  setQuoteError(null);
+                }}
+              >
+                Clear Other Restaurant Items
+              </button>
+            ) : quoteError.itemUnavailable && quoteError.itemName ? (
               <button 
                 className="quote-error-action-btn"
                 onClick={() => {
@@ -225,8 +277,7 @@ const CartCheckout = ({
               >
                 Remove {quoteError.itemName} from Cart
               </button>
-            )}
-            {!quoteError.itemUnavailable && (
+            ) : (
               <button className="quote-error-action-btn" onClick={onBack}>
                 Return to Restaurant
               </button>

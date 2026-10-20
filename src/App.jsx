@@ -31,8 +31,15 @@ function App() {
     return null;
   });
   
-  // Cart state: { itemId: quantity }
+  // Cart state: { itemId: quantity } and owning restaurant
   const [cart, setCart] = useState({});
+  const [cartRestaurant, setCartRestaurant] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem('bitebox_cart_restaurant');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return null;
+  });
   const [orderDetails, setOrderDetails] = useState(() => {
     try {
       const savedOrder = sessionStorage.getItem('bitebox_active_order');
@@ -140,7 +147,9 @@ function App() {
         if (!stillDelivers) {
           const restaurantName = selectedRestaurant.name;
           setCart({});
+          setCartRestaurant(null);
           setSelectedRestaurant(null);
+          try { sessionStorage.removeItem('bitebox_cart_restaurant'); } catch {}
           setSessionToast({
             message: `Your cart from ${restaurantName} was cleared because they do not deliver to ${newProfile.address}.`,
             type: 'warning'
@@ -163,6 +172,7 @@ function App() {
     setSessionExpiredNotice('');
     setUserProfile({ name: '', address: '' });
     setCart({});
+    setCartRestaurant(null);
     setSelectedRestaurant(null);
     setOrderDetails(null);
     setCurrentScreen('listing');
@@ -170,6 +180,7 @@ function App() {
       sessionStorage.removeItem('bitebox_active_screen');
       sessionStorage.removeItem('bitebox_active_order');
       sessionStorage.removeItem('bitebox_active_restaurant');
+      sessionStorage.removeItem('bitebox_cart_restaurant');
     } catch {}
   };
 
@@ -178,7 +189,7 @@ function App() {
     setCurrentScreen('menu'); 
   };
 
-  const updateCart = (itemId, quantity) => {
+  const updateCart = (itemId, quantity, itemRestaurant) => {
     setCart(prev => {
       const newCart = { ...prev };
       if (quantity <= 0) {
@@ -186,8 +197,24 @@ function App() {
       } else {
         newCart[itemId] = quantity;
       }
+      if (Object.keys(newCart).length === 0) {
+        setCartRestaurant(null);
+        try { sessionStorage.removeItem('bitebox_cart_restaurant'); } catch {}
+      } else {
+        const targetRest = itemRestaurant || selectedRestaurant;
+        if (targetRest) {
+          setCartRestaurant(targetRest);
+          try { sessionStorage.setItem('bitebox_cart_restaurant', JSON.stringify(targetRest)); } catch {}
+        }
+      }
       return newCart;
     });
+  };
+
+  const handleReplaceCart = (itemId, quantity, newRestaurant) => {
+    setCart({ [itemId]: quantity });
+    setCartRestaurant(newRestaurant);
+    try { sessionStorage.setItem('bitebox_cart_restaurant', JSON.stringify(newRestaurant)); } catch {}
   };
 
   const handleBackToListing = () => {
@@ -206,6 +233,9 @@ function App() {
   };
 
   const goToCheckout = () => {
+    if (cartRestaurant && selectedRestaurant?.id !== cartRestaurant.id) {
+      setSelectedRestaurant(cartRestaurant);
+    }
     setCurrentScreen('checkout');
   };
 
@@ -223,6 +253,8 @@ function App() {
 
   const handlePaymentSuccess = () => {
     setCart({});
+    setCartRestaurant(null);
+    try { sessionStorage.removeItem('bitebox_cart_restaurant'); } catch {}
     setCurrentScreen('tracking');
     try {
       sessionStorage.setItem('bitebox_active_screen', 'tracking');
@@ -273,6 +305,8 @@ function App() {
             cart={cart}
             updateCart={updateCart}
             onViewCart={goToCheckout}
+            cartRestaurant={cartRestaurant}
+            onReplaceCart={handleReplaceCart}
           />
         )}
 
@@ -305,11 +339,13 @@ function App() {
               setCurrentScreen('listing');
               setSelectedRestaurant(null);
               setCart({});
+              setCartRestaurant(null);
               setOrderDetails(null);
               try {
                 sessionStorage.removeItem('bitebox_active_screen');
                 sessionStorage.removeItem('bitebox_active_order');
                 sessionStorage.removeItem('bitebox_active_restaurant');
+                sessionStorage.removeItem('bitebox_cart_restaurant');
               } catch {}
             }} 
           />

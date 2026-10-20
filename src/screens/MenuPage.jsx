@@ -3,12 +3,13 @@ import './MenuPage.css';
 import ImageWithFallback from '../components/ImageWithFallback';
 import { apiService } from '../services/apiService';
 
-const MenuPage = ({ restaurant, onBack, cart, updateCart, onViewCart }) => {
+const MenuPage = ({ restaurant, onBack, cart, updateCart, onViewCart, cartRestaurant, onReplaceCart }) => {
   const [menuItems, setMenuItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeCategory, setActiveCategory] = useState('');
   const [lastUpdatedId, setLastUpdatedId] = useState(null);
+  const [replaceModal, setReplaceModal] = useState({ isOpen: false, itemId: null, qty: 1 });
 
   // Load menu items from API for the selected restaurant
   const loadMenu = useCallback(async () => {
@@ -55,7 +56,18 @@ const MenuPage = ({ restaurant, onBack, cart, updateCart, onViewCart }) => {
   });
 
   const handleUpdateCart = (itemId, newQty) => {
-    updateCart(itemId, newQty);
+    const hasDifferentRestaurantCart = 
+      newQty > 0 && 
+      cartRestaurant && 
+      cartRestaurant.id !== restaurant.id && 
+      Object.keys(cart).length > 0;
+
+    if (hasDifferentRestaurantCart) {
+      setReplaceModal({ isOpen: true, itemId, qty: newQty });
+      return;
+    }
+
+    updateCart(itemId, newQty, restaurant);
     setLastUpdatedId(itemId);
     setTimeout(() => setLastUpdatedId(null), 200);
   };
@@ -84,6 +96,14 @@ const MenuPage = ({ restaurant, onBack, cart, updateCart, onViewCart }) => {
         <div className="demo-disclaimer-banner" role="note">
           Demo prototype: menus and prices are sample data and no real order is placed.
         </div>
+
+        {/* Notice if cart has items from another restaurant */}
+        {cartRestaurant && cartRestaurant.id !== restaurant.id && Object.keys(cart).length > 0 && (
+          <div className="other-cart-notice-banner">
+            <span>🛒</span>
+            <span>Your cart has items from <strong>{cartRestaurant.name}</strong>. Adding items here will start a new cart.</span>
+          </div>
+        )}
         {/* Category Tabs */}
         {!isLoading && !error && categories.length > 0 && (
           <div className="category-tabs">
@@ -199,6 +219,44 @@ const MenuPage = ({ restaurant, onBack, cart, updateCart, onViewCart }) => {
           </div>
           <div className="view-cart-action font-bold">
             View Cart 🛒
+          </div>
+        </div>
+      )}
+
+      {/* Replace Cart Confirmation Modal */}
+      {replaceModal.isOpen && (
+        <div className="replace-modal-overlay" onClick={() => setReplaceModal({ isOpen: false, itemId: null, qty: 1 })}>
+          <div className="replace-modal-content" onClick={e => e.stopPropagation()}>
+            <div className="replace-modal-icon">🛒</div>
+            <h3 className="replace-modal-title">Replace cart items?</h3>
+            <p className="replace-modal-desc">
+              Your cart contains items from <strong>{cartRestaurant?.name || 'another restaurant'}</strong>.
+              Would you like to discard your existing cart and start a fresh order from <strong>{restaurant.name}</strong>?
+            </p>
+            <div className="replace-modal-actions">
+              <button 
+                className="replace-modal-btn cancel-btn"
+                onClick={() => setReplaceModal({ isOpen: false, itemId: null, qty: 1 })}
+              >
+                Cancel
+              </button>
+              <button 
+                className="replace-modal-btn confirm-btn"
+                onClick={() => {
+                  if (onReplaceCart) {
+                    onReplaceCart(replaceModal.itemId, replaceModal.qty, restaurant);
+                  } else {
+                    Object.keys(cart).forEach(id => updateCart(id, 0));
+                    updateCart(replaceModal.itemId, replaceModal.qty, restaurant);
+                  }
+                  setReplaceModal({ isOpen: false, itemId: null, qty: 1 });
+                  setLastUpdatedId(replaceModal.itemId);
+                  setTimeout(() => setLastUpdatedId(null), 200);
+                }}
+              >
+                Discard & Add
+              </button>
+            </div>
           </div>
         </div>
       )}
