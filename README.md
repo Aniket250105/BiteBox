@@ -1,6 +1,6 @@
 # BiteBox - Food Delivery Web Application
 
-BiteBox is a full-stack food delivery web application built with React, Vite, Express, and SQLite. It features realistic restaurant menus, server-computed bill arithmetic, atomic payments, delivery route animation on Leaflet maps, a restaurant kitchen dispatch portal, and evaluator rehearsal controls.
+BiteBox is a full-stack food delivery web application built with React, Vite, Express, and SQLite. It features realistic restaurant menus, server-computed bill arithmetic, atomic payments, simulated delivery route animation on Leaflet maps, a restaurant kitchen dispatch portal, and evaluator rehearsal controls.
 
 ---
 
@@ -65,7 +65,7 @@ The application includes several controls designed specifically for walkthroughs
    - Verifies atomic stock restoration and full refund issuance for UPI/Card orders (or *"No charge made"* for Cash on Delivery).
 
 5. **Trip Speed Multiplier & Auto-Run**:
-   - On the Order Tracking screen, evaluators can fast-forward delivery states using **Simulate Next ▶** or trigger the 45-second animated **▶ Auto-Run** at 1x, 2x, or 5x speed along the road-aligned GPS route.
+   - On the Order Tracking screen, evaluators can fast-forward delivery states using **Simulate Next ▶** or trigger the 45-second animated **▶ Auto-Run** at 1x, 2x, or 5x speed along the simulated, illustrative route.
 
 6. **Resume After Refresh**:
    - Active orders on the Payment and Order Tracking screens are stored in session storage (`bitebox_active_order`, `bitebox_active_screen`).
@@ -142,13 +142,15 @@ All calculations are enforced strictly on the backend:
    - To respect customer privacy, the portal displays **only** the order number, itemized dishes, bill totals, and payment type; customer personal names and telephone numbers are not exposed.
    - **Production Requirement**: In a commercial deployment, this requires dedicated restaurant owner/staff authentication accounts, granular multi-tenant Role-Based Access Control (RBAC), tenant database isolation, and restaurant audit logging.
 
-2. **Delivery Fleet Dispatch**:
+2. **Delivery Fleet Dispatch & Simulated Tracking Route**:
    - The delivery partner assignment (`Ramesh Kumar`, Ather 450X) is simulated server-side upon restaurant acceptance.
-   - **Production Requirement**: A production release requires integration with a dedicated delivery partner app, real-time geofenced driver matchmaking, and live GPS telemetry over WebSockets/MQTT.
+   - **Simulated Tracking Route**: The route displayed on the live Leaflet map is an illustrative, simulated route generated between restaurant and delivery coordinates using intermediate waypoints, not a real turn-by-turn road route from a navigation provider.
+   - **Production Requirement**: A commercial deployment requires integration with a dedicated driver fleet app, real-time geofenced driver matchmaking, turn-by-turn road navigation (e.g., via OSRM or Google Maps Directions API), and live GPS telemetry over WebSockets/MQTT.
 
 3. **OpenStreetMap Live Integration, Opening Hours & Location Privacy**:
    - **Opening Hours**: OpenStreetMap entities default to open (`is_open = 1`) as full parsing of arbitrary OSM `opening_hours` syntax requires external specialized rule parsers. Raw `opening_hours` tags are preserved in memory and payload objects.
-   - **Location Privacy & Query Center**: Overpass API requests use the rounded cache cell centre (`lat` and `lng` rounded to 3 decimal places $\approx 110\text{ m}$ grid, e.g. `13.169, 77.535`), never the customer's raw or exact coordinates. Raw customer coordinates are never transmitted over the network or stored in the database. Customer locations are persisted only as coarse, rounded cache cell keys (`lat.toFixed(3)_lng.toFixed(3)_radius`) in the `geo_cache` table.
+   - **Location Privacy & Cache Grid**: Overpass API queries and the local `geo_cache` table only ever see and store the coarse, rounded cache cell centre (`lat` and `lng` rounded to 3 decimal places $\approx 110\text{ m}$ grid, e.g. `13.169, 77.535`, cached under keys such as `13.169_77.535_3000`). Third-party Overpass API servers never receive raw or exact customer coordinates.
+   - **Exact Order Coordinates**: The `orders` table specifically stores the customer's exact delivery coordinates (`delivery_lat`, `delivery_lng`) and delivery address (`delivery_address`) because physical delivery fulfillment and map destination rendering require them.
 
 ---
 
