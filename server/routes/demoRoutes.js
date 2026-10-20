@@ -78,8 +78,12 @@ const handleResetDemoData = (req, res) => {
       db.prepare(`UPDATE menu_items SET is_available = 1, stock_quantity = 50 WHERE id = 'm203'`).run();
       db.prepare(`UPDATE menu_items SET is_available = 1, stock_quantity = 20 WHERE id = 'm204'`).run();
 
-      // Any other menu items
-      db.prepare(`UPDATE menu_items SET is_available = 1, stock_quantity = 50 WHERE id NOT IN ('m1','m2','m3','m4','m5','m6','m7','m201','m202','m203','m204')`).run();
+      // Generated menu items (OSM) and other seeded items: restore stock to 50 for available items
+      db.prepare(`
+        UPDATE menu_items 
+        SET stock_quantity = 50 
+        WHERE is_available = 1 AND id NOT IN ('m1','m2','m3','m4','m5','m6','m7','m201','m202','m203','m204')
+      `).run();
 
       // 3. Ensure demo user (aniket@bitebox.com) is present and has default password
       const demoUser = db.prepare(`SELECT id FROM customers WHERE email = 'aniket@bitebox.com'`).get();

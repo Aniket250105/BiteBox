@@ -3,12 +3,13 @@ import { orderRepository } from '../repositories/orderRepository.js';
 import { restaurantRepository } from '../repositories/restaurantRepository.js';
 import { couponRepository } from '../repositories/couponRepository.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
+import { haversineDistanceKm } from '../services/overpassService.js';
 import db from '../db.js';
 
 const router = Router();
 
 // Helper to compute quote from database
-function computeOrderQuote({ restaurantId, items, deliveryAddress, couponCode }) {
+function computeOrderQuote({ restaurantId, items, deliveryAddress, deliveryLat, deliveryLng, couponCode }) {
   if (!restaurantId) {
     const err = new Error('Please select a restaurant.');
     err.statusCode = 400;
@@ -22,14 +23,46 @@ function computeOrderQuote({ restaurantId, items, deliveryAddress, couponCode })
     throw err;
   }
 
-  // Verify restaurant serves the delivery area if address provided
-  if (deliveryAddress && deliveryAddress.trim()) {
-    const matchingRestaurants = restaurantRepository.findByArea(deliveryAddress);
-    const servesArea = matchingRestaurants.some(r => r.id === restaurantId);
-    if (!servesArea) {
-      const err = new Error(`${restaurant.name} does not deliver to ${deliveryAddress}.`);
+  // Verify delivery eligibility
+  const maxRadiusKm = Number(process.env.DELIVERY_RADIUS_KM) || 3;
+
+  if (restaurant.source === 'osm') {
+    let lat = Number(deliveryLat);
+    let lng = Number(deliveryLng);
+
+    // Fallback: resolve from known preset hub addresses if coordinates not explicitly passed
+    if ((!Number.isFinite(lat) || !Number.isFinite(lng)) && deliveryAddress) {
+      const cleanAddr = deliveryAddress.toLowerCase();
+      if (cleanAddr.includes('presidency')) { lat = 13.1693; lng = 77.5348; }
+      else if (cleanAddr.includes('indiranagar')) { lat = 12.9830; lng = 77.6350; }
+      else if (cleanAddr.includes('koramangala')) { lat = 12.9345; lng = 77.6265; }
+      else if (cleanAddr.includes('mg road') || cleanAddr.includes('church')) { lat = 12.9755; lng = 77.6050; }
+    }
+
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+      const err = new Error('Delivery coordinates are required to verify the 3 km delivery radius.');
       err.statusCode = 400;
       throw err;
+    }
+
+    const dist = haversineDistanceKm(lat, lng, restaurant.lat, restaurant.lng);
+    if (dist > maxRadiusKm) {
+      const err = new Error(`${restaurant.name} is beyond the ${maxRadiusKm} km delivery radius (${dist.toFixed(1)} km away).`);
+      err.statusCode = 400;
+      throw err;
+    }
+  } else {
+    // Seeded restaurant
+    if (deliveryAddress && deliveryAddress.trim()) {
+      const matchingRestaurants = restaurantRepository.findByArea(deliveryAddress);
+      const servesArea = matchingRestaurants.some(r => r.id === restaurantId);
+      // If GPS coordinates provided or fallback mode, treat seeded restaurants as deliverable
+      const hasGps = Number.isFinite(Number(deliveryLat)) && Number.isFinite(Number(deliveryLng));
+      if (!servesArea && !hasGps) {
+        const err = new Error(`${restaurant.name} does not deliver to ${deliveryAddress}.`);
+        err.statusCode = 400;
+        throw err;
+      }
     }
   }
 
@@ -171,8 +204,30 @@ function computeOrderQuote({ restaurantId, items, deliveryAddress, couponCode })
 // POST /api/orders/quote
 router.post('/quote', (req, res) => {
   try {
-    const { restaurantId, items, deliveryAddress, couponCode } = req.body;
-    const quote = computeOrderQuote({ restaurantId, items, deliveryAddress, couponCode });
+    const { restaurantId, items, deliveryAddress, deliveryLat, deliveryLng, couponCode } = req.body;
+
+    // Validate coordinates if provided
+    if (deliveryLat !== undefined && deliveryLat !== null && deliveryLat !== '') {
+      const numLat = Number(deliveryLat);
+      if (!Number.isFinite(numLat) || numLat < -90 || numLat > 90) {
+        return res.status(400).json({ error: 'Invalid delivery latitude. Must be between -90 and 90.' });
+      }
+    }
+    if (deliveryLng !== undefined && deliveryLng !== null && deliveryLng !== '') {
+      const numLng = Number(deliveryLng);
+      if (!Number.isFinite(numLng) || numLng < -180 || numLng > 180) {
+        return res.status(400).json({ error: 'Invalid delivery longitude. Must be between -180 and 180.' });
+      }
+    }
+
+    const quote = computeOrderQuote({
+      restaurantId,
+      items,
+      deliveryAddress,
+      deliveryLat,
+      deliveryLng,
+      couponCode
+    });
     return res.status(200).json(quote);
   } catch (err) {
     return res.status(err.statusCode || 500).json({
@@ -201,11 +256,27 @@ router.post('/', authMiddleware, (req, res) => {
       return res.status(400).json({ error: 'Delivery address is required.' });
     }
 
+    // Validate coordinates if provided
+    if (deliveryLat !== undefined && deliveryLat !== null && deliveryLat !== '') {
+      const numLat = Number(deliveryLat);
+      if (!Number.isFinite(numLat) || numLat < -90 || numLat > 90) {
+        return res.status(400).json({ error: 'Invalid delivery latitude. Must be between -90 and 90.' });
+      }
+    }
+    if (deliveryLng !== undefined && deliveryLng !== null && deliveryLng !== '') {
+      const numLng = Number(deliveryLng);
+      if (!Number.isFinite(numLng) || numLng < -180 || numLng > 180) {
+        return res.status(400).json({ error: 'Invalid delivery longitude. Must be between -180 and 180.' });
+      }
+    }
+
     // Compute quote to enforce server prices and availability
     const quote = computeOrderQuote({
       restaurantId,
       items,
       deliveryAddress: finalAddress,
+      deliveryLat,
+      deliveryLng,
       couponCode
     });
 

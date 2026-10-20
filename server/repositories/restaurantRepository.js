@@ -1,4 +1,5 @@
 import db from '../db.js';
+import { getOrGenerateMenu } from '../services/menuGenerator.js';
 
 export const restaurantRepository = {
   findAll() {
@@ -38,6 +39,11 @@ export const restaurantRepository = {
   },
 
   getMenuByRestaurantId(restaurantId) {
+    const restaurant = this.findById(restaurantId);
+    if (restaurant && restaurant.source === 'osm') {
+      return getOrGenerateMenu(db, restaurant);
+    }
+
     return db.prepare(`
       SELECT * FROM menu_items 
       WHERE restaurant_id = ?

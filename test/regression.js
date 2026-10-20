@@ -19,6 +19,16 @@ const TEST_PORT = process.env.TEST_PORT ? parseInt(process.env.TEST_PORT, 10) : 
 const { default: db } = await import('../server/db.js');
 const { seedDatabase } = await import('../server/seed.js');
 const { default: app } = await import('../server/server.js');
+const {
+  normalizeOsmElement,
+  haversineDistanceKm,
+  getNearbyRestaurants,
+  upsertOsmRestaurants
+} = await import('../server/services/overpassService.js');
+const {
+  generateMenuForRestaurant,
+  getOrGenerateMenu
+} = await import('../server/services/menuGenerator.js');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'bitebox_jwt_secret_dev_key_2026';
 const API_URL = `http://localhost:${TEST_PORT}/api`;
@@ -491,6 +501,298 @@ async function runRegressionSuite() {
     body: JSON.stringify({ identifier: 'aniket@bitebox.com', password: 'password123' })
   });
   assert(postResetLoginRes.status === 200, 'Demo account aniket@bitebox.com logs in successfully after reset');
+
+  // =========================================================================
+  // STAGE 5a: Live Nearby Restaurants (OSM), Caching & Expanded Menus
+  // =========================================================================
+  console.log('\n📌 [Stage 5a] Live Nearby Restaurants (OSM), Caching & Expanded Menus');
+
+  // 1. Validation of lat/lng query parameters on GET /api/restaurants/nearby
+  const noCoordsRes = await fetch(`${API_URL}/restaurants/nearby`);
+  assert(noCoordsRes.status === 400, 'Missing lat/lng returns HTTP 400');
+
+  const nanCoordsRes = await fetch(`${API_URL}/restaurants/nearby?lat=invalid&lng=77.53`);
+  assert(nanCoordsRes.status === 400, 'Non-numeric lat returns HTTP 400');
+
+  const outOfRangeRes = await fetch(`${API_URL}/restaurants/nearby?lat=95&lng=77.53`);
+  assert(outOfRangeRes.status === 400, 'Out-of-range lat (>90) returns HTTP 400');
+
+  const outOfRangeLngRes = await fetch(`${API_URL}/restaurants/nearby?lat=13.16&lng=210`);
+  assert(outOfRangeLngRes.status === 400, 'Out-of-range lng (>180) returns HTTP 400');
+
+  // 2. Overpass normalization, radius filtering (<=3km), and sorting
+  const mockCustomerLat = 13.1693;
+  const mockCustomerLng = 77.5348;
+  const sampleElements = [
+    {
+      type: 'node',
+      id: 88801,
+      lat: 13.1650, // ~0.5 km away
+      lon: 77.5350,
+      tags: { name: 'Close Veg Cafe', amenity: 'cafe', cuisine: 'Cafe', 'diet:vegetarian': 'only' }
+    },
+    {
+      type: 'node',
+      id: 88802,
+      lat: 13.1550, // ~1.6 km away
+      lon: 77.5360,
+      tags: { name: 'Mid Distance Diner', amenity: 'restaurant', cuisine: 'North Indian' }
+    },
+    {
+      type: 'node',
+      id: 88803,
+      lat: 13.1200, // ~5.7 km away (beyond 3 km)
+      lon: 77.5300,
+      tags: { name: 'Far Away Eatery', amenity: 'restaurant', cuisine: 'Chinese' }
+    },
+    {
+      type: 'node',
+      id: 88804,
+      lat: 13.1660,
+      lon: 77.5340,
+      tags: { amenity: 'restaurant' } // Unnamed place
+    }
+  ];
+
+  const norm1 = normalizeOsmElement(sampleElements[0], mockCustomerLat, mockCustomerLng);
+  const norm3 = normalizeOsmElement(sampleElements[2], mockCustomerLat, mockCustomerLng);
+  const norm4 = normalizeOsmElement(sampleElements[3], mockCustomerLat, mockCustomerLng);
+
+  assert(norm4 === null, 'Unnamed OSM place is skipped (returns null)');
+  assert(norm1 !== null && norm1.distanceKm <= 3.0, 'Nearby restaurant is within 3 km');
+  assert(norm3 !== null && norm3.distanceKm > 3.0, 'Distant restaurant correctly calculated > 3 km');
+  assert(norm1.isPureVeg === true, 'Pure veg correctly detected from diet:vegetarian=only');
+  assert(norm1.rating === null, 'OSM restaurant rating is strictly NULL for honesty');
+  assert(norm1.price_for_two === null, 'OSM restaurant price_for_two is strictly NULL');
+
+  // 3. ID collision test: osm_type + osm_id uniqueness
+  const insertCollisionTest = db.prepare(`
+    INSERT OR REPLACE INTO restaurants (id, name, cuisine, rating, delivery_time_est, is_open, image_url, emoji, price_for_two, lat, lng, source, osm_type, osm_id, address)
+    VALUES (?, ?, ?, NULL, NULL, 1, NULL, '🍴', NULL, ?, ?, 'osm', ?, ?, 'Test Address')
+  `);
+  // Node with id 99991
+  insertCollisionTest.run('osm_node_99991', 'Node Place', 'Fast Food', 13.169, 77.534, 'node', 99991);
+  // Way with identical numeric id 99991
+  insertCollisionTest.run('osm_way_99991', 'Way Place', 'Bakery', 13.169, 77.534, 'way', 99991);
+
+  const nodeRow = db.prepare(`SELECT id, osm_type, osm_id FROM restaurants WHERE id = 'osm_node_99991'`).get();
+  const wayRow = db.prepare(`SELECT id, osm_type, osm_id FROM restaurants WHERE id = 'osm_way_99991'`).get();
+  assert(nodeRow.osm_type === 'node' && nodeRow.osm_id === 99991, 'osm_node_99991 inserted successfully');
+  assert(wayRow.osm_type === 'way' && wayRow.osm_id === 99991, 'osm_way_99991 with same numeric id coexists without collision');
+
+  // 4. Seed and Reset NOT touching geo_cache
+  db.prepare(`
+    INSERT OR REPLACE INTO geo_cache (cell_key, fetched_at, payload)
+    VALUES ('test_protected_cell', CURRENT_TIMESTAMP, '[]')
+  `).run();
+
+  // Run seedDatabase
+  seedDatabase(db);
+  const cacheAfterSeed = db.prepare(`SELECT count(*) as c FROM geo_cache WHERE cell_key = 'test_protected_cell'`).get();
+  assert(cacheAfterSeed.c === 1, 'seedDatabase() preserves geo_cache without dropping or deleting it');
+
+  // Call POST /api/demo/reset-database
+  const resetCacheRes = await fetch(`${API_URL}/demo/reset-database`, { method: 'POST' });
+  assert(resetCacheRes.status === 200, 'POST /api/demo/reset-database returns HTTP 200');
+  const cacheAfterReset = db.prepare(`SELECT count(*) as c FROM geo_cache WHERE cell_key = 'test_protected_cell'`).get();
+  assert(cacheAfterReset.c === 1, 'Reset Demo Data preserves geo_cache');
+
+  // Clean test key
+  db.prepare(`DELETE FROM geo_cache WHERE cell_key = 'test_protected_cell'`).run();
+
+  // 5. Deterministic Menu Generator
+  const menuRunA = generateMenuForRestaurant({
+    restaurantId: 'osm_node_88801',
+    osmId: 88801,
+    osmType: 'node',
+    cuisine: 'South Indian',
+    name: 'Close Veg Cafe',
+    isPureVeg: true
+  });
+  const menuRunB = generateMenuForRestaurant({
+    restaurantId: 'osm_node_88801',
+    osmId: 88801,
+    osmType: 'node',
+    cuisine: 'South Indian',
+    name: 'Close Veg Cafe',
+    isPureVeg: true
+  });
+
+  assert(menuRunA.length >= 18 && menuRunA.length <= 28, `Menu generator builds 18-28 items: count = ${menuRunA.length}`);
+  assert(JSON.stringify(menuRunA) === JSON.stringify(menuRunB), 'Menu generator is strictly deterministic across runs with same seed');
+  const allVeg = menuRunA.every(item => item.is_veg === 1);
+  assert(allVeg === true, 'Pure-veg restaurant generates 100% vegetarian menu items');
+
+  const categoriesSet = new Set(menuRunA.map(i => i.category));
+  assert(categoriesSet.has('Starters') && categoriesSet.has('Mains') && categoriesSet.has('Desserts'), 'Menu covers required categories');
+
+  const oosItems = menuRunA.filter(i => i.is_available === 0 && i.stock_quantity === 0);
+  assert(oosItems.length >= 1, `Deterministically includes out-of-stock items: count = ${oosItems.length}`);
+
+  // 6. Generated-menu stock restore on Reset
+  const testOsmRest = {
+    id: 'osm_node_7120101',
+    osm_id: 7120101,
+    osm_type: 'node',
+    name: 'New Udupi Grand',
+    cuisine: 'South Indian',
+    is_pure_veg: true
+  };
+  const persistedMenu = getOrGenerateMenu(db, testOsmRest);
+  const testAvailItem = persistedMenu.find(i => i.is_available === 1);
+  assert(Boolean(testAvailItem), 'Found available item in generated menu');
+
+  // Simulate order stock decrement: 50 -> 3
+  db.prepare(`UPDATE menu_items SET stock_quantity = 3 WHERE id = ?`).run(testAvailItem.id);
+  const stockBeforeReset = db.prepare(`SELECT stock_quantity FROM menu_items WHERE id = ?`).get(testAvailItem.id);
+  assert(stockBeforeReset.stock_quantity === 3, 'Simulated stock decrement to 3');
+
+  // Call Reset Demo Data
+  await fetch(`${API_URL}/demo/reset-database`, { method: 'POST' });
+  const stockAfterReset = db.prepare(`SELECT stock_quantity FROM menu_items WHERE id = ?`).get(testAvailItem.id);
+  assert(stockAfterReset.stock_quantity === 50, 'Reset Demo Data restores generated OSM menu items stock to 50');
+
+  // Out of stock item remains 0
+  const oosInDb = db.prepare(`SELECT stock_quantity FROM menu_items WHERE id = ?`).get(oosItems[0].id);
+  if (oosInDb) {
+    assert(oosInDb.stock_quantity === 0, 'Reset Demo Data keeps deterministically out-of-stock items at 0');
+  }
+
+  // 7. Multi-tier Cache & Fallback Cascade
+  // 7a. Mock fetcher throwing network error within 1km of Presidency -> Snapshot fallback
+  const snapshotRes = await getNearbyRestaurants({
+    lat: 13.1693,
+    lng: 77.5348,
+    radiusKm: 3,
+    targetDb: db,
+    overpassFetcher: async () => { throw new Error('Overpass network offline'); }
+  });
+  assert(snapshotRes.source === 'snapshot', `Network failure within 1km falls back to snapshot: ${snapshotRes.source}`);
+  assert(snapshotRes.notice === 'Showing saved restaurants', `Snapshot returns notice: "${snapshotRes.notice}"`);
+  assert(snapshotRes.restaurants.length > 0, `Snapshot loaded restaurants: count = ${snapshotRes.restaurants.length}`);
+
+  // 7b. Mock fetcher throwing network error > 1km from any hub (e.g. 13.50, 77.90) -> Seeded demo fallback
+  const seedFallbackRes = await getNearbyRestaurants({
+    lat: 13.5000,
+    lng: 77.9000,
+    radiusKm: 3,
+    targetDb: db,
+    overpassFetcher: async () => { throw new Error('Overpass network offline'); }
+  });
+  assert(seedFallbackRes.source === 'seed-fallback', `Network failure far from hubs falls back to seeded demo: ${seedFallbackRes.source}`);
+  assert(seedFallbackRes.notice === 'Showing saved restaurants', 'Seeded fallback returns "Showing saved restaurants" notice');
+  assert(seedFallbackRes.restaurants.some(r => r.id === 'r1'), 'Seeded fallback contains Spicy Symphony (r1)');
+
+  // 8. Server-side Delivery Eligibility: OSM vs Seeded
+  // 8a. OSM restaurant within 3 km -> Quote accepted (200)
+  const nearbyOsmQuoteRes = await fetch(`${API_URL}/orders/quote`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      restaurantId: 'osm_node_7120101',
+      items: [{ menuItemId: testAvailItem.id, quantity: 2 }],
+      deliveryAddress: 'Presidency University, Bengaluru',
+      deliveryLat: 13.1693,
+      deliveryLng: 77.5348
+    })
+  });
+  assert(nearbyOsmQuoteRes.status === 200, 'OSM restaurant quote within 3 km accepted with HTTP 200');
+
+  // 8b. OSM restaurant beyond 3 km -> Quote rejected with 400
+  const distantOsmQuoteRes = await fetch(`${API_URL}/orders/quote`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      restaurantId: 'osm_node_7120101', // At Presidency (13.16)
+      items: [{ menuItemId: testAvailItem.id, quantity: 1 }],
+      deliveryAddress: 'Koramangala 4th Block, Bengaluru',
+      deliveryLat: 12.9345, // ~28 km away
+      deliveryLng: 77.6265
+    })
+  });
+  assert(distantOsmQuoteRes.status === 400, 'OSM restaurant beyond 3 km rejected by server quote with HTTP 400');
+  const distantQuoteData = await distantOsmQuoteRes.json();
+  assert(distantQuoteData.error.includes('3 km delivery radius'), `Clear 3 km radius error: "${distantQuoteData.error}"`);
+
+  // 8c. Seeded restaurant with GPS coordinates in fallback mode is accepted
+  const seedGpsQuoteRes = await fetch(`${API_URL}/orders/quote`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      restaurantId: 'r1',
+      items: [{ menuItemId: 'm1', quantity: 1 }],
+      deliveryAddress: 'GPS Detected Location, Karnataka',
+      deliveryLat: 13.1693,
+      deliveryLng: 77.5348
+    })
+  });
+  assert(seedGpsQuoteRes.status === 200, 'Seeded restaurant in GPS fallback mode is accepted by server quote');
+
+  // 9. Complete Order Lifecycle on an OSM Restaurant (Quote -> Order -> Pay -> Reject -> Refund & Stock restore)
+  // Step 9a: Create Order
+  const createOsmOrderRes = await fetch(`${API_URL}/orders`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${tokenCustomer1}`
+    },
+    body: JSON.stringify({
+      restaurantId: 'osm_node_7120101',
+      items: [{ menuItemId: testAvailItem.id, quantity: 2 }],
+      deliveryAddress: 'Presidency Gate 2, Bengaluru',
+      deliveryLat: 13.1693,
+      deliveryLng: 77.5348
+    })
+  });
+  assert(createOsmOrderRes.status === 201, 'OSM restaurant order creation returns HTTP 201');
+  const osmOrderData = await createOsmOrderRes.json();
+  const osmOrderId = osmOrderData.orderId || osmOrderData.order?.id;
+  const osmTotalAmount = osmOrderData.totalAmount || osmOrderData.order?.total_amount || osmOrderData.order?.totalAmount;
+  assert(Boolean(osmOrderId), 'Received valid order ID for OSM order');
+
+  // Step 9b: Process UPI Payment
+  const osmPayRes = await fetch(`${API_URL}/payments/process`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${tokenCustomer1}`
+    },
+    body: JSON.stringify({
+      orderId: osmOrderId,
+      paymentMethod: 'UPI'
+    })
+  });
+  assert(osmPayRes.status === 200, 'OSM order UPI payment processed successfully');
+  const osmPayData = await osmPayRes.json();
+  assert(osmPayData.status === 'SUCCESS', 'OSM order payment status is SUCCESS');
+
+  // Stock deducted: 50 - 2 = 48
+  const stockAfterPay = db.prepare(`SELECT stock_quantity FROM menu_items WHERE id = ?`).get(testAvailItem.id);
+  assert(stockAfterPay.stock_quantity === 48, 'Stock deducted atomically on payment (50 - 2 = 48)');
+
+  // Step 9c: Kitchen Rejection & Atomic Refund
+  const osmRejectRes = await fetch(`${API_URL}/orders/${osmOrderId}/decision`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${tokenCustomer1}`
+    },
+    body: JSON.stringify({
+      decision: 'reject',
+      reason: 'Kitchen at full capacity'
+    })
+  });
+  assert(osmRejectRes.status === 200, 'OSM restaurant order rejection returns HTTP 200');
+  const osmRejectData = await osmRejectRes.json();
+  assert(osmRejectData.order?.status === 'rejected' || osmRejectData.status === 'rejected', 'OSM order status transitioned to "rejected"');
+  const refundStatus = osmRejectData.refund?.status || osmRejectData.payment?.refundStatus;
+  const refundAmount = osmRejectData.refund?.amount ?? osmRejectData.payment?.refundAmount;
+  assert(refundStatus === 'REFUNDED', 'Payment status marked REFUNDED');
+  assert(refundAmount === osmTotalAmount, `Full order total refunded (₹${refundAmount} === ₹${osmTotalAmount})`);
+
+  // Stock restored: 48 + 2 = 50
+  const stockAfterReject = db.prepare(`SELECT stock_quantity FROM menu_items WHERE id = ?`).get(testAvailItem.id);
+  assert(stockAfterReject.stock_quantity === 50, 'Stock restored atomically upon order rejection (48 -> 50)');
 
   // =========================================================================
   // SUMMARY

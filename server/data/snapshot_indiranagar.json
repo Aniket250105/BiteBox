@@ -1,0 +1,93 @@
+[
+  {
+    "type": "node",
+    "id": 7220101,
+    "lat": 12.9792,
+    "lon": 77.6405,
+    "tags": {
+      "name": "Toit Brewpub & Kitchen",
+      "amenity": "restaurant",
+      "cuisine": "Italian, Continental",
+      "addr:street": "100 Feet Road",
+      "addr:suburb": "Indiranagar",
+      "addr:city": "Bengaluru",
+      "opening_hours": "12:00-00:00"
+    }
+  },
+  {
+    "type": "node",
+    "id": 7220102,
+    "lat": 12.9815,
+    "lon": 77.6375,
+    "tags": {
+      "name": "Truffles Indiranagar",
+      "amenity": "restaurant",
+      "cuisine": "Burger, American, Fast Food",
+      "addr:street": "100 Feet Road, HAL 2nd Stage",
+      "addr:suburb": "Indiranagar",
+      "addr:city": "Bengaluru",
+      "opening_hours": "11:00-23:00"
+    }
+  },
+  {
+    "type": "node",
+    "id": 7220103,
+    "lat": 12.9770,
+    "lon": 77.6385,
+    "tags": {
+      "name": "Glen's Bakehouse",
+      "amenity": "cafe",
+      "cuisine": "Bakery, Cafe, Desserts",
+      "addr:street": "Lavelle Road Extension, Indiranagar",
+      "addr:suburb": "Indiranagar",
+      "addr:city": "Bengaluru",
+      "opening_hours": "09:00-23:00"
+    }
+  },
+  {
+    "type": "node",
+    "id": 7220104,
+    "lat": 12.9750,
+    "lon": 77.6410,
+    "tags": {
+      "name": "Meghana Foods Indiranagar",
+      "amenity": "restaurant",
+      "cuisine": "Biryani, Andhra",
+      "addr:street": "100 Feet Road",
+      "addr:suburb": "Indiranagar",
+      "addr:city": "Bengaluru",
+      "opening_hours": "11:30-23:00"
+    }
+  },
+  {
+    "type": "node",
+    "id": 7220105,
+    "lat": 12.9840,
+    "lon": 77.6330,
+    "tags": {
+      "name": "Sri Udupi Park",
+      "amenity": "restaurant",
+      "cuisine": "South Indian",
+      "diet:vegetarian": "only",
+      "addr:street": "12th Main, HAL 2nd Stage",
+      "addr:suburb": "Indiranagar",
+      "addr:city": "Bengaluru",
+      "opening_hours": "07:00-22:30"
+    }
+  },
+  {
+    "type": "node",
+    "id": 7220106,
+    "lat": 12.9785,
+    "lon": 77.6390,
+    "tags": {
+      "name": "Third Wave Coffee",
+      "amenity": "cafe",
+      "cuisine": "Coffee, Cafe",
+      "addr:street": "12th Main Road",
+      "addr:suburb": "Indiranagar",
+      "addr:city": "Bengaluru",
+      "opening_hours": "08:00-23:30"
+    }
+  }
+]

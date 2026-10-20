@@ -1,0 +1,93 @@
+[
+  {
+    "type": "node",
+    "id": 7120101,
+    "lat": 13.1625,
+    "lon": 77.5360,
+    "tags": {
+      "name": "New Udupi Grand",
+      "amenity": "restaurant",
+      "cuisine": "South Indian",
+      "diet:vegetarian": "only",
+      "addr:street": "Doddaballapur Main Road",
+      "addr:suburb": "Rajanakunte",
+      "addr:city": "Bengaluru",
+      "opening_hours": "07:00-22:30"
+    }
+  },
+  {
+    "type": "node",
+    "id": 7120102,
+    "lat": 13.1640,
+    "lon": 77.5372,
+    "tags": {
+      "name": "Rajanakunte Biryani House",
+      "amenity": "restaurant",
+      "cuisine": "Biryani, North Indian",
+      "addr:street": "Railway Station Road",
+      "addr:suburb": "Rajanakunte",
+      "addr:city": "Bengaluru",
+      "opening_hours": "11:00-23:00"
+    }
+  },
+  {
+    "type": "node",
+    "id": 7120103,
+    "lat": 13.1685,
+    "lon": 77.5340,
+    "tags": {
+      "name": "Presi Cafe & Bakery",
+      "amenity": "cafe",
+      "cuisine": "Cafe, Bakery",
+      "addr:street": "Campus Approach Rd",
+      "addr:suburb": "Itgalpur",
+      "addr:city": "Bengaluru",
+      "opening_hours": "08:00-21:00"
+    }
+  },
+  {
+    "type": "node",
+    "id": 7120104,
+    "lat": 13.1590,
+    "lon": 77.5390,
+    "tags": {
+      "name": "Highway Food Court",
+      "amenity": "fast_food",
+      "cuisine": "Fast Food, Indian",
+      "addr:street": "SH 9 Doddaballapur Rd",
+      "addr:suburb": "Rajanakunte",
+      "addr:city": "Bengaluru",
+      "opening_hours": "09:00-23:00"
+    }
+  },
+  {
+    "type": "node",
+    "id": 7120105,
+    "lat": 13.1720,
+    "lon": 77.5320,
+    "tags": {
+      "name": "Green Garden Family Restaurant",
+      "amenity": "restaurant",
+      "cuisine": "North Indian, Chinese",
+      "addr:street": "Itgalpur Junction",
+      "addr:suburb": "Rajanakunte",
+      "addr:city": "Bengaluru",
+      "opening_hours": "11:30-22:30"
+    }
+  },
+  {
+    "type": "node",
+    "id": 7120106,
+    "lat": 13.1660,
+    "lon": 77.5350,
+    "tags": {
+      "name": "Chai Point Rajanakunte",
+      "amenity": "cafe",
+      "cuisine": "Cafe, Beverages",
+      "addr:street": "Main Road",
+      "addr:suburb": "Rajanakunte",
+      "addr:city": "Bengaluru",
+      "opening_hours": "07:30-22:00"
+    }
+  }
+]

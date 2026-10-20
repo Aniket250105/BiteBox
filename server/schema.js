@@ -17,14 +17,19 @@ CREATE TABLE IF NOT EXISTS restaurants (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
   cuisine TEXT NOT NULL,
-  rating REAL DEFAULT 4.0,
-  delivery_time_est TEXT NOT NULL,
+  rating REAL,
+  delivery_time_est TEXT,
   is_open INTEGER DEFAULT 1,
   image_url TEXT,
   emoji TEXT,
-  price_for_two INTEGER DEFAULT 250,
+  price_for_two INTEGER,
   lat REAL NOT NULL,
-  lng REAL NOT NULL
+  lng REAL NOT NULL,
+  source TEXT DEFAULT 'seed', -- 'seed' or 'osm'
+  osm_type TEXT, -- 'node', 'way', 'relation'
+  osm_id INTEGER,
+  address TEXT,
+  UNIQUE(osm_type, osm_id)
 );
 
 -- 3. Restaurant Delivery Areas (Relationship: Which areas each restaurant serves)
@@ -129,10 +134,70 @@ CREATE TABLE IF NOT EXISTS order_status_history (
   description TEXT NOT NULL,
   timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+-- 11. Geo Cache (Overpass nearby queries)
+CREATE TABLE IF NOT EXISTS geo_cache (
+  cell_key TEXT PRIMARY KEY,
+  fetched_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  payload TEXT NOT NULL
+);
 `;
 
 export function initSchema(db) {
   db.exec(SCHEMA_SQL);
+
+  // Schema migrations for existing databases
+  try {
+    const tableInfo = db.prepare(`PRAGMA table_info(restaurants)`).all();
+    const cols = new Set(tableInfo.map(c => c.name));
+    const deliveryCol = tableInfo.find(c => c.name === 'delivery_time_est');
+    if (deliveryCol && deliveryCol.notnull === 1) {
+      db.exec(`
+        PRAGMA foreign_keys=off;
+        CREATE TABLE IF NOT EXISTS restaurants_migrated (
+          id TEXT PRIMARY KEY,
+          name TEXT NOT NULL,
+          cuisine TEXT NOT NULL,
+          rating REAL,
+          delivery_time_est TEXT,
+          is_open INTEGER DEFAULT 1,
+          image_url TEXT,
+          emoji TEXT,
+          price_for_two INTEGER,
+          lat REAL NOT NULL,
+          lng REAL NOT NULL,
+          source TEXT DEFAULT 'seed',
+          osm_type TEXT,
+          osm_id INTEGER,
+          address TEXT,
+          UNIQUE(osm_type, osm_id)
+        );
+        INSERT OR IGNORE INTO restaurants_migrated (id, name, cuisine, rating, delivery_time_est, is_open, image_url, emoji, price_for_two, lat, lng, source)
+        SELECT id, name, cuisine, rating, delivery_time_est, is_open, image_url, emoji, price_for_two, lat, lng, 'seed'
+        FROM restaurants;
+        DROP TABLE restaurants;
+        ALTER TABLE restaurants_migrated RENAME TO restaurants;
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_restaurants_osm ON restaurants(osm_type, osm_id) WHERE osm_type IS NOT NULL AND osm_id IS NOT NULL;
+        PRAGMA foreign_keys=on;
+      `);
+    } else {
+      if (!cols.has('source')) {
+        db.exec(`ALTER TABLE restaurants ADD COLUMN source TEXT DEFAULT 'seed'`);
+      }
+      if (!cols.has('osm_type')) {
+        db.exec(`ALTER TABLE restaurants ADD COLUMN osm_type TEXT`);
+      }
+      if (!cols.has('osm_id')) {
+        db.exec(`ALTER TABLE restaurants ADD COLUMN osm_id INTEGER`);
+      }
+      if (!cols.has('address')) {
+        db.exec(`ALTER TABLE restaurants ADD COLUMN address TEXT`);
+      }
+      db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_restaurants_osm ON restaurants(osm_type, osm_id) WHERE osm_type IS NOT NULL AND osm_id IS NOT NULL;`);
+    }
+  } catch (migErr) {
+    // Migration error handler
+  }
 }
 
 // Explicit Order Status List

@@ -1,4 +1,5 @@
 import db from '../db.js';
+import { haversineDistanceKm } from '../services/overpassService.js';
 
 export const paymentRepository = {
   findByOrderId(orderId) {
@@ -19,6 +20,20 @@ export const paymentRepository = {
         const err = new Error('Unauthorized: Order belongs to a different account.');
         err.statusCode = 403;
         throw err;
+      }
+
+      // Verify OSM restaurant delivery radius
+      const restaurant = db.prepare(`SELECT * FROM restaurants WHERE id = ?`).get(order.restaurant_id);
+      if (restaurant && restaurant.source === 'osm') {
+        const maxRadiusKm = Number(process.env.DELIVERY_RADIUS_KM) || 3;
+        if (Number.isFinite(order.delivery_lat) && Number.isFinite(order.delivery_lng)) {
+          const dist = haversineDistanceKm(order.delivery_lat, order.delivery_lng, restaurant.lat, restaurant.lng);
+          if (dist > maxRadiusKm) {
+            const err = new Error(`${restaurant.name} is beyond the ${maxRadiusKm} km delivery radius.`);
+            err.statusCode = 400;
+            throw err;
+          }
+        }
       }
 
       // 2. Fetch current payment row
