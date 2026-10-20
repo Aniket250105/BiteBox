@@ -145,3 +145,7 @@ All calculations are enforced strictly on the backend:
 2. **Delivery Fleet Dispatch**:
    - The delivery partner assignment (`Ramesh Kumar`, Ather 450X) is simulated server-side upon restaurant acceptance.
    - **Production Requirement**: A production release requires integration with a dedicated delivery partner app, real-time geofenced driver matchmaking, and live GPS telemetry over WebSockets/MQTT.
+
+3. **OpenStreetMap Live Integration, Opening Hours & Location Privacy**:
+   - **Opening Hours**: OpenStreetMap entities default to open (`is_open = 1`) as full parsing of arbitrary OSM `opening_hours` syntax requires external specialized rule parsers. Raw `opening_hours` tags are preserved in memory and payload objects.
+   - **Location Privacy**: Customer raw GPS coordinates are never logged or stored in the database. When queries are cached, customer location is stored only as a coarse, rounded cache cell key (`lat` and `lng` rounded to 3 decimal places plus radius, e.g. `13.169_77.535_3`) in the `geo_cache` table.

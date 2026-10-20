@@ -242,3 +242,24 @@ button {
   transform: translateY(-1px);
 }
 
+/* Demo Disclaimer Banner (Menu & Checkout) */
+.demo-disclaimer-banner {
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #d97706;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  margin-bottom: 12px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+[data-theme='dark'] .demo-disclaimer-banner {
+  background: rgba(251, 191, 36, 0.15);
+  border-color: rgba(251, 191, 36, 0.35);
+  color: #fde047;
+}
+
+

@@ -486,3 +486,109 @@
   cursor: pointer;
 }
 
+/* Visible Notice Banner for Fallback Cases */
+.fallback-notice-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(234, 88, 12, 0.1);
+  border: 1px solid rgba(234, 88, 12, 0.35);
+  color: #c2410c;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  animation: fadeIn 0.3s ease;
+}
+
+[data-theme='dark'] .fallback-notice-banner {
+  background: rgba(251, 146, 60, 0.15);
+  border-color: rgba(251, 146, 60, 0.4);
+  color: #fdba74;
+}
+
+.fallback-notice-banner .notice-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.fallback-notice-banner .notice-text {
+  flex: 1;
+  line-height: 1.4;
+}
+
+/* Demo Restaurant Badge */
+.badge-demo-restaurant {
+  display: inline-block;
+  background-color: #6366f1;
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+/* Rating Badges: Real vs "New" */
+.restaurant-rating-new {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 7px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.restaurant-distance {
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+/* Show more button & pagination */
+.show-more-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 20px 0 30px 0;
+  gap: 6px;
+}
+
+.btn-show-more {
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  color: var(--color-text);
+  padding: 10px 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-show-more:hover {
+  background: var(--color-border);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+/* OpenStreetMap attribution footer */
+.osm-attribution-footer {
+  text-align: center;
+  padding: 20px 16px 36px 16px;
+  margin-top: 24px;
+  border-top: 1px solid var(--color-border);
+}
+
+.osm-attribution-footer a {
+  color: var(--color-primary);
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+

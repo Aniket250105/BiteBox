@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import './OrderTracking.css';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -119,23 +119,23 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome }) => {
 
   // Helper to compute waypoints given destination and restaurant
   const resolveCurrentWaypoints = useCallback((order, profile) => {
-    // 1. Destination coordinates: check order, then profile coords, fallback to Indiranagar
-    let destLat = Number(order?.delivery_lat);
-    let destLng = Number(order?.delivery_lng);
+    // 1. Destination coordinates: check order, then orderDetails, then profile coords
+    let destLat = Number(order?.delivery_lat || orderDetails?.delivery_lat);
+    let destLng = Number(order?.delivery_lng || orderDetails?.delivery_lng);
 
     if (isNaN(destLat) || isNaN(destLng) || !destLat || !destLng) {
       if (profile?.coords && Array.isArray(profile.coords) && profile.coords.length === 2) {
         destLat = profile.coords[0];
         destLng = profile.coords[1];
       } else {
-        destLat = 12.9830;
-        destLng = 77.6350;
+        destLat = 13.1693;
+        destLng = 77.5348;
       }
     }
 
     // 2. Restaurant coordinates: check order restaurant, prop restaurant, orderDetails restaurant
-    let restLat = Number(order?.restaurant?.lat || restaurant?.lat || orderDetails?.restaurant?.lat);
-    let restLng = Number(order?.restaurant?.lng || restaurant?.lng || orderDetails?.restaurant?.lng);
+    let restLat = Number(order?.restaurant?.lat || order?.restaurant_lat || restaurant?.lat || orderDetails?.restaurant?.lat || orderDetails?.restaurant_lat);
+    let restLng = Number(order?.restaurant?.lng || order?.restaurant_lng || restaurant?.lng || orderDetails?.restaurant?.lng || orderDetails?.restaurant_lng);
 
     return generateWaypoints(destLat, destLng, restLat, restLng);
   }, [restaurant, orderDetails]);
@@ -527,14 +527,31 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome }) => {
     }
   };
 
+  const routeDistanceKm = useMemo(() => {
+    if (!waypoints || waypoints.length < 2) return 1.5;
+    const [lat1, lon1] = waypoints[0];
+    const [lat2, lon2] = waypoints[waypoints.length - 1];
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return Math.max(0.3, Math.round(R * c * 10) / 10);
+  }, [waypoints]);
+
   const calculateEta = () => {
     if (isRejected) return 'Cancelled';
     if (currentStageIndex === 5) return 'Delivered';
-    if (currentStageIndex === 0) return '30 - 35 mins';
-    if (currentStageIndex === 1) return '25 - 30 mins';
-    if (currentStageIndex === 2) return '20 - 25 mins';
-    if (currentStageIndex === 3) return '15 mins';
-    const remainingMinutes = Math.max(1, Math.round(12 * (1 - progress)));
+    const transitMin = Math.max(5, Math.round(routeDistanceKm * 6));
+    const totalMin = 15 + transitMin;
+    if (currentStageIndex === 0) return `${totalMin} - ${totalMin + 5} mins`;
+    if (currentStageIndex === 1) return `${Math.max(15, totalMin - 5)} - ${totalMin} mins`;
+    if (currentStageIndex === 2) return `${Math.max(10, totalMin - 10)} mins`;
+    if (currentStageIndex === 3) return `${transitMin} mins`;
+    const remainingMinutes = Math.max(1, Math.round(transitMin * (1 - progress)));
     return `${remainingMinutes} mins`;
   };
 

@@ -17,6 +17,8 @@ const RestaurantListing = ({
   onClearExpiredNotice
 }) => {
   const [restaurants, setRestaurants] = useState([]);
+  const [fallbackNotice, setFallbackNotice] = useState(null);
+  const [displayLimit, setDisplayLimit] = useState(20);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -48,24 +50,46 @@ const RestaurantListing = ({
 
   const filters = ['All', 'Rating 4.0+', 'Under 30 min', 'Pure veg'];
 
-  // Load restaurants based on active user delivery location
+  // Load restaurants based on active user delivery location & coordinates
   const loadRestaurants = useCallback(async () => {
     if (!isAuthLocationComplete) return;
     setIsLoading(true);
     setError(null);
+    setDisplayLimit(20);
+
+    let lat = 13.1693;
+    let lng = 77.5348;
+    if (userProfile?.coords && Array.isArray(userProfile.coords) && userProfile.coords.length === 2) {
+      lat = userProfile.coords[0];
+      lng = userProfile.coords[1];
+    } else if (userProfile?.address) {
+      const matched = PRESET_LOCATIONS.find(p => p.address === userProfile.address || (p.name && userProfile.address.includes(p.name)));
+      if (matched) {
+        lat = matched.coords[0];
+        lng = matched.coords[1];
+      }
+    }
+
     try {
-      const list = await apiService.fetchRestaurants(userProfile?.address || '');
-      setRestaurants(list);
+      const res = await apiService.fetchNearbyRestaurants({ lat, lng, radiusKm: 3 });
+      setRestaurants(res.restaurants || []);
+      setFallbackNotice(res.notice || null);
     } catch (err) {
       setError(err.message || 'Unable to load restaurants. Please check your network connection.');
+      setFallbackNotice(null);
     } finally {
       setIsLoading(false);
     }
-  }, [isAuthLocationComplete, userProfile?.address]);
+  }, [isAuthLocationComplete, userProfile?.coords, userProfile?.address]);
 
   useEffect(() => {
     loadRestaurants();
   }, [loadRestaurants]);
+
+  // Reset pagination when search or filter changes
+  useEffect(() => {
+    setDisplayLimit(20);
+  }, [searchQuery, activeFilter]);
 
   const filteredRestaurants = restaurants.filter(r => {
     // Search query filter
@@ -77,16 +101,28 @@ const RestaurantListing = ({
     }
 
     // Category / chip filter
-    if (activeFilter === 'Rating 4.0+') return (Number(r.rating) || 0) >= 4.0;
+    if (activeFilter === 'Rating 4.0+') {
+      // Must exclude null ratings (only rated restaurants >= 4.0)
+      return r.rating !== null && r.rating !== undefined && Number(r.rating) >= 4.0;
+    }
     if (activeFilter === 'Pure veg') {
-      return (r.cuisines || []).some(c => c.toLowerCase().includes('south indian') || c.toLowerCase().includes('veg')) || (r.name || '').includes('Veg');
+      return (
+        r.isPureVeg === true ||
+        (r.cuisines || []).some(c => c.toLowerCase().includes('south indian') || c.toLowerCase().includes('veg')) ||
+        (r.name || '').toLowerCase().includes('veg')
+      );
     }
     if (activeFilter === 'Under 30 min') {
+      if (r.distanceKm !== null && r.distanceKm !== undefined) {
+        return r.distanceKm <= 2.2;
+      }
       const dt = r.deliveryTime || r.delivery_time_est || '';
-      return dt.includes('15-20') || dt.includes('25-30');
+      return dt.includes('15-20') || dt.includes('20-25') || dt.includes('25-30') || dt.includes('19-26');
     }
     return true;
   });
+
+  const visibleRestaurants = filteredRestaurants.slice(0, displayLimit);
 
   const handleOpenLocationModal = () => {
     setLocationAddressInput(userProfile?.address || '');
@@ -301,6 +337,14 @@ const RestaurantListing = ({
       )}
 
       <div className="screen-content">
+        {/* Visible Notice Banner for Fallback Cases */}
+        {fallbackNotice && (
+          <div className="fallback-notice-banner" role="alert" id="fallback-notice-banner">
+            <span className="notice-icon">ℹ️</span>
+            <span className="notice-text">{fallbackNotice}</span>
+          </div>
+        )}
+
         <div className="search-bar-container">
           <input 
             type="text" 
@@ -335,7 +379,7 @@ const RestaurantListing = ({
         {/* Loading Skeletons */}
         {isLoading && (
           <div className="restaurants-list">
-            {[1, 2, 3].map(n => (
+            {[1, 2, 3, 4, 5, 6].map(n => (
               <div key={n} className="restaurant-card" style={{ pointerEvents: 'none' }}>
                 <div className="skeleton" style={{ height: '140px', width: '100%', borderRadius: '12px 12px 0 0' }}></div>
                 <div className="restaurant-details" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -367,55 +411,100 @@ const RestaurantListing = ({
         {!isLoading && !error && filteredRestaurants.length === 0 && (
           <div className="friendly-error-state">
             <div className="friendly-error-icon">🍽️</div>
-            <div className="friendly-error-title">No restaurants available</div>
+            <div className="friendly-error-title">No restaurants within 3 km</div>
             <div className="friendly-error-desc">
               {searchQuery.trim()
                 ? `No restaurants match "${searchQuery}". Try a different keyword.`
-                : `No restaurants currently deliver to ${displayAddress}. Tap below to switch delivery location.`}
+                : `No restaurants found within 3 km of ${displayAddress}. Tap below to retry or switch delivery location.`}
             </div>
-            {!searchQuery.trim() && (
-              <button className="btn-retry" onClick={handleOpenLocationModal}>
-                📍 Change Delivery Area
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: '12px' }}>
+              <button className="btn-retry" onClick={loadRestaurants}>
+                🔄 Retry
               </button>
-            )}
+              <button 
+                className="btn-retry" 
+                style={{ background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)' }}
+                onClick={handleOpenLocationModal}
+              >
+                📍 Change Location
+              </button>
+            </div>
           </div>
         )}
 
         {/* Restaurant Cards List */}
         {!isLoading && !error && filteredRestaurants.length > 0 && (
-          <div className="restaurants-list">
-            {filteredRestaurants.map(restaurant => (
-              <div 
-                key={restaurant.id} 
-                className={`restaurant-card ${!restaurant.isOpen ? 'closed' : ''}`}
-                onClick={() => restaurant.isOpen && onSelectRestaurant(restaurant)}
-              >
-                <div className="restaurant-image">
-                  <ImageWithFallback 
-                    src={restaurant.image} 
-                    fallbackEmoji={restaurant.emoji}
-                    alt={restaurant.name} 
-                  />
-                  {!restaurant.isOpen && <div className="closed-overlay">Currently Closed</div>}
-                </div>
-                <div className="restaurant-details">
-                  <div className="restaurant-header-row">
-                    <h4 className="restaurant-name text-lg font-bold">{restaurant.name}</h4>
-                    <span className="restaurant-rating">⭐ {restaurant.rating}</span>
+          <>
+            <div className="restaurants-list">
+              {visibleRestaurants.map(restaurant => (
+                <div 
+                  key={restaurant.id} 
+                  className={`restaurant-card ${!restaurant.isOpen ? 'closed' : ''}`}
+                  onClick={() => restaurant.isOpen && onSelectRestaurant(restaurant)}
+                >
+                  <div className="restaurant-image">
+                    <ImageWithFallback 
+                      src={restaurant.image} 
+                      fallbackEmoji={restaurant.emoji}
+                      alt={restaurant.name} 
+                    />
+                    {!restaurant.isOpen && <div className="closed-overlay">Currently Closed</div>}
                   </div>
-                  <p className="restaurant-cuisines text-sm text-secondary">
-                    {(restaurant.cuisines || []).join(', ')}
-                  </p>
-                  <div className="restaurant-meta text-xs">
-                    <span className="delivery-time">🕒 {restaurant.deliveryTime || restaurant.delivery_time_est}</span>
-                    <span className="dot">•</span>
-                    <span>₹{restaurant.priceForTwo || 250} for two</span>
+                  <div className="restaurant-details">
+                    <div className="restaurant-header-row">
+                      <h4 className="restaurant-name text-lg font-bold">{restaurant.name}</h4>
+                      {restaurant.rating !== null && restaurant.rating !== undefined ? (
+                        <span className="restaurant-rating">⭐ {restaurant.rating}</span>
+                      ) : (
+                        <span className="restaurant-rating-new">⭐ New</span>
+                      )}
+                    </div>
+                    <p className="restaurant-cuisines text-sm text-secondary">
+                      {(restaurant.cuisines || []).join(', ')}
+                    </p>
+                    <div className="restaurant-meta text-xs">
+                      {(restaurant.isDemoFallback || restaurant.source === 'seed') && (
+                        <span className="badge-demo-restaurant">Demo restaurant</span>
+                      )}
+                      {restaurant.distanceText && (
+                        <span className="restaurant-distance">📍 {restaurant.distanceText}</span>
+                      )}
+                      <span className="delivery-time">🕒 {restaurant.deliveryTime || restaurant.delivery_time_est || '15-25 min'}</span>
+                      {restaurant.priceForTwo ? (
+                        <>
+                          <span className="dot">•</span>
+                          <span>₹{restaurant.priceForTwo} for two</span>
+                        </>
+                      ) : null}
+                    </div>
                   </div>
                 </div>
+              ))}
+            </div>
+
+            {/* Show More Pagination Button */}
+            {filteredRestaurants.length > displayLimit && (
+              <div className="show-more-container">
+                <p className="text-xs text-secondary">
+                  Showing {visibleRestaurants.length} of {filteredRestaurants.length} restaurants
+                </p>
+                <button
+                  className="btn-show-more"
+                  onClick={() => setDisplayLimit(prev => prev + 20)}
+                >
+                  Show more ({filteredRestaurants.length - displayLimit} remaining)
+                </button>
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
+
+        {/* OpenStreetMap Attribution Footer */}
+        <footer className="osm-attribution-footer">
+          <p className="text-xs text-secondary">
+            Restaurant data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors
+          </p>
+        </footer>
       </div>
 
       {/* Change Location Modal */}

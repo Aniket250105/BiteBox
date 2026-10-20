@@ -162,6 +162,7 @@ export function normalizeOsmElement(element, customerLat, customerLng) {
     source: 'osm',
     address,
     opening_hours: tags.opening_hours || null,
+    rawDist: distanceKm,
     distanceKm: Math.round(distanceKm * 10) / 10,
     distanceText: `${(Math.round(distanceKm * 10) / 10).toFixed(1)} km`,
     isPureVeg
@@ -333,17 +334,21 @@ export async function getNearbyRestaurants({
     if (isFresh) {
       try {
         const payload = JSON.parse(cachedRow.payload);
-        // Recalculate dynamic distance & ETA from customer position
-        const processed = payload.map(r => {
-          const dist = haversineDistanceKm(numLat, numLng, r.lat, r.lng);
-          return {
-            ...r,
-            delivery_time_est: computeDeliveryTimeEst(dist),
-            deliveryTime: computeDeliveryTimeEst(dist),
-            distanceKm: Math.round(dist * 10) / 10,
-            distanceText: `${(Math.round(dist * 10) / 10).toFixed(1)} km`
-          };
-        }).sort((a, b) => a.distanceKm - b.distanceKm);
+        // Recalculate dynamic distance & ETA from customer position, strictly filtered using exact haversineDistanceKm <= effectiveRadius
+        const processed = payload
+          .map(r => {
+            const rawDist = haversineDistanceKm(numLat, numLng, r.lat, r.lng);
+            return {
+              ...r,
+              rawDist,
+              delivery_time_est: computeDeliveryTimeEst(rawDist),
+              deliveryTime: computeDeliveryTimeEst(rawDist),
+              distanceKm: Math.round(rawDist * 10) / 10,
+              distanceText: `${(Math.round(rawDist * 10) / 10).toFixed(1)} km`
+            };
+          })
+          .filter(r => r.rawDist <= effectiveRadius)
+          .sort((a, b) => a.rawDist - b.rawDist);
 
         return {
           source: 'cache-fresh',
@@ -357,36 +362,38 @@ export async function getNearbyRestaurants({
     }
   }
 
-  // 2. Overpass API Live Query
+  // 2. Overpass API Live Query (query with slight buffer of 0.3 km to cover the cell)
   try {
-    const rawElements = await overpassFetcher(numLat, numLng, effectiveRadius);
+    const rawElements = await overpassFetcher(numLat, numLng, effectiveRadius + 0.3);
     const normalized = [];
 
     for (const elem of rawElements) {
       const item = normalizeOsmElement(elem, numLat, numLng);
-      if (item && item.distanceKm <= effectiveRadius) {
+      if (item && item.rawDist <= (effectiveRadius + 0.3)) {
         normalized.push(item);
       }
     }
 
-    normalized.sort((a, b) => a.distanceKm - b.distanceKm);
-    const capped = normalized.slice(0, 40);
+    normalized.sort((a, b) => a.rawDist - b.rawDist);
+
+    // Filter strictly to effectiveRadius using unrounded distance for the returned result
+    const forResponse = normalized.filter(r => r.rawDist <= effectiveRadius).slice(0, 40);
 
     // Upsert places into restaurants table
-    if (capped.length > 0) {
-      upsertOsmRestaurants(targetDb, capped);
+    if (forResponse.length > 0) {
+      upsertOsmRestaurants(targetDb, forResponse);
     }
 
-    // Persist into geo_cache
+    // Persist cell elements into geo_cache (capped at 50)
     targetDb.prepare(`
       INSERT OR REPLACE INTO geo_cache (cell_key, fetched_at, payload)
       VALUES (?, CURRENT_TIMESTAMP, ?)
-    `).run(cellKey, JSON.stringify(capped));
+    `).run(cellKey, JSON.stringify(normalized.slice(0, 50)));
 
     return {
       source: 'overpass-live',
-      count: capped.length,
-      restaurants: capped,
+      count: forResponse.length,
+      restaurants: forResponse,
       notice: null
     };
   } catch (_netErr) {
@@ -394,16 +401,20 @@ export async function getNearbyRestaurants({
     if (cachedRow) {
       try {
         const payload = JSON.parse(cachedRow.payload);
-        const processed = payload.map(r => {
-          const dist = haversineDistanceKm(numLat, numLng, r.lat, r.lng);
-          return {
-            ...r,
-            delivery_time_est: computeDeliveryTimeEst(dist),
-            deliveryTime: computeDeliveryTimeEst(dist),
-            distanceKm: Math.round(dist * 10) / 10,
-            distanceText: `${(Math.round(dist * 10) / 10).toFixed(1)} km`
-          };
-        }).sort((a, b) => a.distanceKm - b.distanceKm);
+        const processed = payload
+          .map(r => {
+            const rawDist = haversineDistanceKm(numLat, numLng, r.lat, r.lng);
+            return {
+              ...r,
+              rawDist,
+              delivery_time_est: computeDeliveryTimeEst(rawDist),
+              deliveryTime: computeDeliveryTimeEst(rawDist),
+              distanceKm: Math.round(rawDist * 10) / 10,
+              distanceText: `${(Math.round(rawDist * 10) / 10).toFixed(1)} km`
+            };
+          })
+          .filter(r => r.rawDist <= effectiveRadius)
+          .sort((a, b) => a.rawDist - b.rawDist);
 
         return {
           source: 'cache-stale',
@@ -420,8 +431,8 @@ export async function getNearbyRestaurants({
     const snapshotMatch = getSnapshotIfWithin1Km(numLat, numLng);
     if (snapshotMatch && Array.isArray(snapshotMatch.data)) {
       const processed = snapshotMatch.data.map(elem => normalizeOsmElement(elem, numLat, numLng))
-        .filter(r => r && r.distanceKm <= effectiveRadius)
-        .sort((a, b) => a.distanceKm - b.distanceKm)
+        .filter(r => r && r.rawDist <= effectiveRadius)
+        .sort((a, b) => a.rawDist - b.rawDist)
         .slice(0, 40);
 
       if (processed.length > 0) {
@@ -441,7 +452,7 @@ export async function getNearbyRestaurants({
       source: 'seed-fallback',
       count: seedFallback.length,
       restaurants: seedFallback,
-      notice: 'Showing saved restaurants'
+      notice: 'Live data unavailable. Showing demo restaurants'
     };
   }
 }

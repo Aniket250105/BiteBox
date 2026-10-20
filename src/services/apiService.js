@@ -76,13 +76,43 @@ export const apiService = {
     }
   },
 
-  // Compute order quote server-side from database prices
-  async fetchOrderQuote({ restaurantId, items, deliveryAddress, couponCode }) {
+  // Fetch nearby restaurants (within 3 km radius) using OpenStreetMap / Cache
+  async fetchNearbyRestaurants({ lat, lng, radiusKm = 3 }) {
     try {
+      const token = localStorage.getItem('bitebox_token');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const res = await fetch(`${API_BASE}/restaurants/nearby?lat=${lat}&lng=${lng}&radiusKm=${radiusKm}`, {
+        headers
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to load nearby restaurants.');
+      }
+
+      return await res.json();
+    } catch (err) {
+      handleNetworkError(err);
+    }
+  },
+
+  // Compute order quote server-side from database prices
+  async fetchOrderQuote({ restaurantId, items, deliveryAddress, deliveryLat, deliveryLng, couponCode }) {
+    try {
+      const token = localStorage.getItem('bitebox_token');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const res = await fetch(`${API_BASE}/orders/quote`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ restaurantId, items, deliveryAddress, couponCode })
+        headers,
+        body: JSON.stringify({ restaurantId, items, deliveryAddress, deliveryLat, deliveryLng, couponCode })
       });
 
       const data = await res.json();

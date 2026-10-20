@@ -17,6 +17,8 @@ const TEST_PORT = process.env.TEST_PORT ? parseInt(process.env.TEST_PORT, 10) : 
 
 // 2. Dynamically import database and server so they bind to the test database
 const { default: db } = await import('../server/db.js');
+const { default: Database } = await import('better-sqlite3');
+const { initSchema } = await import('../server/schema.js');
 const { seedDatabase } = await import('../server/seed.js');
 const { default: app } = await import('../server/server.js');
 const {
@@ -507,18 +509,97 @@ async function runRegressionSuite() {
   // =========================================================================
   console.log('\n📌 [Stage 5a] Live Nearby Restaurants (OSM), Caching & Expanded Menus');
 
-  // 1. Validation of lat/lng query parameters on GET /api/restaurants/nearby
-  const noCoordsRes = await fetch(`${API_URL}/restaurants/nearby`);
+  // 1a. Authentication required on GET /api/restaurants/nearby
+  const unauthNearbyRes = await fetch(`${API_URL}/restaurants/nearby`);
+  assert(unauthNearbyRes.status === 401, 'Unauthenticated GET /api/restaurants/nearby rejected with HTTP 401');
+
+  // 1b. Validation of lat/lng query parameters with authenticated JWT
+  const nearbyHeaders = { 'Authorization': `Bearer ${tokenCustomer1}` };
+
+  const noCoordsRes = await fetch(`${API_URL}/restaurants/nearby`, { headers: nearbyHeaders });
   assert(noCoordsRes.status === 400, 'Missing lat/lng returns HTTP 400');
 
-  const nanCoordsRes = await fetch(`${API_URL}/restaurants/nearby?lat=invalid&lng=77.53`);
+  const nanCoordsRes = await fetch(`${API_URL}/restaurants/nearby?lat=invalid&lng=77.53`, { headers: nearbyHeaders });
   assert(nanCoordsRes.status === 400, 'Non-numeric lat returns HTTP 400');
 
-  const outOfRangeRes = await fetch(`${API_URL}/restaurants/nearby?lat=95&lng=77.53`);
+  const outOfRangeRes = await fetch(`${API_URL}/restaurants/nearby?lat=95&lng=77.53`, { headers: nearbyHeaders });
   assert(outOfRangeRes.status === 400, 'Out-of-range lat (>90) returns HTTP 400');
 
-  const outOfRangeLngRes = await fetch(`${API_URL}/restaurants/nearby?lat=13.16&lng=210`);
+  const outOfRangeLngRes = await fetch(`${API_URL}/restaurants/nearby?lat=13.16&lng=210`, { headers: nearbyHeaders });
   assert(outOfRangeLngRes.status === 400, 'Out-of-range lng (>180) returns HTTP 400');
+
+  // 1c. Basic Rate Limiting: 30 requests/minute per IP
+  const rateLimitIp = '198.51.100.77';
+  db.prepare(`
+    INSERT OR REPLACE INTO geo_cache (cell_key, fetched_at, payload)
+    VALUES ('13.160_77.530_3', CURRENT_TIMESTAMP, '[]')
+  `).run();
+  let allUnderLimitOk = true;
+  for (let i = 0; i < 30; i++) {
+    const rlRes = await fetch(`${API_URL}/restaurants/nearby?lat=13.16&lng=77.53`, {
+      headers: { ...nearbyHeaders, 'x-forwarded-for': rateLimitIp }
+    });
+    if (rlRes.status === 429) {
+      allUnderLimitOk = false;
+      break;
+    }
+  }
+  assert(allUnderLimitOk, 'First 30 nearby requests within 1 minute succeed without 429');
+
+  const rateLimitedRes = await fetch(`${API_URL}/restaurants/nearby?lat=13.16&lng=77.53`, {
+    headers: { ...nearbyHeaders, 'x-forwarded-for': rateLimitIp }
+  });
+  assert(rateLimitedRes.status === 429, '31st nearby request from same IP returns HTTP 429 Too Many Requests');
+
+  // 1d. Idempotent Schema Migration from Old Schema
+  const oldDb = new Database(':memory:');
+  oldDb.exec(`
+    CREATE TABLE customers (id INTEGER PRIMARY KEY);
+    CREATE TABLE delivery_agents (id INTEGER PRIMARY KEY);
+    CREATE TABLE coupons (code TEXT PRIMARY KEY);
+    CREATE TABLE orders (id INTEGER PRIMARY KEY);
+    CREATE TABLE restaurants (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      cuisine TEXT NOT NULL,
+      rating REAL NOT NULL,
+      delivery_time_est TEXT NOT NULL,
+      is_open INTEGER NOT NULL DEFAULT 1,
+      image_url TEXT,
+      emoji TEXT,
+      price_for_two INTEGER NOT NULL,
+      lat REAL,
+      lng REAL
+    );
+    INSERT INTO restaurants VALUES ('old_1', 'Old Legacy Eatery', 'North Indian', 4.3, '20-25 min', 1, null, '🍲', 300, 13.16, 77.53);
+  `);
+
+  initSchema(oldDb);
+  const oldCols = oldDb.prepare(`PRAGMA table_info(restaurants)`).all();
+  const oldColNames = oldCols.map(c => c.name);
+  assert(oldColNames.includes('osm_type'), 'Schema migration adds osm_type column');
+  assert(oldColNames.includes('osm_id'), 'Schema migration adds osm_id column');
+  assert(oldColNames.includes('source'), 'Schema migration adds source column');
+  const dteCol = oldCols.find(c => c.name === 'delivery_time_est');
+  assert(dteCol && dteCol.notnull === 0, 'Schema migration makes delivery_time_est nullable');
+
+  // Test inserting OSM restaurant with NULL rating and delivery_time_est
+  oldDb.prepare(`
+    INSERT INTO restaurants (id, name, cuisine, rating, delivery_time_est, is_open, image_url, emoji, price_for_two, lat, lng, source, osm_type, osm_id)
+    VALUES ('osm_node_1001', 'OSM Test Cafe', 'Cafe', NULL, NULL, 1, NULL, '☕', NULL, 13.165, 77.532, 'osm', 'node', 1001)
+  `).run();
+  const osmCheckRow = oldDb.prepare(`SELECT * FROM restaurants WHERE id = 'osm_node_1001'`).get();
+  assert(osmCheckRow && osmCheckRow.rating === null && osmCheckRow.delivery_time_est === null, 'Migrated schema allows NULL rating and delivery_time_est');
+
+  // Assert idempotency by running initSchema a second time
+  let migrationError = null;
+  try {
+    initSchema(oldDb);
+  } catch (err) {
+    migrationError = err;
+  }
+  assert(migrationError === null, 'initSchema is idempotent and does not fail on subsequent runs');
+  oldDb.close();
 
   // 2. Overpass normalization, radius filtering (<=3km), and sorting
   const mockCustomerLat = 13.1693;
@@ -659,6 +740,9 @@ async function runRegressionSuite() {
   }
 
   // 7. Multi-tier Cache & Fallback Cascade
+  // Clear geo_cache so snapshot fallback is tested on cache miss
+  db.prepare(`DELETE FROM geo_cache`).run();
+
   // 7a. Mock fetcher throwing network error within 1km of Presidency -> Snapshot fallback
   const snapshotRes = await getNearbyRestaurants({
     lat: 13.1693,
@@ -680,8 +764,85 @@ async function runRegressionSuite() {
     overpassFetcher: async () => { throw new Error('Overpass network offline'); }
   });
   assert(seedFallbackRes.source === 'seed-fallback', `Network failure far from hubs falls back to seeded demo: ${seedFallbackRes.source}`);
-  assert(seedFallbackRes.notice === 'Showing saved restaurants', 'Seeded fallback returns "Showing saved restaurants" notice');
+  assert(seedFallbackRes.notice === 'Live data unavailable. Showing demo restaurants', 'Seeded fallback returns "Live data unavailable. Showing demo restaurants" notice');
   assert(seedFallbackRes.restaurants.some(r => r.id === 'r1'), 'Seeded fallback contains Spicy Symphony (r1)');
+
+  // 7c. Cached cell ~80m away: Recompute exact haversine distance and filter strictly <= 3.0 km
+  // Customer requested coordinates:
+  const customerExactLat = 13.1693;
+  const customerExactLng = 77.5348;
+  const targetCellKey = `${Number(customerExactLat).toFixed(3)}_${Number(customerExactLng).toFixed(3)}_3`;
+
+  // Restaurant A: ~2.3 km away from customer (well within 3 km)
+  // Restaurant B: ~3.03 km away from customer (beyond 3 km from customer, even if within 3 km of cell center ~80m away)
+  const cachedRestA = {
+    id: 'osm_node_cache_80m_a',
+    name: 'Cached Inside Eatery',
+    cuisine: 'Fast Food',
+    rating: null,
+    delivery_time_est: null,
+    is_open: 1,
+    image_url: null,
+    emoji: '🍕',
+    price_for_two: null,
+    lat: 13.1900,
+    lng: 77.5348,
+    source: 'osm',
+    osm_type: 'node',
+    osm_id: 888001
+  };
+  const cachedRestB = {
+    id: 'osm_node_cache_80m_b',
+    name: 'Cached Borderline Eatery',
+    cuisine: 'Bakery',
+    rating: null,
+    delivery_time_est: null,
+    is_open: 1,
+    image_url: null,
+    emoji: '🥐',
+    price_for_two: null,
+    lat: 13.1966,
+    lng: 77.5348,
+    source: 'osm',
+    osm_type: 'node',
+    osm_id: 888002
+  };
+
+  upsertOsmRestaurants(db, [cachedRestA, cachedRestB]);
+  getOrGenerateMenu(db, cachedRestA);
+  getOrGenerateMenu(db, cachedRestB);
+
+  // Seed fresh cache entry with both elements
+  db.prepare(`
+    INSERT OR REPLACE INTO geo_cache (cell_key, fetched_at, payload)
+    VALUES (?, CURRENT_TIMESTAMP, ?)
+  `).run(targetCellKey, JSON.stringify([cachedRestA, cachedRestB]));
+
+  const cachedCellRes = await getNearbyRestaurants({
+    lat: customerExactLat,
+    lng: customerExactLng,
+    radiusKm: 3,
+    targetDb: db
+  });
+
+  const idsInResponse = cachedCellRes.restaurants.map(r => r.id);
+  assert(idsInResponse.includes('osm_node_cache_80m_a'), 'Cached restaurant within 3 km is listed');
+  assert(!idsInResponse.includes('osm_node_cache_80m_b'), 'Cached restaurant beyond 3 km from customer coordinates in cell 80m away is filtered out');
+
+  // Verify that the listed restaurant is accepted at quote (never listed and then rejected)
+  const menuA = db.prepare(`SELECT id FROM menu_items WHERE restaurant_id = ? AND is_available = 1`).all('osm_node_cache_80m_a');
+  const quoteCachedARes = await fetch(`${API_URL}/orders/quote`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${tokenCustomer1}` },
+    body: JSON.stringify({
+      restaurantId: 'osm_node_cache_80m_a',
+      items: [{ menuItemId: menuA[0].id, quantity: 1 }],
+      deliveryAddress: 'Presidency University, Bengaluru',
+      deliveryLat: customerExactLat,
+      deliveryLng: customerExactLng
+    })
+  });
+  assert(quoteCachedARes.status === 200, 'Listed cached restaurant within 3 km is accepted at quote without rejection');
 
   // 8. Server-side Delivery Eligibility: OSM vs Seeded
   // 8a. OSM restaurant within 3 km -> Quote accepted (200)

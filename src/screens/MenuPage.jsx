@@ -74,12 +74,16 @@ const MenuPage = ({ restaurant, onBack, cart, updateCart, onViewCart }) => {
         <div className="menu-header-info">
           <h2 className="text-xl font-bold">{restaurant.name}</h2>
           <p className="text-sm text-secondary">
-            ⭐ {restaurant.rating} • {restaurant.deliveryTime || restaurant.delivery_time_est}
+            {restaurant.rating !== null && restaurant.rating !== undefined ? `⭐ ${restaurant.rating}` : '⭐ New'} • {restaurant.deliveryTime || restaurant.delivery_time_est || 'Nearby'}
           </p>
         </div>
       </div>
 
       <div className="screen-content menu-content">
+        {/* Demo Disclaimer Banner */}
+        <div className="demo-disclaimer-banner" role="note">
+          Demo prototype: menus and prices are sample data and no real order is placed.
+        </div>
         {/* Category Tabs */}
         {!isLoading && !error && categories.length > 0 && (
           <div className="category-tabs">

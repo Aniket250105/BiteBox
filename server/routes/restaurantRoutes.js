@@ -1,9 +1,32 @@
 import { Router } from 'express';
 import { restaurantRepository } from '../repositories/restaurantRepository.js';
 import { getNearbyRestaurants } from '../services/overpassService.js';
+import { authMiddleware } from '../middleware/authMiddleware.js';
 import db from '../db.js';
 
 const router = Router();
+
+// In-memory sliding window rate limiter: 30 requests per minute per IP
+const rateLimitMap = new Map();
+
+function nearbyRateLimiter(req, res, next) {
+  const forwarded = req.headers['x-forwarded-for'];
+  const ip = (typeof forwarded === 'string' ? forwarded.split(',')[0].trim() : null) || req.ip || req.socket?.remoteAddress || 'unknown';
+  const now = Date.now();
+  const windowMs = 60 * 1000;
+  const maxRequests = 30;
+
+  let timestamps = rateLimitMap.get(ip) || [];
+  timestamps = timestamps.filter(ts => now - ts < windowMs);
+
+  if (timestamps.length >= maxRequests) {
+    return res.status(429).json({ error: 'Too many requests. Please wait a moment before searching again.' });
+  }
+
+  timestamps.push(now);
+  rateLimitMap.set(ip, timestamps);
+  next();
+}
 
 export function formatRestaurant(r) {
   return {
@@ -54,8 +77,8 @@ export function formatMenuItem(m) {
   };
 }
 
-// GET /api/restaurants/nearby?lat=&lng=&radiusKm=3
-router.get('/nearby', async (req, res) => {
+// GET /api/restaurants/nearby?lat=&lng=&radiusKm=3 (Protected, Rate-limited)
+router.get('/nearby', authMiddleware, nearbyRateLimiter, async (req, res) => {
   try {
     const { lat, lng, radiusKm } = req.query;
 

@@ -91,7 +91,7 @@ CREATE TABLE IF NOT EXISTS orders (
   delivery_fee INTEGER NOT NULL,
   discount_amount INTEGER DEFAULT 0,
   total_amount INTEGER NOT NULL,
-  status TEXT NOT NULL, -- 'PLACED', 'AWAITING_DECISION', 'CONFIRMED', 'PREPARING', 'PICKED_UP', 'OUT_FOR_DELIVERY', 'DELIVERED', 'REJECTED', 'CANCELLED'
+  status TEXT NOT NULL, -- 'placed', 'paid, awaiting restaurant decision', 'confirmed', 'preparing', 'picked_up', 'out_for_delivery', 'delivered', 'rejected', 'cancelled'
   rejection_reason TEXT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
@@ -129,7 +129,7 @@ CREATE TABLE IF NOT EXISTS order_status_history (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   order_id INTEGER NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
   agent_id INTEGER REFERENCES delivery_agents(id),
-  stage TEXT NOT NULL, -- 'placed', 'awaiting_decision', 'confirmed', 'preparing', 'picked_up', 'out_delivery', 'delivered', 'rejected'
+  stage TEXT NOT NULL, -- 'placed', 'paid, awaiting restaurant decision', 'confirmed', 'preparing', 'picked_up', 'out_for_delivery', 'delivered', 'rejected', 'cancelled'
   title TEXT NOT NULL,
   description TEXT NOT NULL,
   timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -196,7 +196,8 @@ export function initSchema(db) {
       db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_restaurants_osm ON restaurants(osm_type, osm_id) WHERE osm_type IS NOT NULL AND osm_id IS NOT NULL;`);
     }
   } catch (migErr) {
-    // Migration error handler
+    console.error('Schema migration error:', migErr);
+    throw migErr;
   }
 }
 

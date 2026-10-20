@@ -200,6 +200,11 @@ const CartCheckout = ({
       </div>
 
       <div className="screen-content">
+        {/* Demo Disclaimer Banner */}
+        <div className="demo-disclaimer-banner" role="note">
+          Demo prototype: menus and prices are sample data and no real order is placed.
+        </div>
+
         {/* Out-of-stock or Delivery Area Warning Banner */}
         {quoteError && (
           <div className="quote-error-banner">

@@ -11,7 +11,7 @@ export const orderRepository = {
     const agent = order.delivery_agent_id 
       ? db.prepare(`SELECT id, name, phone, vehicle_model, vehicle_plate, rating FROM delivery_agents WHERE id = ?`).get(order.delivery_agent_id) 
       : null;
-    const restaurant = db.prepare(`SELECT id, name, cuisine, image_url, emoji FROM restaurants WHERE id = ?`).get(order.restaurant_id);
+    const restaurant = db.prepare(`SELECT id, name, cuisine, image_url, emoji, lat, lng FROM restaurants WHERE id = ?`).get(order.restaurant_id);
 
     return {
       ...order,
