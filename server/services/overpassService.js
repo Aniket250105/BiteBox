@@ -320,7 +320,11 @@ export async function getNearbyRestaurants({
   const numLat = Number(lat);
   const numLng = Number(lng);
   const effectiveRadius = Math.min(Math.max(0.5, Number(radiusKm) || 3), Number(process.env.DELIVERY_RADIUS_KM) || 3);
-  const cellKey = `${numLat.toFixed(3)}_${numLng.toFixed(3)}_${effectiveRadius}`;
+  
+  // Cache cell centre: coordinates rounded to 3 decimal places (~110m grid)
+  const cellLat = Number(numLat.toFixed(3));
+  const cellLng = Number(numLng.toFixed(3));
+  const cellKey = `${cellLat.toFixed(3)}_${cellLng.toFixed(3)}_${effectiveRadius}`;
 
   // 1. Fresh Cache Check (24 hours TTL)
   const cachedRow = targetDb.prepare(`
@@ -362,9 +366,9 @@ export async function getNearbyRestaurants({
     }
   }
 
-  // 2. Overpass API Live Query (query with slight buffer of 0.3 km to cover the cell)
+  // 2. Overpass API Live Query using rounded cache cell centre (never raw user coordinates)
   try {
-    const rawElements = await overpassFetcher(numLat, numLng, effectiveRadius + 0.3);
+    const rawElements = await overpassFetcher(cellLat, cellLng, effectiveRadius + 0.3);
     const normalized = [];
 
     for (const elem of rawElements) {

@@ -21,6 +21,7 @@ const RestaurantListing = ({
   const [displayLimit, setDisplayLimit] = useState(20);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [retryCooldown, setRetryCooldown] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('All');
   const [showLocationModal, setShowLocationModal] = useState(false);
@@ -74,9 +75,18 @@ const RestaurantListing = ({
       const res = await apiService.fetchNearbyRestaurants({ lat, lng, radiusKm: 3 });
       setRestaurants(res.restaurants || []);
       setFallbackNotice(res.notice || null);
+      setError(null);
+      setRetryCooldown(0);
     } catch (err) {
-      setError(err.message || 'Unable to load restaurants. Please check your network connection.');
+      const isRateLimit = err.isRateLimited || err.status === 429 || (err.message && err.message.toLowerCase().includes('rate limit'));
+      const friendlyMsg = isRateLimit 
+        ? "You're searching very quickly! Rate limit reached. Retrying automatically in a few seconds..."
+        : (err.message || 'Unable to connect to the BiteBox server. Please ensure the backend is running.');
+      setError(friendlyMsg);
       setFallbackNotice(null);
+      if (isRateLimit) {
+        setRetryCooldown(5);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -85,6 +95,21 @@ const RestaurantListing = ({
   useEffect(() => {
     loadRestaurants();
   }, [loadRestaurants]);
+
+  // Handle countdown and auto-retry for rate limiting
+  useEffect(() => {
+    if (retryCooldown <= 0) return;
+    const timer = setTimeout(() => {
+      setRetryCooldown(prev => {
+        if (prev <= 1) {
+          loadRestaurants();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [retryCooldown, loadRestaurants]);
 
   // Reset pagination when search or filter changes
   useEffect(() => {
@@ -395,15 +420,32 @@ const RestaurantListing = ({
           </div>
         )}
 
-        {/* Error State with Retry Button */}
+        {/* Error State with Countdown Retry */}
         {!isLoading && error && (
           <div className="friendly-error-state">
-            <div className="friendly-error-icon">📡</div>
-            <div className="friendly-error-title">Couldn't load restaurants</div>
+            <div className="friendly-error-icon">
+              {retryCooldown > 0 ? '⏳' : '📡'}
+            </div>
+            <div className="friendly-error-title">
+              {retryCooldown > 0 ? 'Taking a quick breather' : "Couldn't load restaurants"}
+            </div>
             <div className="friendly-error-desc">{error}</div>
-            <button className="btn-retry" onClick={loadRestaurants}>
-              🔄 Try Again
-            </button>
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: '12px' }}>
+              <button 
+                className="btn-retry" 
+                onClick={loadRestaurants}
+                disabled={retryCooldown > 0}
+              >
+                {retryCooldown > 0 ? `⏳ Retrying in ${retryCooldown}s...` : '🔄 Try Again'}
+              </button>
+              <button 
+                className="btn-retry" 
+                style={{ background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)' }}
+                onClick={handleOpenLocationModal}
+              >
+                📍 Change Location
+              </button>
+            </div>
           </div>
         )}
 

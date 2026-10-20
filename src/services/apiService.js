@@ -90,6 +90,12 @@ export const apiService = {
       });
 
       if (!res.ok) {
+        if (res.status === 429) {
+          const err = new Error("You're searching very quickly! Rate limit reached. Retrying automatically in a few seconds...");
+          err.status = 429;
+          err.isRateLimited = true;
+          throw err;
+        }
         const errorData = await res.json().catch(() => ({}));
         throw new Error(errorData.error || 'Failed to load nearby restaurants.');
       }

@@ -148,4 +148,34 @@ All calculations are enforced strictly on the backend:
 
 3. **OpenStreetMap Live Integration, Opening Hours & Location Privacy**:
    - **Opening Hours**: OpenStreetMap entities default to open (`is_open = 1`) as full parsing of arbitrary OSM `opening_hours` syntax requires external specialized rule parsers. Raw `opening_hours` tags are preserved in memory and payload objects.
-   - **Location Privacy**: Customer raw GPS coordinates are never logged or stored in the database. When queries are cached, customer location is stored only as a coarse, rounded cache cell key (`lat` and `lng` rounded to 3 decimal places plus radius, e.g. `13.169_77.535_3`) in the `geo_cache` table.
+   - **Location Privacy & Query Center**: Overpass API requests use the rounded cache cell centre (`lat` and `lng` rounded to 3 decimal places $\approx 110\text{ m}$ grid, e.g. `13.169, 77.535`), never the customer's raw or exact coordinates. Raw customer coordinates are never transmitted over the network or stored in the database. Customer locations are persisted only as coarse, rounded cache cell keys (`lat.toFixed(3)_lng.toFixed(3)_radius`) in the `geo_cache` table.
+
+---
+
+## 📋 Demo Day Checklist
+
+Before demonstrating BiteBox in a live rehearsal, presentation, or review:
+
+1. **Pre-warm Cache at Home While Online**:
+   - Run `npm run warm-cache` on your development machine while connected to reliable home Wi-Fi before heading to the presentation venue.
+   - This pre-queries OpenStreetMap Overpass API and populates `geo_cache` in `bitebox.db` for all 4 primary Bengaluru demonstration hubs (Presidency University, Indiranagar, Koramangala, and MG Road / Church Street).
+
+2. **Do NOT Delete `bitebox.db`**:
+   - The SQLite database file `bitebox.db` holds the pre-warmed geo-cache, registered user accounts, and generated menus.
+   - `npm run seed` and the `Reset Demo Data` action are strictly idempotent and purposefully preserve `geo_cache` and generated OSM menus without deleting them.
+
+3. **Choose a Hub Location If GPS Is Poor**:
+   - If indoor venue walls weaken satellite signals and browser GPS detection times out or is slow, click **Change Location** and select one of the 4 Bengaluru presets (**Presidency University**, **Indiranagar 100ft Rd**, **Koramangala 4th Block**, or **MG Road / Church St**).
+   - All 4 hubs have guaranteed warmed cache entries and instant restaurant listings.
+
+4. **What To Do If Venue Wi-Fi Fails**:
+   - BiteBox features a seamless 4-tier offline fallback cascade (`Fresh Cache` $\to$ `Stale Cache` $\to$ `Offline Snapshot (within 1 km)` $\to$ `Seeded Demo Restaurants`).
+   - If venue internet drops completely, BiteBox will automatically serve the local SQLite cache or bundled snapshot with a clear notice banner (`"Showing saved restaurants"`).
+   - The entire app flow (menu browsing, quoting, cart, payment simulation, and order tracking) continues to function offline with zero blank screens.
+
+5. **Resetting Demo Data Between Rehearsals**:
+   - To start with a clean slate between practice runs, reveal the discreet Demo panel by appending `?demo=1` to the URL or pressing `Ctrl+Shift+D`.
+   - Click **"🔄 Reset Demo Data"** (or trigger `POST /api/demo/reset-database`).
+   - Confirm the prompt: *"This clears all orders and restores stock. Continue?"*.
+   - All past orders and simulated payments will be wiped, inventory will be restored to initial quantities (for both seeded and OSM generated dishes), and the demo account `aniket@bitebox.com` and `geo_cache` will be cleanly preserved.
+
