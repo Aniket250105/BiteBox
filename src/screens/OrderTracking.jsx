@@ -181,7 +181,20 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome }) => {
     try {
       const order = await apiService.fetchOrderById(orderId);
       if (order) {
-        setLiveOrder(order);
+        setLiveOrder(prevOrder => {
+          if (
+            prevOrder &&
+            prevOrder.id === order.id &&
+            prevOrder.status === order.status &&
+            prevOrder.payment_status === order.payment_status &&
+            prevOrder.agent?.id === order.agent?.id &&
+            prevOrder.restaurant?.lat === order.restaurant?.lat &&
+            prevOrder.restaurant?.lng === order.restaurant?.lng
+          ) {
+            return prevOrder;
+          }
+          return order;
+        });
 
         // Map server status to stage index
         const status = order.status;
@@ -215,7 +228,18 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome }) => {
   useEffect(() => {
     if (liveOrder) {
       const newWaypoints = resolveCurrentWaypoints(liveOrder, userProfile);
-      setWaypoints(newWaypoints);
+      setWaypoints(prevWaypoints => {
+        if (prevWaypoints && prevWaypoints.length === newWaypoints.length) {
+          const isIdentical = prevWaypoints.every((pt, idx) =>
+            Math.abs(pt[0] - newWaypoints[idx][0]) < 0.00001 &&
+            Math.abs(pt[1] - newWaypoints[idx][1]) < 0.00001
+          );
+          if (isIdentical) {
+            return prevWaypoints;
+          }
+        }
+        return newWaypoints;
+      });
     }
   }, [liveOrder, userProfile, resolveCurrentWaypoints]);
 
@@ -247,14 +271,11 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome }) => {
   const assignedAgent = liveOrder?.agent || null;
   const isRejected = liveOrder?.status === 'rejected';
 
-  // Initialize Leaflet Map
+  // Initialize Leaflet Map ONCE
   useEffect(() => {
     if (useSchematicMap || !mapContainerRef.current) return;
 
-    if (mapInstanceRef.current) {
-      mapInstanceRef.current.remove();
-      mapInstanceRef.current = null;
-    }
+    if (mapInstanceRef.current) return;
 
     try {
       const startPoint = waypoints[0];
@@ -275,9 +296,13 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome }) => {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors'
       }).addTo(map);
 
+      let consecutiveTileErrors = 0;
       tileLayer.on('tileerror', () => {
-        setTileErrorOccurred(true);
-        setUseSchematicMap(true);
+        consecutiveTileErrors++;
+        if (consecutiveTileErrors > 6) {
+          setTileErrorOccurred(true);
+          setUseSchematicMap(true);
+        }
       });
 
       // 1. Restaurant Marker
@@ -286,7 +311,7 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome }) => {
         html: `
           <div class="marker-container restaurant-pin">
             <div class="pin-badge">🏢</div>
-            <div class="pin-tag">${restaurantName}</div>
+            <div class="pin-tag" id="map-restaurant-pin-tag">${restaurantName}</div>
           </div>
         `,
         iconSize: [42, 42],
@@ -341,6 +366,7 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome }) => {
         iconAnchor: [22, 22]
       });
       agentMarkerRef.current = L.marker(startPoint, { icon: agentIcon, zIndexOffset: 1000 }).addTo(map);
+
       // Invalidate map size after mount and after layout renders
       const timer = setTimeout(() => {
         if (mapInstanceRef.current) {
@@ -368,7 +394,34 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome }) => {
       console.error('Error initializing Leaflet map:', err);
       setUseSchematicMap(true);
     }
-  }, [waypoints, useSchematicMap, restaurantName]);
+  }, [useSchematicMap]);
+
+  // Update existing map markers & route polyline smoothly when waypoints or restaurant name change
+  useEffect(() => {
+    if (useSchematicMap || !mapInstanceRef.current || !waypoints || waypoints.length < 2) return;
+
+    const startPoint = waypoints[0];
+    const endPoint = waypoints[waypoints.length - 1];
+
+    if (restaurantMarkerRef.current) {
+      restaurantMarkerRef.current.setLatLng(startPoint);
+      const tagEl = document.getElementById('map-restaurant-pin-tag');
+      if (tagEl) tagEl.textContent = restaurantName;
+    }
+
+    if (customerMarkerRef.current) {
+      customerMarkerRef.current.setLatLng(endPoint);
+    }
+
+    if (routePolylineRef.current) {
+      routePolylineRef.current.setLatLngs(waypoints);
+    }
+
+    // Only auto-fit bounds on initial state (before scooter starts driving)
+    if (progress === 0 && mapInstanceRef.current) {
+      mapInstanceRef.current.fitBounds(L.latLngBounds(waypoints), { padding: [45, 45] });
+    }
+  }, [waypoints, restaurantName, useSchematicMap, progress]);
 
   // Synchronize Agent position & rotation with progress
   useEffect(() => {
