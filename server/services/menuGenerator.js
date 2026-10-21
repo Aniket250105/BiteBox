@@ -1,5 +1,6 @@
 // Menu generator for OpenStreetMap restaurants
 // Builds deterministic, authentic, restaurant-specific menus based on cuisine tags, pure-veg status, and OSM ID.
+import { BRAND_POOLS } from './brandMenus.js';
 
 function createPRNG(seedNumber) {
   let s = Math.abs(Number(seedNumber) || 42);
@@ -276,32 +277,73 @@ export const CUISINE_POOLS = {
 export function detectCuisineGroup(cuisineString = '', name = '') {
   const text = `${cuisineString} ${name}`.toLowerCase();
 
-  // 1. Bakeries & Cafes
-  if (text.includes('cafe') || text.includes('coffee') || text.includes('bakery') || text.includes('dessert') || text.includes('cake') || text.includes('bakes') || text.includes('pastry') || text.includes('tea') || text.includes('bakehouse')) {
+  // 1. Specific Brand Matches
+  if (text.includes('domino') || text.includes('papa john')) {
+    return 'dominos';
+  }
+  if (text.includes('ikea')) {
+    return 'ikea';
+  }
+  if (text.includes('chai point') || text.includes('chaayos')) {
+    return 'chai_point';
+  }
+  if (text.includes('presi')) {
+    return 'presi_cafe';
+  }
+  if (text.includes('glen') || text.includes('bakehouse')) {
+    return 'glens_bakehouse';
+  }
+  if (text.includes('truffles') || text.includes('leon')) {
+    return 'truffles';
+  }
+  if (text.includes('meghana') || text.includes('nagarjuna')) {
+    return 'meghana_foods';
+  }
+  if (text.includes('empire')) {
+    return 'hotel_empire';
+  }
+  if (text.includes('agarwal') || text.includes('anand sweet') || text.includes('mithai') || text.includes('sweets and restaurant') || text.includes('sweets & savouries')) {
+    return 'agarwal_sweets';
+  }
+  if (text.includes('dhaba') || text.includes('highway')) {
+    return 'dhaba';
+  }
+
+  // 2. Sagar, Darshini, Upahara, Udupi & Bengaluru Pure Veg South Indian
+  if (
+    text.includes('sagar') ||
+    text.includes('darshani') ||
+    text.includes('darshini') ||
+    text.includes('upahara') ||
+    text.includes('bhavan') ||
+    text.includes('udupi') ||
+    text.includes('tiffin') ||
+    text.includes('mandira') ||
+    text.includes('mess') ||
+    text.includes('airlines hotel') ||
+    text.includes('filter coffee') ||
+    text.includes('ಅಮೋಘ') ||
+    text.includes('ಸಾಗರ್')
+  ) {
+    return 'sagar_darshini';
+  }
+
+  // 3. General Cuisine Fallbacks
+  if (text.includes('south indian') || text.includes('dosa') || text.includes('idli') || text.includes('karnataka')) {
+    return 'sagar_darshini';
+  }
+  if (text.includes('cafe') || text.includes('coffee') || text.includes('bakery') || text.includes('dessert') || text.includes('cake') || text.includes('bakes') || text.includes('pastry') || text.includes('tea')) {
     return 'cafe_desserts';
   }
-
-  // 2. South Indian
-  if (text.includes('south indian') || text.includes('dosa') || text.includes('idli') || text.includes('udupi') || text.includes('karnataka') || text.includes('tiffin') || text.includes('bhavan')) {
-    return 'south_indian';
-  }
-
-  // 3. Pizza & Italian
   if (text.includes('pizza') || text.includes('italian') || text.includes('pasta')) {
     return 'pizza_italian';
   }
-
-  // 4. Chinese & Asian
   if (text.includes('chinese') || text.includes('asian') || text.includes('noodles') || text.includes('momos') || text.includes('tibetan')) {
     return 'chinese';
   }
-
-  // 5. Fast Food & Burgers
   if (text.includes('burger') || text.includes('fast_food') || text.includes('fries') || text.includes('chaat') || text.includes('rolls') || text.includes('fried chicken')) {
     return 'fast_food';
   }
-
-  // 6. Biryani, Mughlai & North Indian
   if (text.includes('biryani') || text.includes('mughlai') || text.includes('north indian') || text.includes('punjabi') || text.includes('tandoor') || text.includes('kebab')) {
     return 'north_indian';
   }
@@ -318,7 +360,7 @@ export function generateMenuForRestaurant({ restaurantId, osmId, osmType = 'node
   const prng = createPRNG(seedNum);
 
   const primaryGroupKey = detectCuisineGroup(cuisine, name);
-  const primaryPool = CUISINE_POOLS[primaryGroupKey] || CUISINE_POOLS.north_indian;
+  const primaryPool = BRAND_POOLS[primaryGroupKey] || CUISINE_POOLS[primaryGroupKey] || CUISINE_POOLS.north_indian;
 
   const categories = ['Starters', 'Mains', 'Breads', 'Desserts', 'Beverages'];
   const generatedItems = [];
@@ -382,6 +424,21 @@ export function generateMenuForRestaurant({ restaurantId, osmId, osmType = 'node
         candidate = unselected;
         candidateCat = cat;
         break;
+      }
+    }
+
+    if (!candidate) {
+      // Fallback to pure veg items from sagar_darshini or north_indian if primary pool exhausted
+      const fallbackPool = BRAND_POOLS.sagar_darshini || CUISINE_POOLS.south_indian;
+      for (const cat of ['Mains', 'Starters', 'Desserts', 'Beverages', 'Breads']) {
+        let pool = fallbackPool[cat] || [];
+        if (isPureVeg) pool = pool.filter(i => i.veg);
+        const unselected = pool.find(i => !existingNames.has(i.name));
+        if (unselected) {
+          candidate = unselected;
+          candidateCat = cat;
+          break;
+        }
       }
     }
 
@@ -465,9 +522,11 @@ export function getOrGenerateMenu(targetDb, restaurant) {
     );
   }
 
+  const isSagarOrDarshiniOrSweet = /sagar|darshini|darshani|upahara|bhavan|udupi|tiffin|anand sweet|agarwal sweet|ಅಮೋಘ|ಸಾಗರ್/i.test(`${restaurant.name || ''} ${restaurant.cuisine || ''}`);
   const isPureVeg = (restaurant.cuisine || '').toLowerCase().includes('pure veg') || 
                     (restaurant.name || '').toLowerCase().includes('pure veg') ||
-                    restaurant.is_pure_veg === true;
+                    restaurant.is_pure_veg === true ||
+                    isSagarOrDarshiniOrSweet;
 
   const generated = generateMenuForRestaurant({
     restaurantId: restaurant.id,

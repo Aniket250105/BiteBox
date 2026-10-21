@@ -710,6 +710,38 @@ async function runRegressionSuite() {
   const oosItems = menuRunA.filter(i => i.is_available === 0 && i.stock_quantity === 0);
   assert(oosItems.length >= 1, `Deterministically includes out-of-stock items: count = ${oosItems.length}`);
 
+  // Brand-Specific Authentic Menus Verification
+  const sagarMenu = generateMenuForRestaurant({
+    restaurantId: 'osm_node_11276467448',
+    osmId: 11276467448,
+    name: 'Vijay Sagar Grand',
+    cuisine: 'Restaurant',
+    isPureVeg: true
+  });
+  assert(sagarMenu.every(item => item.is_veg === 1), 'Vijay Sagar Grand generates 100% pure veg South Indian items');
+  const sagarNames = sagarMenu.map(i => i.name).join(' ');
+  assert(/dosa|idli|vada|coffee|bath/i.test(sagarNames), 'Vijay Sagar Grand menu contains authentic South Indian Sagar dishes');
+  assert(!/chicken|mutton|fish|kebab/i.test(sagarNames), 'Vijay Sagar Grand menu contains zero meat or kebabs');
+
+  const dominosMenu = generateMenuForRestaurant({
+    restaurantId: 'osm_node_11998178516',
+    osmId: 11998178516,
+    name: "Domino's",
+    cuisine: 'pizza'
+  });
+  const dominosNames = dominosMenu.map(i => i.name).join(' ');
+  assert(/pizza|garlic bread|choco lava/i.test(dominosNames), "Domino's menu contains authentic pizza and breadsticks");
+
+  const presiMenu = generateMenuForRestaurant({
+    restaurantId: 'osm_node_7120103',
+    osmId: 7120103,
+    name: 'Presi Cafe & Bakery',
+    cuisine: 'Cafe, Bakery'
+  });
+  const presiNames = presiMenu.map(i => i.name).join(' ');
+  assert(/puff|sandwich|pastry|cappuccino|maggi/i.test(presiNames), 'Presi Cafe & Bakery contains campus cafe & bakery offerings');
+  assert(!/wings|biryani|rogan josh/i.test(presiNames), 'Presi Cafe & Bakery contains zero wings or curries');
+
   // 6. Generated-menu stock restore on Reset
   const testOsmRest = {
     id: 'osm_node_7120101',
