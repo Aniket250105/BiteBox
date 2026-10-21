@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import './CartCheckout.css';
 import Toast from '../components/Toast';
 import { apiService } from '../services/apiService';
+import { PRESET_LOCATIONS } from '../services/locationData';
 
 const CartCheckout = ({ 
   restaurant, 
@@ -66,6 +67,32 @@ const CartCheckout = ({
     return cartItems.map(item => ({ menuItemId: item.id, quantity: item.qty }));
   }, [cartItems, menuItems.length]);
 
+  // Resolve delivery coordinates from userProfile coords, address string, or preset locations
+  const resolveDeliveryCoords = useCallback(() => {
+    let lat = userProfile?.coords?.[0];
+    let lng = userProfile?.coords?.[1];
+
+    if (lat !== undefined && lng !== undefined && lat !== null && lng !== null && !isNaN(Number(lat)) && !isNaN(Number(lng))) {
+      return { lat: Number(lat), lng: Number(lng) };
+    }
+
+    // Try extracting from address string like "Current GPS (13.0307, 77.4923)"
+    if (userProfile?.address) {
+      const match = userProfile.address.match(/\(?(-?\d+\.\d+),\s*(-?\d+\.\d+)\)?/);
+      if (match) {
+        return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
+      }
+
+      // Check preset locations
+      const matched = PRESET_LOCATIONS.find(p => p.address === userProfile.address || (p.name && userProfile.address.includes(p.name)));
+      if (matched && matched.coords) {
+        return { lat: matched.coords[0], lng: matched.coords[1] };
+      }
+    }
+
+    return { lat: null, lng: null };
+  }, [userProfile]);
+
   // Request order quote from server (database-backed calculations)
   const fetchQuote = useCallback(async (couponToUse = appliedCouponCode) => {
     if (!restaurant?.id || formattedItems.length === 0) {
@@ -73,6 +100,7 @@ const CartCheckout = ({
       return;
     }
 
+    const coords = resolveDeliveryCoords();
     setIsQuoting(true);
     setQuoteError(null);
     try {
@@ -80,6 +108,8 @@ const CartCheckout = ({
         restaurantId: restaurant.id,
         items: formattedItems,
         deliveryAddress: userProfile?.address || '',
+        deliveryLat: coords.lat,
+        deliveryLng: coords.lng,
         couponCode: couponToUse || undefined
       });
       setServerQuote(quote);
@@ -93,7 +123,7 @@ const CartCheckout = ({
     } finally {
       setIsQuoting(false);
     }
-  }, [restaurant?.id, userProfile?.address, formattedItems, appliedCouponCode]);
+  }, [restaurant?.id, userProfile?.address, formattedItems, appliedCouponCode, resolveDeliveryCoords]);
 
   // Trigger quote recalculation whenever items or delivery address change
   useEffect(() => {
@@ -108,12 +138,15 @@ const CartCheckout = ({
       return;
     }
 
+    const coords = resolveDeliveryCoords();
     setIsQuoting(true);
     try {
       const quote = await apiService.fetchOrderQuote({
         restaurantId: restaurant.id,
         items: formattedItems,
         deliveryAddress: userProfile?.address || '',
+        deliveryLat: coords.lat,
+        deliveryLng: coords.lng,
         couponCode: code
       });
       setServerQuote(quote);
@@ -147,14 +180,15 @@ const CartCheckout = ({
   const handleProceedToPayment = async () => {
     if (!serverQuote || quoteError || isCreatingOrder) return;
 
+    const coords = resolveDeliveryCoords();
     setIsCreatingOrder(true);
     try {
       const orderRes = await apiService.createOrder({
         restaurantId: restaurant.id,
         items: formattedItems,
         deliveryAddress: userProfile?.address || '',
-        deliveryLat: userProfile?.coords?.[0] || null,
-        deliveryLng: userProfile?.coords?.[1] || null,
+        deliveryLat: coords.lat,
+        deliveryLng: coords.lng,
         couponCode: appliedCouponCode || undefined
       });
 

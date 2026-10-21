@@ -26,11 +26,20 @@ function computeOrderQuote({ restaurantId, items, deliveryAddress, deliveryLat, 
   // Verify delivery eligibility
   const maxRadiusKm = Number(process.env.DELIVERY_RADIUS_KM) || 3;
 
-  if (restaurant.source === 'osm') {
-    let lat = Number(deliveryLat);
-    let lng = Number(deliveryLng);
+  let lat = Number(deliveryLat);
+  let lng = Number(deliveryLng);
 
-    // Fallback: resolve from known preset hub addresses if coordinates not explicitly passed
+  if (restaurant.source === 'osm') {
+    // Fallback 1: Extract coordinates directly from delivery address string if formatted like (lat, lng)
+    if ((!Number.isFinite(lat) || !Number.isFinite(lng)) && deliveryAddress) {
+      const match = deliveryAddress.match(/\(?(-?\d+\.\d+),\s*(-?\d+\.\d+)\)?/);
+      if (match) {
+        lat = Number(match[1]);
+        lng = Number(match[2]);
+      }
+    }
+
+    // Fallback 2: resolve from known preset hub addresses if coordinates not explicitly passed
     if ((!Number.isFinite(lat) || !Number.isFinite(lng)) && deliveryAddress) {
       const cleanAddr = deliveryAddress.toLowerCase();
       if (cleanAddr.includes('presidency')) { lat = 13.1693; lng = 77.5348; }
@@ -191,6 +200,8 @@ function computeOrderQuote({ restaurantId, items, deliveryAddress, deliveryLat, 
     restaurantId: restaurant.id,
     restaurantName: restaurant.name,
     deliveryAddress: deliveryAddress || '',
+    deliveryLat: Number.isFinite(lat) ? lat : null,
+    deliveryLng: Number.isFinite(lng) ? lng : null,
     itemTotal,
     taxAmount,
     deliveryFee,
@@ -287,8 +298,8 @@ router.post('/', authMiddleware, (req, res) => {
       customerId,
       restaurantId: quote.restaurantId,
       deliveryAddress: finalAddress,
-      deliveryLat: Number(deliveryLat) || null,
-      deliveryLng: Number(deliveryLng) || null,
+      deliveryLat: Number.isFinite(Number(deliveryLat)) ? Number(deliveryLat) : (quote.deliveryLat || null),
+      deliveryLng: Number.isFinite(Number(deliveryLng)) ? Number(deliveryLng) : (quote.deliveryLng || null),
       couponCode: quote.coupon?.code || null,
       itemTotal: quote.itemTotal,
       taxAmount: quote.taxAmount,
