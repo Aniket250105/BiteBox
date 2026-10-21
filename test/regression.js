@@ -742,6 +742,22 @@ async function runRegressionSuite() {
   assert(/puff|sandwich|pastry|cappuccino|maggi/i.test(presiNames), 'Presi Cafe & Bakery contains campus cafe & bakery offerings');
   assert(!/wings|biryani|rogan josh/i.test(presiNames), 'Presi Cafe & Bakery contains zero wings or curries');
 
+  // Biryani Specialty Verification (e.g. Rajanakunte Biryani House)
+  const biryaniMenu = generateMenuForRestaurant({
+    restaurantId: 'osm_node_7120102',
+    osmId: 7120102,
+    name: 'Rajanakunte Biryani House',
+    cuisine: 'Biryani, North Indian'
+  });
+  const biryaniMains = biryaniMenu.filter(i => i.category === 'Mains');
+  const biryaniMainNames = biryaniMains.map(i => i.name).join(' ');
+  const biryaniCount = biryaniMains.filter(i => /biryani/i.test(i.name)).length;
+  assert(biryaniCount >= 3, `Rajanakunte Biryani House Mains contain multiple biryanis: count = ${biryaniCount}`);
+  assert(/dum biryani|chicken biryani|mutton dum biryani/i.test(biryaniMainNames), 'Rajanakunte Biryani House serves authentic biryanis');
+  const biryaniImages = biryaniMenu.map(i => i.image_url);
+  const hasPizzaImage = biryaniImages.some(img => img.includes('photo-1565299624946-b28f40a0ae38') || img.includes('photo-1593504049359-74330189a345'));
+  assert(!hasPizzaImage, 'Rajanakunte Biryani House contains zero mismatched pizza images');
+
   // 6. Generated-menu stock restore on Reset
   const testOsmRest = {
     id: 'osm_node_7120101',

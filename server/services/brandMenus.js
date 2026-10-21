@@ -9,7 +9,7 @@ export const BRAND_POOLS = {
       { name: 'Paneer Zingy Parcel', veg: true, basePrice: 139, desc: 'Golden pastry pocket filled with paneer chunks tossed in spicy harissa sauce.', img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=300&q=80' },
       { name: 'Cheesy Jalapeno Dip', veg: true, basePrice: 40, desc: 'Velvety cheese dip infused with pickled jalapenos for pizza crusts.', img: 'https://images.unsplash.com/photo-1531749668029-2db88e4276c7?w=300&q=80' },
       { name: 'Chicken Zingy Parcel', veg: false, basePrice: 159, desc: 'Golden flaky crust parcel filled with spicy seasoned chicken and creamy dip.', img: 'https://images.unsplash.com/photo-1562967914-608f82629710?w=300&q=80' },
-      { name: 'Spicy BBQ Chicken Meatballs (8pcs)', veg: false, basePrice: 199, desc: 'Tender chicken meatballs glazed in smoky barbecue sauce with cracked black pepper.', img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300&q=80' },
+      { name: 'Spicy BBQ Chicken Meatballs (8pcs)', veg: false, basePrice: 199, desc: 'Tender chicken meatballs glazed in smoky barbecue sauce with cracked black pepper.', img: 'https://images.unsplash.com/photo-1562967914-608f82629710?w=300&q=80' },
       { name: 'Boneless Peri Peri Wings (6pcs)', veg: false, basePrice: 219, desc: 'Crispy boneless chicken bites tossed in fiery African peri peri seasoning.', img: 'https://images.unsplash.com/photo-1562967914-608f82629710?w=300&q=80' }
     ],
     Mains: [
@@ -50,7 +50,7 @@ export const BRAND_POOLS = {
       { name: 'Nordic Garden Salad with Vinaigrette', veg: true, basePrice: 160, desc: 'Mixed organic greens, cherry tomatoes, pickled beets, and honey-mustard dressing.', img: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=300&q=80' },
       { name: 'Soft Bavarian Pretzel with Mustard', veg: true, basePrice: 110, desc: 'Oven-warm salted Bavarian pretzel served with whipped Dijon butter.', img: 'https://images.unsplash.com/photo-1509722747041-616f39b57569?w=300&q=80' },
       { name: 'Crispy Potato Rösti', veg: true, basePrice: 130, desc: 'Traditional Swiss-style golden pan-fried grated potato cakes.', img: 'https://images.unsplash.com/photo-1576107232684-1279f3908594?w=300&q=80' },
-      { name: 'Chicken Sausage with Mashed Potato', veg: false, basePrice: 180, desc: 'Grilled chicken frankfurter served with potato puree and Swedish brown mustard.', img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300&q=80' }
+      { name: 'Chicken Sausage with Mashed Potato', veg: false, basePrice: 180, desc: 'Grilled chicken frankfurter served with potato puree and Swedish brown mustard.', img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=300&q=80' }
     ],
     Mains: [
       { name: 'Swedish Plant Balls (8pcs)', veg: true, basePrice: 280, desc: 'Plant-based meatballs with mashed potatoes, lingonberry sauce, and rich mushroom gravy.', img: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&q=80' },
@@ -247,7 +247,7 @@ export const BRAND_POOLS = {
       { name: 'Truffles Cheese Garlic Bread', veg: true, basePrice: 150, desc: 'Baguette slices toasted with herb garlic butter and bubbling mozzarella.', img: 'https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?w=300&q=80' },
       { name: 'Crispy Golden Onion Rings (8pcs)', veg: true, basePrice: 140, desc: 'Crisp batter fried thick onion rings with house tartar dip.', img: 'https://images.unsplash.com/photo-1639024471287-032f66453916?w=300&q=80' },
       { name: 'Jalapeno Cheese Poppers (5pcs)', veg: true, basePrice: 160, desc: 'Molten cheese and diced jalapeno poppers fried crunchy.', img: 'https://images.unsplash.com/photo-1531749668029-2db88e4276c7?w=300&q=80' },
-      { name: 'Truffles Buffalo Wings (6pcs)', veg: false, basePrice: 260, desc: 'Crispy fried wings tossed in tangy spicy Buffalo cayenne sauce.', img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300&q=80' },
+      { name: 'Truffles Buffalo Wings (6pcs)', veg: false, basePrice: 260, desc: 'Crispy fried wings tossed in tangy spicy Buffalo cayenne sauce.', img: 'https://images.unsplash.com/photo-1562967914-608f82629710?w=300&q=80' },
       { name: 'Crunchy BBQ Chicken Strips (4pcs)', veg: false, basePrice: 230, desc: 'Tender chicken fillets crusted in spiced crumbs with smoky BBQ dip.', img: 'https://images.unsplash.com/photo-1562967914-608f82629710?w=300&q=80' },
       { name: 'Peri Peri Chicken Popcorn', veg: false, basePrice: 190, desc: 'Bite-sized chicken nuggets dusted with fiery peri peri seasoning.', img: 'https://images.unsplash.com/photo-1562967914-608f82629710?w=300&q=80' }
     ],
@@ -324,20 +324,21 @@ export const BRAND_POOLS = {
       { name: 'Paneer 65', veg: true, basePrice: 240, desc: 'Cottage cheese cubes tossed in spicy curd masala with curry leaves.', img: 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?w=300&q=80' },
       { name: 'Crispy Mushroom Chilli', veg: true, basePrice: 220, desc: 'Crispy fried button mushrooms tossed with capsicum and spicy soy garlic sauce.', img: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&q=80' },
       { name: 'Baby Corn Pepper Fry', veg: true, basePrice: 210, desc: 'Golden fried tender baby corn sautéed with black pepper and curry leaves.', img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=300&q=80' },
-      { name: 'Meghana Special Chicken 555', veg: false, basePrice: 320, desc: 'Crisp fried boneless chicken strips tossed with green chilies, cashews, and garlic.', img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300&q=80' },
+      { name: 'Meghana Special Chicken 555', veg: false, basePrice: 320, desc: 'Crisp fried boneless chicken strips tossed with green chilies, cashews, and garlic.', img: 'https://images.unsplash.com/photo-1562967914-608f82629710?w=300&q=80' },
       { name: 'Andhra Chilli Chicken', veg: false, basePrice: 310, desc: 'Iconic spicy green chili coated dry chicken sauteed with curry leaves.', img: 'https://images.unsplash.com/photo-1562967914-608f82629710?w=300&q=80' },
-      { name: 'Guntur Chicken Roast', veg: false, basePrice: 330, desc: 'Spicy dry roasted chicken infused with fiery Guntur red chilies and ground spices.', img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300&q=80' },
+      { name: 'Guntur Chicken Roast', veg: false, basePrice: 330, desc: 'Spicy dry roasted chicken infused with fiery Guntur red chilies and ground spices.', img: 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?w=300&q=80' },
       { name: 'Mutton Sukka Roast', veg: false, basePrice: 420, desc: 'Tender lamb chunks roasted dry with caramelized shallots and ground black pepper.', img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=300&q=80' }
     ],
     Mains: [
-      { name: 'Meghana Special Paneer Biryani', veg: true, basePrice: 290, desc: 'Fragrant biryani rice layered with spicy tossed paneer cubes and fried onions.', img: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=300&q=80' },
-      { name: 'Mushroom Dum Biryani', veg: true, basePrice: 270, desc: 'Basmati rice dum cooked with juicy marinated button mushrooms and whole spices.', img: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=300&q=80' },
-      { name: 'Andhra Veg Meals Special', veg: true, basePrice: 230, desc: 'Steamed rice, Gongura pachadi, Kandi podi, pure ghee, Pappu, Sambar, Rasam, and Curd.', img: 'https://images.unsplash.com/photo-1625398407796-82650a8c135f?w=300&q=80' },
-      { name: 'Paneer Butter Masala', veg: true, basePrice: 260, desc: 'Fresh malai paneer simmered in creamy cashew-tomato gravy.', img: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=300&q=80' },
       { name: 'Meghana Special Chicken Biryani', veg: false, basePrice: 360, desc: 'Spiced boneless chicken pieces layered over fragrant basmati rice with salan and raita.', img: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=300&q=80' },
       { name: 'Boneless Chicken Biryani', veg: false, basePrice: 350, desc: 'Long grain basmati biryani topped with tender boneless chicken in rich Andhra gravy.', img: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=300&q=80' },
       { name: 'Hyderabadi Mutton Dum Biryani', veg: false, basePrice: 420, desc: 'Tender bone-in mutton slow-cooked on dum with saffron basmati rice and aromatics.', img: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=300&q=80' },
-      { name: 'Natu Kodi Pulusu (Country Chicken)', veg: false, basePrice: 370, desc: 'Traditional Andhra village style country chicken simmered in tangy spiced gravy.', img: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=300&q=80' }
+      { name: 'Egg Dum Biryani (2 Eggs)', veg: false, basePrice: 240, desc: 'Golden spiced hard-boiled eggs nested in fragrant dum biryani rice with gravy.', img: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=300&q=80' },
+      { name: 'Bengaluru Donne Chicken Biryani', veg: false, basePrice: 310, desc: 'Traditional Karnataka military hotel style spiced short-grain seeraga samba rice biryani.', img: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=300&q=80' },
+      { name: 'Meghana Special Paneer Biryani', veg: true, basePrice: 290, desc: 'Fragrant biryani rice layered with spicy tossed paneer cubes and fried onions.', img: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=300&q=80' },
+      { name: 'Mushroom Dum Biryani', veg: true, basePrice: 270, desc: 'Basmati rice dum cooked with juicy marinated button mushrooms and whole spices.', img: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=300&q=80' },
+      { name: 'Seasonal Veg Dum Biryani', veg: true, basePrice: 250, desc: 'Long-grain basmati cooked with garden vegetables, mint, saffron, and roasted cashews.', img: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=300&q=80' },
+      { name: 'Andhra Veg Meals Special', veg: true, basePrice: 230, desc: 'Steamed rice, Gongura pachadi, Kandi podi, pure ghee, Pappu, Sambar, Rasam, and Curd.', img: 'https://images.unsplash.com/photo-1625398407796-82650a8c135f?w=300&q=80' }
     ],
     Breads: [
       { name: 'Kerala Malabar Parotta (2pcs)', veg: true, basePrice: 65, desc: 'Flaky, multi-layered griddled flatbreads cooked in pure oil.', img: 'https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=300&q=80' },
@@ -359,11 +360,52 @@ export const BRAND_POOLS = {
     ]
   },
 
+  biryani_house: {
+    Starters: [
+      { name: 'Andhra Chilli Chicken Dry', veg: false, basePrice: 310, desc: 'Famous spicy green chili coated chicken sauteed with curry leaves.', img: 'https://images.unsplash.com/photo-1562967914-608f82629710?w=300&q=80' },
+      { name: 'Chicken 65 (Biryani Style)', veg: false, basePrice: 280, desc: 'Crispy fried chicken chunks tossed with curd, curry leaves, and green chilies.', img: 'https://images.unsplash.com/photo-1562967914-608f82629710?w=300&q=80' },
+      { name: 'Chicken Lollipop (6pcs)', veg: false, basePrice: 290, desc: 'Crispy frenched spiced chicken wings served with fiery Schezwan chutney.', img: 'https://images.unsplash.com/photo-1562967914-608f82629710?w=300&q=80' },
+      { name: 'Guntur Chicken Roast', veg: false, basePrice: 320, desc: 'Dry roasted chicken infused with fiery Guntur red chilies and ground spices.', img: 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?w=300&q=80' },
+      { name: 'Paneer 65 Crispy', veg: true, basePrice: 230, desc: 'Cottage cheese cubes tossed in spicy yogurt curd masala with curry leaves.', img: 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?w=300&q=80' },
+      { name: 'Crispy Mushroom Pepper Fry', veg: true, basePrice: 220, desc: 'Button mushrooms sauteed crisp with freshly crushed black peppercorns.', img: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&q=80' },
+      { name: 'Apollo Fish Fry', veg: false, basePrice: 350, desc: 'Hyderabadi spiced fish fillets pan seared with yogurt and green chilies.', img: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=300&q=80' }
+    ],
+    Mains: [
+      { name: 'Hyderabadi Chicken Dum Biryani', veg: false, basePrice: 340, desc: 'Authentic slow cooked dum biryani layered with spiced marinated chicken, saffron basmati, served with mirchi ka salan and raita.', img: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=300&q=80' },
+      { name: 'Special Boneless Chicken Biryani', veg: false, basePrice: 360, desc: 'Aromatic basmati rice topped with spicy pan-fried boneless chicken cubes and caramelized onions.', img: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=300&q=80' },
+      { name: 'Royal Mutton Dum Biryani', veg: false, basePrice: 420, desc: 'Tender baby lamb cooked on dum with aged basmati rice, mint, and royal spices.', img: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=300&q=80' },
+      { name: 'Egg Dum Biryani (2 Eggs)', veg: false, basePrice: 240, desc: 'Golden spiced hard-boiled eggs nested in fragrant dum biryani rice with gravy.', img: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=300&q=80' },
+      { name: 'Special Paneer Dum Biryani', veg: true, basePrice: 280, desc: 'Fragrant basmati rice layered with spiced tandoori cottage cheese cubes and golden onions.', img: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=300&q=80' },
+      { name: 'Seasonal Veg Dum Biryani', veg: true, basePrice: 250, desc: 'Long-grain basmati cooked with garden vegetables, mint, saffron, and roasted cashews.', img: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=300&q=80' },
+      { name: 'Mushroom Dum Biryani', veg: true, basePrice: 260, desc: 'Juicy marinated button mushrooms simmered with herbs in sealed biryani handi.', img: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=300&q=80' },
+      { name: 'Bengaluru Donne Chicken Biryani', veg: false, basePrice: 310, desc: 'Traditional Karnataka military hotel style spiced short-grain seeraga samba rice biryani.', img: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=300&q=80' },
+      { name: 'Andhra Chicken Curry with Ghee Rice', veg: false, basePrice: 330, desc: 'Fiery Andhra home-style chicken curry served over aromatic basmati ghee rice.', img: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=300&q=80' }
+    ],
+    Breads: [
+      { name: 'Ceylon Egg Parotta', veg: false, basePrice: 90, desc: 'Flaky layered parotta stuffed with spiced egg and onions.', img: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=300&q=80' },
+      { name: 'Malabar Parotta (2pcs)', veg: true, basePrice: 65, desc: 'Crispy, flaky multi-layered Kerala flatbread griddled golden.', img: 'https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=300&q=80' },
+      { name: 'Rumali Roti (2pcs)', veg: true, basePrice: 50, desc: 'Paper thin soft flatbread cooked on inverted wok.', img: 'https://images.unsplash.com/photo-1626200419199-391ae4be7a41?w=300&q=80' },
+      { name: 'Garlic Butter Naan', veg: true, basePrice: 70, desc: 'Clay oven baked bread slathered with roasted garlic butter.', img: 'https://images.unsplash.com/photo-1626200419199-391ae4be7a41?w=300&q=80' }
+    ],
+    Desserts: [
+      { name: 'Double Ka Meetha', veg: true, basePrice: 110, desc: 'Hyderabadi royal fried bread pudding steeped in saffron milk, cardamom, and roasted nuts.', img: 'https://images.unsplash.com/photo-1505394033641-40c6ad1178d7?w=300&q=80' },
+      { name: 'Shahi Tukda with Rabdi', veg: true, basePrice: 130, desc: 'Ghee-fried bread rounds soaked in sugar syrup and topped with thick condensed rabdi.', img: 'https://images.unsplash.com/photo-1505394033641-40c6ad1178d7?w=300&q=80' },
+      { name: 'Hot Gulab Jamun (2pcs)', veg: true, basePrice: 80, desc: 'Warm golden khoya balls soaked in rose-cardamom sugar syrup.', img: 'https://media.istockphoto.com/id/521788423/photo/gulab-jamun.jpg?s=612x612&w=0&k=20&c=oMoXZUYPBZq_N8h9yqB16HsmGF4G-oEcRwEg-K8zZ0o=' },
+      { name: 'Matka Phirni', veg: true, basePrice: 95, desc: 'Chilled creamy rice pudding scented with saffron and cardamom in clay pot.', img: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=300&q=80' }
+    ],
+    Beverages: [
+      { name: 'Thums Up Glass Bottle (300ml)', veg: true, basePrice: 40, desc: 'Chilled strong fizzy cola, the classic biryani companion.', img: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=300&q=80' },
+      { name: 'Spiced Andhra Buttermilk (Majjiga)', veg: true, basePrice: 45, desc: 'Cooling churned curd beverage tempered with crushed ginger and green chili.', img: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300&q=80' },
+      { name: 'Sweet Punjabi Lassi', veg: true, basePrice: 80, desc: 'Thick sweetened yogurt beverage served chilled.', img: 'https://images.unsplash.com/photo-1528736235302-52922df5c122?w=300&q=80' },
+      { name: 'Fresh Lime Soda (Sweet & Salt)', veg: true, basePrice: 60, desc: 'Fizzy sparkling lemon drink.', img: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300&q=80' }
+    ]
+  },
+
   hotel_empire: {
     Starters: [
       { name: 'Empire Paneer Tikka', veg: true, basePrice: 230, desc: 'Cottage cheese cubes marinated in spiced hung curd and skewered in tandoor.', img: 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?w=300&q=80' },
       { name: 'Veg Crispy Spring Rolls (4pcs)', veg: true, basePrice: 170, desc: 'Crisp fried rolls packed with shredded cabbage, carrots, and glass noodles.', img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=300&q=80' },
-      { name: 'Empire Special Chicken Kabab', veg: false, basePrice: 270, desc: 'The legendary Bengaluru late-night fried chicken kebab coated in red masala.', img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300&q=80' },
+      { name: 'Empire Special Chicken Kabab', veg: false, basePrice: 270, desc: 'The legendary Bengaluru late-night fried chicken kebab coated in red masala.', img: 'https://images.unsplash.com/photo-1562967914-608f82629710?w=300&q=80' },
       { name: 'Kalmi Kabab (2pcs)', veg: false, basePrice: 280, desc: 'Tender chicken drumsticks marinated in cashew paste, cream, and tandoori spices.', img: 'https://images.unsplash.com/photo-1562967914-608f82629710?w=300&q=80' },
       { name: 'Tandoori Chicken Half', veg: false, basePrice: 310, desc: 'Bone-in chicken marinated in yogurt and royal spices, roasted in clay oven.', img: 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?w=300&q=80' },
       { name: 'Empire Mutton Brain Dry', veg: false, basePrice: 320, desc: 'Iconic Empire delicacy: spiced lamb brain sauteed with onions and green chilies.', img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=300&q=80' },
@@ -404,7 +446,7 @@ export const BRAND_POOLS = {
       { name: 'Dhaba Paneer Tikka', veg: true, basePrice: 220, desc: 'Thick cottage cheese cubes marinated in mustard oil and ajwain, clay tandoor roasted.', img: 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?w=300&q=80' },
       { name: 'Tandoori Soya Chaap', veg: true, basePrice: 210, desc: 'Soya chaap pieces marinated in spicy tandoori masala and charred over open coals.', img: 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?w=300&q=80' },
       { name: 'Crispy Chana Garlic Roast', veg: true, basePrice: 150, desc: 'Spiced Kabuli chickpeas deep fried crisp with golden roasted garlic cloves.', img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=300&q=80' },
-      { name: 'Dhaba Chicken Tikka', veg: false, basePrice: 290, desc: 'Boneless chicken cubes spiced with Punjabi garam masala and roasted in tandoor.', img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300&q=80' },
+      { name: 'Dhaba Chicken Tikka', veg: false, basePrice: 290, desc: 'Boneless chicken cubes spiced with Punjabi garam masala and roasted in tandoor.', img: 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?w=300&q=80' },
       { name: 'Tandoori Chicken Half', veg: false, basePrice: 310, desc: 'Bone-in chicken steeped in curd and mustard oil Punjabi marinade.', img: 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?w=300&q=80' },
       { name: 'Dhaba Chicken Lollipop (6pcs)', veg: false, basePrice: 260, desc: 'Crisp fried spiced chicken wings served with Schezwan chutney.', img: 'https://images.unsplash.com/photo-1562967914-608f82629710?w=300&q=80' }
     ],

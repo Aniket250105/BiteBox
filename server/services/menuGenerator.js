@@ -15,15 +15,15 @@ export const CUISINE_POOLS = {
   north_indian: {
     Starters: [
       { name: 'Paneer Tikka Angara', veg: true, basePrice: 240, desc: 'Smoky spiced cottage cheese skewers roasted in clay tandoor with mint chutney.', img: 'https://c.ndtvimg.com/2024-07/9fe2b05g_paneer-tikka_625x300_01_July_24.jpg' },
-      { name: 'Dahi Ke Kebab', veg: true, basePrice: 220, desc: 'Melt-in-mouth hung curd patties infused with green chilies and roasted cumin.', img: 'https://images.unsplash.com/photo-1593504049359-74330189a345?w=300&q=80' },
+      { name: 'Dahi Ke Kebab', veg: true, basePrice: 220, desc: 'Melt-in-mouth hung curd patties infused with green chilies and roasted cumin.', img: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&q=80' },
       { name: 'Hara Bhara Kebab', veg: true, basePrice: 200, desc: 'Spinach and green pea patties shallow fried with cashews.', img: 'https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?w=300&q=80' },
       { name: 'Tandoori Soya Chaap', veg: true, basePrice: 230, desc: 'Tender marinated soya chunks roasted in a clay tandoor.', img: 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?w=300&q=80' },
       { name: 'Corn Cheese Tikki', veg: true, basePrice: 210, desc: 'Golden patties of sweet corn and molten processed cheese.', img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=300&q=80' },
       { name: 'Mushroom Galouti Kebab', veg: true, basePrice: 240, desc: 'Velvety minced button mushroom patties pan-seared with Awadhi potli spices.', img: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&q=80' },
-      { name: 'Chicken Malai Tikka', veg: false, basePrice: 320, desc: 'Creamy cardamom-scented boneless chicken kebabs.', img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300&q=80' },
+      { name: 'Chicken Malai Tikka', veg: false, basePrice: 320, desc: 'Creamy cardamom-scented boneless chicken kebabs.', img: 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?w=300&q=80' },
       { name: 'Mutton Seekh Kebab', veg: false, basePrice: 380, desc: 'Minced lamb spiced with royal garam masala, grilled on skewers.', img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=300&q=80' },
       { name: 'Tandoori Chicken Half', veg: false, basePrice: 340, desc: 'Classic bone-in roasted chicken with Punjabi marinade.', img: 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?w=300&q=80' },
-      { name: 'Murgh Rozali Kebab', veg: false, basePrice: 350, desc: 'Chicken breast rolls stuffed with spiced minced lamb and saffron.', img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300&q=80' }
+      { name: 'Murgh Rozali Kebab', veg: false, basePrice: 350, desc: 'Chicken breast rolls stuffed with spiced minced lamb and saffron.', img: 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?w=300&q=80' }
     ],
     Mains: [
       { name: 'Paneer Butter Masala', veg: true, basePrice: 320, desc: 'Cottage cheese cubes in rich tomato, butter, and cashew gravy.', img: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=300&q=80' },
@@ -35,7 +35,9 @@ export const CUISINE_POOLS = {
       { name: 'Butter Chicken', veg: false, basePrice: 420, desc: 'Tender tandoori chicken simmered in rich creamy velvet gravy.', img: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=300&q=80' },
       { name: 'Kashmiri Mutton Rogan Josh', veg: false, basePrice: 460, desc: 'Slow braised lamb shank in aromatic Kashmiri red chili gravy.', img: 'https://images.unsplash.com/photo-1589302168068-964664d93dc0?w=300&q=80' },
       { name: 'Murgh Tikka Masala', veg: false, basePrice: 410, desc: 'Chargrilled chicken tikka in spiced onion-tomato curry.', img: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=300&q=80' },
-      { name: 'Awadhi Chicken Dum Biryani', veg: false, basePrice: 370, desc: 'Aromatic long grain basmati rice layered with spiced marinated chicken in sealed handi.', img: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=300&q=80' }
+      { name: 'Awadhi Chicken Dum Biryani', veg: false, basePrice: 370, desc: 'Aromatic long grain basmati rice layered with spiced marinated chicken in sealed handi.', img: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=300&q=80' },
+      { name: 'Subz Dum Handi Biryani', veg: true, basePrice: 270, desc: 'Layered basmati rice with spiced seasonal vegetables, saffron, and fried onions.', img: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=300&q=80' },
+      { name: 'Hyderabadi Chicken Biryani', veg: false, basePrice: 360, desc: 'Tender chicken and fragrant basmati dum cooked with authentic spices.', img: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=300&q=80' }
     ],
     Breads: [
       { name: 'Garlic Butter Naan', veg: true, basePrice: 75, desc: 'Freshly baked leavened flatbread brushed with garlic butter.', img: 'https://images.unsplash.com/photo-1626200419199-391ae4be7a41?w=300&q=80' },
@@ -68,7 +70,7 @@ export const CUISINE_POOLS = {
       { name: 'Crispy Onion Pakoda', veg: true, basePrice: 100, desc: 'Thinly sliced onions coated in spiced besan, deep fried crunchy.', img: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=300&q=80' },
       { name: 'Mushroom Sukka', veg: true, basePrice: 210, desc: 'Button mushrooms sauteed in dry roasted Mangalorean coconut masala.', img: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&q=80' },
       { name: 'Mirchi Bajji (3pcs)', veg: true, basePrice: 85, desc: 'Batter dipped mild green peppers fried and served with tangy onion relish.', img: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=300&q=80' },
-      { name: 'Chicken 65', veg: false, basePrice: 260, desc: 'Crispy deep fried chicken tossed with yogurt, curry leaves and green chilies.', img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300&q=80' },
+      { name: 'Chicken 65', veg: false, basePrice: 260, desc: 'Crispy deep fried chicken tossed with yogurt, curry leaves and green chilies.', img: 'https://images.unsplash.com/photo-1562967914-608f82629710?w=300&q=80' },
       { name: 'Mangalore Fish Fry', veg: false, basePrice: 310, desc: 'Fresh fish fillets rava fried in fiery Byadgi coastal spices.', img: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=300&q=80' },
       { name: 'Mutton Sukka Roast', veg: false, basePrice: 380, desc: 'Tender lamb chunks dry cooked with caramelized shallots and ground spices.', img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=300&q=80' }
     ],
@@ -111,7 +113,7 @@ export const CUISINE_POOLS = {
       { name: 'Crispy Corn Salt & Pepper', veg: true, basePrice: 200, desc: 'Fried sweet corn kernels tossed with crushed peppercorns and spring onions.', img: 'https://images.unsplash.com/photo-1551782450-a2132b4ba21d?w=300&q=80' },
       { name: 'Veg Steamed Momos (6pcs)', veg: true, basePrice: 170, desc: 'Thin-skinned Himalayan dumplings stuffed with minced vegetables and herbs.', img: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=300&q=80' },
       { name: 'Honey Chilli Crispy Potato', veg: true, basePrice: 190, desc: 'Crispy potato batons coated in sweet and spicy sesame honey glaze.', img: 'https://images.unsplash.com/photo-1576107232684-1279f3908594?w=300&q=80' },
-      { name: 'Chicken Lollipop (6pcs)', veg: false, basePrice: 280, desc: 'Crispy frenched spiced chicken wings served with fiery Schezwan dip.', img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300&q=80' },
+      { name: 'Chicken Lollipop (6pcs)', veg: false, basePrice: 280, desc: 'Crispy frenched spiced chicken wings served with fiery Schezwan dip.', img: 'https://images.unsplash.com/photo-1562967914-608f82629710?w=300&q=80' },
       { name: 'Dragon Chicken', veg: false, basePrice: 300, desc: 'Stir fried crispy chicken strips with cashews and fiery red chilies.', img: 'https://images.unsplash.com/photo-1562967914-608f82629710?w=300&q=80' },
       { name: 'Chicken Steamed Momos (6pcs)', veg: false, basePrice: 210, desc: 'Steamed dumplings packed with juicy seasoned chicken and spicy chutney.', img: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=300&q=80' }
     ],
@@ -123,7 +125,7 @@ export const CUISINE_POOLS = {
       { name: 'Kung Pao Tofu & Peanuts', veg: true, basePrice: 250, desc: 'Crispy tofu cubes stir-fried with dry red chilies and roasted peanuts.', img: 'https://images.unsplash.com/photo-1551782450-a2132b4ba21d?w=300&q=80' },
       { name: 'Chicken Schezwan Noodles', veg: false, basePrice: 260, desc: 'Spicy noodles tossed with shredded chicken and eggs in Schezwan sauce.', img: 'https://images.unsplash.com/photo-1585032226651-759b368d7246?w=300&q=80' },
       { name: 'Kung Pao Chicken Gravy', veg: false, basePrice: 320, desc: 'Stir fried diced chicken with roasted peanuts, bell peppers and scallions.', img: 'https://images.unsplash.com/photo-1562967914-608f82629710?w=300&q=80' },
-      { name: 'Chilli Chicken Gravy', veg: false, basePrice: 310, desc: 'Boneless chicken cubes tossed with diced bell peppers in hot soy sauce.', img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300&q=80' }
+      { name: 'Chilli Chicken Gravy', veg: false, basePrice: 310, desc: 'Boneless chicken cubes tossed with diced bell peppers in hot soy sauce.', img: 'https://images.unsplash.com/photo-1562967914-608f82629710?w=300&q=80' }
     ],
     Breads: [
       { name: 'Steamed Bao Buns (2pcs)', veg: true, basePrice: 120, desc: 'Soft pillowy steamed Asian buns served with sweet plum sauce.', img: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=300&q=80' },
@@ -151,7 +153,7 @@ export const CUISINE_POOLS = {
       { name: 'Caprese Salad with Pesto', veg: true, basePrice: 210, desc: 'Fresh bocconcini mozzarella, heirloom tomatoes, and basil pesto glaze.', img: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=300&q=80' },
       { name: 'Stuffed Garlic Mushrooms', veg: true, basePrice: 195, desc: 'Oven-baked button mushrooms stuffed with herbs and parmesan.', img: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&q=80' },
       { name: 'BBQ Chicken Bruschetta', veg: false, basePrice: 230, desc: 'Toasted bread topped with herb chicken, melted cheese, and barbecue glaze.', img: 'https://images.unsplash.com/photo-1562967914-608f82629710?w=300&q=80' },
-      { name: 'Pollo Fritto Chicken Tenders', veg: false, basePrice: 240, desc: 'Italian herb breaded chicken strips with garlic parmesan aioli.', img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300&q=80' }
+      { name: 'Pollo Fritto Chicken Tenders', veg: false, basePrice: 240, desc: 'Italian herb breaded chicken strips with garlic parmesan aioli.', img: 'https://images.unsplash.com/photo-1562967914-608f82629710?w=300&q=80' }
     ],
     Mains: [
       { name: 'Margherita Basil Pizza (8-inch)', veg: true, basePrice: 230, desc: 'San Marzano tomato sauce, fresh mozzarella cheese and sweet basil.', img: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300&q=80' },
@@ -240,7 +242,7 @@ export const CUISINE_POOLS = {
       { name: 'Cheesy Jalapeno Poppers (5pcs)', veg: true, basePrice: 170, desc: 'Breaded jalapeno peppers stuffed with melted cream cheese.', img: 'https://images.unsplash.com/photo-1531749668029-2db88e4276c7?w=300&q=80' },
       { name: 'Loaded Nachos with Salsa & Queso', veg: true, basePrice: 190, desc: 'Crispy tortilla chips smothered in warm cheddar cheese sauce and pico de gallo.', img: 'https://images.unsplash.com/photo-1551782450-a2132b4ba21d?w=300&q=80' },
       { name: 'BBQ Chicken Popcorn', veg: false, basePrice: 200, desc: 'Bite sized crunchy spiced chicken with smoky barbecue dip.', img: 'https://images.unsplash.com/photo-1562967914-608f82629710?w=300&q=80' },
-      { name: 'Buffalo Chicken Wings (6pcs)', veg: false, basePrice: 290, desc: 'Crispy wings tossed in tangy cayenne pepper glaze.', img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300&q=80' },
+      { name: 'Buffalo Chicken Wings (6pcs)', veg: false, basePrice: 290, desc: 'Crispy wings tossed in tangy cayenne pepper glaze.', img: 'https://images.unsplash.com/photo-1527477378408-1bc0939525e9?w=300&q=80' },
       { name: 'Crispy Chicken Tenders (4pcs)', veg: false, basePrice: 240, desc: 'Golden fried seasoned chicken tenders with honey mustard dip.', img: 'https://images.unsplash.com/photo-1562967914-608f82629710?w=300&q=80' }
     ],
     Mains: [
@@ -277,39 +279,47 @@ export const CUISINE_POOLS = {
 export function detectCuisineGroup(cuisineString = '', name = '') {
   const text = `${cuisineString} ${name}`.toLowerCase();
 
-  // 1. Specific Brand Matches
+  // 1. Biryani Specialty (Highest priority: Any restaurant with Biryani in its name/cuisine)
+  if (text.includes('biryani') || text.includes('biriyani') || text.includes('briyani') || text.includes('behrouz') || text.includes('ammi') || text.includes('paradise') || text.includes('donne')) {
+    if (text.includes('meghana') || text.includes('nagarjuna')) {
+      return 'meghana_foods';
+    }
+    return 'biryani_house';
+  }
+
+  // 2. Specific Brand Matches & Fast Food Chains
   if (text.includes('domino') || text.includes('papa john')) {
     return 'dominos';
   }
   if (text.includes('ikea')) {
     return 'ikea';
   }
-  if (text.includes('chai point') || text.includes('chaayos')) {
+  if (text.includes('chai point') || text.includes('chaayos') || text.includes('tea post') || text.includes('chai')) {
     return 'chai_point';
   }
   if (text.includes('presi')) {
     return 'presi_cafe';
   }
-  if (text.includes('glen') || text.includes('bakehouse')) {
+  if (text.includes('glen') || text.includes('bakehouse') || text.includes('bakery') || text.includes('cake') || text.includes('pastry') || text.includes('patisserie') || text.includes('bakes') || text.includes('brownie')) {
     return 'glens_bakehouse';
   }
-  if (text.includes('truffles') || text.includes('leon')) {
+  if (text.includes('truffles') || text.includes('leon') || text.includes('burger') || text.includes('burger king') || text.includes('mcdonald') || text.includes('wendy')) {
     return 'truffles';
   }
   if (text.includes('meghana') || text.includes('nagarjuna')) {
     return 'meghana_foods';
   }
-  if (text.includes('empire')) {
+  if (text.includes('empire') || text.includes('kebab') || text.includes('kabab')) {
     return 'hotel_empire';
   }
-  if (text.includes('agarwal') || text.includes('anand sweet') || text.includes('mithai') || text.includes('sweets and restaurant') || text.includes('sweets & savouries')) {
+  if (text.includes('agarwal') || text.includes('anand sweet') || text.includes('mithai') || text.includes('sweets and restaurant') || text.includes('sweets & savouries') || text.includes('sweet') || text.includes('sweets') || text.includes('halwai')) {
     return 'agarwal_sweets';
   }
   if (text.includes('dhaba') || text.includes('highway')) {
     return 'dhaba';
   }
 
-  // 2. Sagar, Darshini, Upahara, Udupi & Bengaluru Pure Veg South Indian
+  // 3. Sagar, Darshini, Upahara, Udupi & Bengaluru Pure Veg South Indian
   if (
     text.includes('sagar') ||
     text.includes('darshani') ||
@@ -322,29 +332,41 @@ export function detectCuisineGroup(cuisineString = '', name = '') {
     text.includes('mess') ||
     text.includes('airlines hotel') ||
     text.includes('filter coffee') ||
+    text.includes('south indian') ||
+    text.includes('dosa') ||
+    text.includes('idli') ||
+    text.includes('vada') ||
+    text.includes('karnataka') ||
+    text.includes('meals') ||
+    text.includes('thali') ||
     text.includes('ಅಮೋಘ') ||
     text.includes('ಸಾಗರ್')
   ) {
     return 'sagar_darshini';
   }
 
-  // 3. General Cuisine Fallbacks
-  if (text.includes('south indian') || text.includes('dosa') || text.includes('idli') || text.includes('karnataka')) {
-    return 'sagar_darshini';
-  }
-  if (text.includes('cafe') || text.includes('coffee') || text.includes('bakery') || text.includes('dessert') || text.includes('cake') || text.includes('bakes') || text.includes('pastry') || text.includes('tea')) {
-    return 'cafe_desserts';
-  }
-  if (text.includes('pizza') || text.includes('italian') || text.includes('pasta')) {
+  // 4. Pizza / Italian / Pasta
+  if (text.includes('pizza') || text.includes('pizzeria') || text.includes('italian') || text.includes('pasta')) {
     return 'pizza_italian';
   }
-  if (text.includes('chinese') || text.includes('asian') || text.includes('noodles') || text.includes('momos') || text.includes('tibetan')) {
+
+  // 5. Chinese / Asian / Noodles / Momos
+  if (text.includes('chinese') || text.includes('asian') || text.includes('noodles') || text.includes('noodle') || text.includes('momos') || text.includes('momo') || text.includes('tibetan') || text.includes('wok') || text.includes('chopstick')) {
     return 'chinese';
   }
-  if (text.includes('burger') || text.includes('fast_food') || text.includes('fries') || text.includes('chaat') || text.includes('rolls') || text.includes('fried chicken')) {
+
+  // 6. Fast Food / Burgers / Fries / Snacks
+  if (text.includes('fast_food') || text.includes('fast food') || text.includes('fries') || text.includes('chaat') || text.includes('rolls') || text.includes('fried chicken') || text.includes('sandwich') || text.includes('subway') || text.includes('canteen')) {
     return 'fast_food';
   }
-  if (text.includes('biryani') || text.includes('mughlai') || text.includes('north indian') || text.includes('punjabi') || text.includes('tandoor') || text.includes('kebab')) {
+
+  // 7. Cafe / Desserts / Beverages / Salads / Juices
+  if (text.includes('cafe') || text.includes('coffee') || text.includes('dessert') || text.includes('waffle') || text.includes('ice cream') || text.includes('salad') || text.includes('juice') || text.includes('corn') || text.includes('smoothie')) {
+    return 'cafe_desserts';
+  }
+
+  // 8. North Indian / Mughlai / Punjabi / Tandoor
+  if (text.includes('mughlai') || text.includes('north indian') || text.includes('punjabi') || text.includes('tandoor') || text.includes('curry')) {
     return 'north_indian';
   }
 

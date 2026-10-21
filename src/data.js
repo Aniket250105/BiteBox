@@ -60,7 +60,7 @@ export const MENU_ITEMS = [
     isVeg: false,
     isAvailable: true,
     description: 'Crispy fried wings tossed in our signature hot sauce.',
-    image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300&q=80' // Wings/Meat
+    image: 'https://images.unsplash.com/photo-1527477378408-1bc0939525e9?w=300&q=80' // Wings/Meat
   },
   {
     id: 'm3',
@@ -70,7 +70,7 @@ export const MENU_ITEMS = [
     isVeg: true,
     isAvailable: false,
     description: 'Melt-in-mouth mushroom kebabs.',
-    image: 'https://images.unsplash.com/photo-1593504049359-74330189a345?w=300&q=80' // Pizza
+    image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&q=80' // Mushroom Kebab
   },
   {
     id: 'm4',

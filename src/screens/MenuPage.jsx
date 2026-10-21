@@ -21,10 +21,14 @@ const MenuPage = ({ restaurant, onBack, cart, updateCart, onViewCart, cartRestau
       const items = res.menu || [];
       setMenuItems(items);
 
-      // Auto-select first category if available
+      // Auto-select category (e.g. Biryani, Burger, Pizza, Dosa restaurants default to Mains where their specialty dishes live)
       const cats = [...new Set(items.map(item => item.category))];
       if (cats.length > 0) {
-        setActiveCategory(prev => (cats.includes(prev) ? prev : cats[0]));
+        const prefersMains = /biryani|biriyani|briyani|pizza|pizzeria|burger|dosa|thali|meals/i.test(
+          `${restaurant?.name || ''} ${restaurant?.cuisine || ''}`
+        );
+        const defaultCat = (prefersMains && cats.includes('Mains')) ? 'Mains' : cats[0];
+        setActiveCategory(prev => (cats.includes(prev) ? prev : defaultCat));
       }
     } catch (err) {
       setError(err.message || 'Unable to load menu. Please check your network connection.');

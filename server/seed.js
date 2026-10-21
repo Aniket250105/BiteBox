@@ -88,8 +88,8 @@ export function seedDatabase(targetDb = db) {
   // --- Items for Spicy Symphony (r1) - 20 items ---
   // Starters
   insertMenuItem.run('m1', 'r1', 'Starters', 'Paneer Tikka', 240, 1, 1, 40, 'Soft paneer cubes marinated in spices and grilled to perfection.', 'https://c.ndtvimg.com/2024-07/9fe2b05g_paneer-tikka_625x300_01_July_24.jpg');
-  insertMenuItem.run('m2', 'r1', 'Starters', 'Chicken Wings 6pcs', 320, 0, 1, 30, 'Crispy fried wings tossed in our signature hot sauce.', 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300&q=80');
-  insertMenuItem.run('m3', 'r1', 'Starters', 'Mushroom Galouti', 280, 1, 0, 0, 'Melt-in-mouth mushroom kebabs (Out of Stock).', 'https://images.unsplash.com/photo-1593504049359-74330189a345?w=300&q=80');
+  insertMenuItem.run('m2', 'r1', 'Starters', 'Chicken Wings 6pcs', 320, 0, 1, 30, 'Crispy fried wings tossed in our signature hot sauce.', 'https://images.unsplash.com/photo-1527477378408-1bc0939525e9?w=300&q=80');
+  insertMenuItem.run('m3', 'r1', 'Starters', 'Mushroom Galouti', 280, 1, 0, 0, 'Melt-in-mouth mushroom kebabs (Out of Stock).', 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&q=80');
   insertMenuItem.run('m108', 'r1', 'Starters', 'Chilli Paneer Dry', 260, 1, 1, 35, 'Wok-tossed paneer with bell peppers, spring onions and soy chili glaze.', 'https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?w=300&q=80');
   insertMenuItem.run('m109', 'r1', 'Starters', 'Crispy Corn Salt & Pepper', 210, 1, 1, 40, 'Golden fried sweet corn kernels tossed with crushed pepper and herbs.', 'https://images.unsplash.com/photo-1551782450-a2132b4ba21d?w=300&q=80');
   insertMenuItem.run('m110', 'r1', 'Starters', 'Tandoori Chicken (Half)', 360, 0, 1, 25, 'Classic clay-oven roasted chicken with Punjabi spices.', 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?w=300&q=80');
