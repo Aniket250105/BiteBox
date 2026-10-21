@@ -76,6 +76,31 @@ const AuthLocationFlow = ({ onComplete, initialMessage }) => {
     setAuthError('');
   };
 
+  // Instant 1-Click Demo Login (logs in immediately without remembering credentials)
+  const handleInstantDemoLogin = async () => {
+    setAuthMode('login');
+    setIdentifier(DEMO_CREDENTIALS.email);
+    setPassword(DEMO_CREDENTIALS.password);
+    setAuthError('');
+    setAuthLoading(true);
+
+    try {
+      const user = await authService.login(DEMO_CREDENTIALS.email, DEMO_CREDENTIALS.password);
+      setLoggedInUser(user);
+      setAuthLoading(false);
+
+      if (user.address) {
+        setCustomAddress(user.address);
+        const matched = PRESET_LOCATIONS.find(p => p.address === user.address);
+        if (matched) setSelectedLocation(matched);
+      }
+      setCurrentStep('location');
+    } catch (err) {
+      setAuthLoading(false);
+      setAuthError(err.message || 'Demo login failed. Please try again.');
+    }
+  };
+
   // Simulate Expired Token (evaluator test case)
   const handleSimulateExpired = async () => {
     await authService.simulateExpiredToken();
@@ -310,7 +335,19 @@ const AuthLocationFlow = ({ onComplete, initialMessage }) => {
 
             {/* Email or Phone */}
             <div className="form-group">
-              <label className="form-label text-xs font-semibold">Email or 10-digit Mobile</label>
+              <div className="form-label-row">
+                <label className="form-label text-xs font-semibold">Email or 10-digit Mobile</label>
+                {authMode === 'login' && (
+                  <button
+                    type="button"
+                    className="demo-autofill-link"
+                    onClick={handleFillDemo}
+                    title="Auto-fill demo credentials"
+                  >
+                    ⚡ Auto-Fill Demo
+                  </button>
+                )}
+              </div>
               <div className="input-wrapper">
                 <span className="input-icon">✉</span>
                 <input
@@ -363,6 +400,25 @@ const AuthLocationFlow = ({ onComplete, initialMessage }) => {
                 <span>{authMode === 'login' ? 'Log In & Continue ➔' : 'Create Account ➔'}</span>
               )}
             </button>
+
+            {/* Instant Demo Login Button */}
+            {authMode === 'login' && (
+              <>
+                <div className="auth-or-divider">
+                  <span>or</span>
+                </div>
+                <button
+                  type="button"
+                  className="btn btn-demo-instant"
+                  onClick={handleInstantDemoLogin}
+                  disabled={authLoading}
+                  title="One-click log in with demo account"
+                >
+                  <span>⚡ 1-Click Demo Login</span>
+                  <span className="demo-account-hint">(aniket@bitebox.com)</span>
+                </button>
+              </>
+            )}
           </form>
 
           {/* Toggle Helper Footer */}
