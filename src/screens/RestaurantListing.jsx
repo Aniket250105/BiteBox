@@ -54,7 +54,6 @@ const RestaurantListing = ({
   // Load restaurants based on active user delivery location & coordinates
   const loadRestaurants = useCallback(async () => {
     if (!isAuthLocationComplete) return;
-    setIsLoading(true);
     setError(null);
     setDisplayLimit(20);
 
@@ -71,12 +70,38 @@ const RestaurantListing = ({
       }
     }
 
+    // Instant session cache to eliminate long skeleton delay
+    const cacheKey = `bitebox_nearby_${Number(lat).toFixed(3)}_${Number(lng).toFixed(3)}`;
+    let hasLoadedFromCache = false;
+    try {
+      const cachedStr = sessionStorage.getItem(cacheKey);
+      if (cachedStr) {
+        const cached = JSON.parse(cachedStr);
+        if (cached && Array.isArray(cached.restaurants) && cached.restaurants.length > 0) {
+          setRestaurants(cached.restaurants);
+          setFallbackNotice(cached.notice || null);
+          setIsLoading(false);
+          hasLoadedFromCache = true;
+        }
+      }
+    } catch {}
+
+    if (!hasLoadedFromCache) {
+      setIsLoading(true);
+    }
+
     try {
       const res = await apiService.fetchNearbyRestaurants({ lat, lng, radiusKm: 3 });
       setRestaurants(res.restaurants || []);
       setFallbackNotice(res.notice || null);
       setError(null);
       setRetryCooldown(0);
+      try {
+        sessionStorage.setItem(cacheKey, JSON.stringify({
+          restaurants: res.restaurants || [],
+          notice: res.notice || null
+        }));
+      } catch {}
     } catch (err) {
       const isRateLimit = err.isRateLimited || err.status === 429 || (err.message && err.message.toLowerCase().includes('rate limit'));
       const friendlyMsg = isRateLimit 

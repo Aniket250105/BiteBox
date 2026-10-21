@@ -16,7 +16,9 @@ export const HUB_COORDINATES = {
 };
 
 const OVERPASS_ENDPOINTS = [
+  'https://overpass.openstreetmap.fr/api/interpreter',
   'https://overpass-api.de/api/interpreter',
+  'https://lz4.overpass-api.de/api/interpreter',
   'https://overpass.kumi.systems/api/interpreter'
 ];
 
@@ -212,13 +214,26 @@ export function upsertOsmRestaurants(targetDb, restaurants) {
  * Executes an Overpass query with timeout and mirror fallback
  */
 export async function fetchFromOverpass(lat, lng, radiusKm = 3) {
-  const radiusMeters = Math.min(radiusKm, 3) * 1000;
-  const query = `[out:json][timeout:10];(nwr["amenity"~"^(restaurant|fast_food|cafe)$"](around:${radiusMeters},${lat},${lng}););out center tags;`;
+  const safeRadius = Math.min(Math.max(0.5, Number(radiusKm) || 3), 3.5);
+  // Calculate bounding box around center to utilize Overpass spatial quadtile index
+  const numLat = Number(lat) || 13.0;
+  const numLng = Number(lng) || 77.5;
+  const deltaLat = safeRadius / 111;
+  const deltaLng = safeRadius / (111 * Math.cos(numLat * Math.PI / 180));
+  const minLat = (numLat - deltaLat).toFixed(4);
+  const maxLat = (numLat + deltaLat).toFixed(4);
+  const minLng = (numLng - deltaLng).toFixed(4);
+  const maxLng = (numLng + deltaLng).toFixed(4);
+
+  const query = `[out:json][timeout:6];(
+    node["amenity"~"^(restaurant|fast_food|cafe)$"](${minLat},${minLng},${maxLat},${maxLng});
+    way["amenity"~"^(restaurant|fast_food|cafe)$"](${minLat},${minLng},${maxLat},${maxLng});
+  );out center tags;`;
 
   for (const endpoint of OVERPASS_ENDPOINTS) {
     try {
       const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 10000);
+      const timer = setTimeout(() => controller.abort(), 4000);
 
       const res = await fetch(endpoint, {
         method: 'POST',
