@@ -103,11 +103,11 @@ export function seedDatabase(targetDb = db) {
   insertMenuItem.run('m115', 'r1', 'Mains', 'Hakka Chili Garlic Noodles', 240, 1, 1, 40, 'Stir-fried noodles with crisp veggies and hot chili oil.', 'https://images.unsplash.com/photo-1585032226651-759b368d7246?w=300&q=80');
   // Breads
   insertMenuItem.run('m6', 'r1', 'Breads', 'Garlic Naan', 75, 1, 1, 100, 'Tandoori flatbread topped with garlic and butter.', 'https://images.unsplash.com/photo-1626200419199-391ae4be7a41?w=300&q=80');
-  insertMenuItem.run('m116', 'r1', 'Breads', 'Butter Tandoori Roti', 35, 1, 1, 100, 'Whole wheat flatbread baked crisp in tandoor with butter.', 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=300&q=80');
+  insertMenuItem.run('m116', 'r1', 'Breads', 'Butter Tandoori Roti', 35, 1, 1, 100, 'Whole wheat flatbread baked crisp in tandoor with butter.', 'https://images.unsplash.com/photo-1626074353765-517a681e40be?w=300&q=80');
   insertMenuItem.run('m117', 'r1', 'Breads', 'Laccha Paratha', 60, 1, 1, 80, 'Multi-layered flaky butter paratha.', 'https://images.unsplash.com/photo-1626074353765-517a681e40be?w=300&q=80');
   // Desserts
   insertMenuItem.run('m7', 'r1', 'Desserts', 'Gulab Jamun (2pcs)', 90, 1, 1, 50, 'Soft berry-sized balls soaked in rose-flavored sugar syrup.', 'https://media.istockphoto.com/id/521788423/photo/gulab-jamun.jpg?s=612x612&w=0&k=20&c=oMoXZUYPBZq_N8h9yqB16HsmGF4G-oEcRwEg-K8zZ0o=');
-  insertMenuItem.run('m118', 'r1', 'Desserts', 'Rasmalai (2pcs)', 110, 1, 1, 40, 'Soft cottage cheese patties steeped in cardamom infused saffron milk.', 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=300&q=80');
+  insertMenuItem.run('m118', 'r1', 'Desserts', 'Rasmalai (2pcs)', 110, 1, 1, 40, 'Soft cottage cheese patties steeped in cardamom infused saffron milk.', 'https://plus.unsplash.com/premium_photo-1707413391465-82ac03dd5555?w=300&q=80');
   insertMenuItem.run('m119', 'r1', 'Desserts', 'Kesar Pista Kulfi', 120, 1, 1, 35, 'Traditional Indian dense ice cream with pistachios and saffron.', 'https://images.unsplash.com/photo-1505394033641-40c6ad1178d7?w=300&q=80');
   // Beverages
   insertMenuItem.run('m120', 'r1', 'Beverages', 'Punjabi Sweet Lassi', 80, 1, 1, 50, 'Thick chilled sweet yogurt drink garnished with malai.', 'https://images.unsplash.com/photo-1528736235302-52922df5c122?w=300&q=80');
@@ -138,24 +138,24 @@ export function seedDatabase(targetDb = db) {
 
   // --- Items for Green Leaf (Pure Veg) (r3) - 17 items (100% vegetarian) ---
   // Starters
-  insertMenuItem.run('m302', 'r3', 'Starters', 'Idli Vada Combo', 95, 1, 1, 40, 'Two steamed rice cakes and one crispy medu vada with hot sambar.', 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=300&q=80');
+  insertMenuItem.run('m302', 'r3', 'Starters', 'Idli Vada Combo', 95, 1, 1, 40, 'Two steamed rice cakes and one crispy medu vada with hot sambar.', 'https://images.unsplash.com/photo-1730191843435-073792ba22bc?w=300&q=80');
   insertMenuItem.run('m305', 'r3', 'Starters', 'Crispy Gobi Manchurian', 180, 1, 1, 35, 'Crispy cauliflower florets tossed in zesty garlic sauce.', 'https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?w=300&q=80');
   insertMenuItem.run('m306', 'r3', 'Starters', 'Baby Corn Pepper Fry', 190, 1, 1, 30, 'Tender baby corn spears stir-fried with crushed black pepper and curry leaves.', 'https://images.unsplash.com/photo-1551782450-a2132b4ba21d?w=300&q=80');
   insertMenuItem.run('m307', 'r3', 'Starters', 'Paneer 65', 220, 1, 1, 35, 'South Indian style spiced batter fried paneer with curry leaves.', 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?w=300&q=80');
   // Mains
   insertMenuItem.run('m301', 'r3', 'Mains', 'Masala Dosa', 110, 1, 1, 50, 'Golden crispy crepe filled with spiced potato masala, served with chutneys.', 'https://images.unsplash.com/photo-1668236543090-82eba5ee5976?w=300&q=80');
   insertMenuItem.run('m308', 'r3', 'Mains', 'Rava Onion Dosa', 130, 1, 1, 40, 'Crispy semolina crepe studded with chopped onions and green chilies.', 'https://images.unsplash.com/photo-1668236543090-82eba5ee5976?w=300&q=80');
-  insertMenuItem.run('m309', 'r3', 'Mains', 'Bisi Bele Bath', 120, 1, 1, 40, 'Traditional Karnataka spiced rice and lentil dish topped with boondi.', 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&q=80');
+  insertMenuItem.run('m309', 'r3', 'Mains', 'Bisi Bele Bath', 120, 1, 1, 40, 'Traditional Karnataka spiced rice and lentil dish topped with boondi.', 'https://plus.unsplash.com/premium_photo-1694506374757-632d818eb023?w=300&q=80');
   insertMenuItem.run('m310', 'r3', 'Mains', 'South Indian Special Thali', 220, 1, 1, 30, 'Rice, sambar, rasam, 2 vegetable curries, curd, papad and sweet.', 'https://images.unsplash.com/photo-1625398407796-82650a8c135f?w=300&q=80');
-  insertMenuItem.run('m311', 'r3', 'Mains', 'Curd Rice with Mustard Tadka', 90, 1, 1, 40, 'Comforting yogurt rice tempered with mustard, ginger and pomegranate.', 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=300&q=80');
+  insertMenuItem.run('m311', 'r3', 'Mains', 'Curd Rice with Mustard Tadka', 90, 1, 1, 40, 'Comforting yogurt rice tempered with mustard, ginger and pomegranate.', 'https://plus.unsplash.com/premium_photo-1694141252026-3df1de888a21?w=300&q=80');
   insertMenuItem.run('m312', 'r3', 'Mains', 'Ghee Podi Mini Idli (12pcs)', 110, 1, 1, 35, 'Bite-sized steamed idlis tossed in gun powder spice and aromatic pure ghee.', 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=300&q=80');
   // Breads
   insertMenuItem.run('m303', 'r3', 'Breads', 'Malabar Parotta (2pcs)', 60, 1, 1, 60, 'Flaky layered South Indian flatbread.', 'https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=300&q=80');
-  insertMenuItem.run('m313', 'r3', 'Breads', 'Poori Saagu (3pcs)', 100, 1, 1, 45, 'Puffed deep-fried bread served with mixed vegetable saagu.', 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=300&q=80');
+  insertMenuItem.run('m313', 'r3', 'Breads', 'Poori Saagu (3pcs)', 100, 1, 1, 45, 'Puffed deep-fried bread served with mixed vegetable saagu.', 'https://images.unsplash.com/photo-1789990642068-0840cf55e1cf?w=300&q=80');
   insertMenuItem.run('m314', 'r3', 'Breads', 'Chapati Kurma (2pcs)', 80, 1, 1, 50, 'Whole wheat flatbread served with rich vegetable coconut kurma.', 'https://images.unsplash.com/photo-1626074353765-517a681e40be?w=300&q=80');
   // Desserts
-  insertMenuItem.run('m315', 'r3', 'Desserts', 'Mysore Pak (2pcs)', 70, 1, 1, 50, 'Melt-in-mouth traditional gram flour sweet cooked with pure desi ghee.', 'https://images.unsplash.com/photo-1505394033641-40c6ad1178d7?w=300&q=80');
-  insertMenuItem.run('m316', 'r3', 'Desserts', 'Pineapple Rava Kesari', 60, 1, 1, 40, 'Warm semolina pudding infused with pineapple chunks and roasted cashews.', 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=300&q=80');
+  insertMenuItem.run('m315', 'r3', 'Desserts', 'Mysore Pak (2pcs)', 70, 1, 1, 50, 'Melt-in-mouth traditional gram flour sweet cooked with pure desi ghee.', 'https://plus.unsplash.com/premium_photo-1698500035173-fdea60f9294e?w=300&q=80');
+  insertMenuItem.run('m316', 'r3', 'Desserts', 'Pineapple Rava Kesari', 60, 1, 1, 40, 'Warm semolina pudding infused with pineapple chunks and roasted cashews.', 'https://images.unsplash.com/photo-1760263216784-a4ca9a841ff5?w=300&q=80');
   // Beverages
   insertMenuItem.run('m304', 'r3', 'Beverages', 'Filter Coffee', 50, 1, 1, 100, 'Authentic frothy South Indian chicory filter coffee.', 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=300&q=80');
   insertMenuItem.run('m317', 'r3', 'Beverages', 'Chilled Badam Milk', 80, 1, 1, 40, 'Slow-simmered almond milk flavored with saffron and crushed cardamom.', 'https://images.unsplash.com/photo-1528736235302-52922df5c122?w=300&q=80');
@@ -164,12 +164,12 @@ export function seedDatabase(targetDb = db) {
   // Starters
   insertMenuItem.run('m401', 'r4', 'Starters', 'Crispy Cheese Poppers', 160, 1, 1, 40, 'Crisp golden bites packed with molten jalapeño cheese.', 'https://images.unsplash.com/photo-1531749668029-2db88e4276c7?w=300&q=80');
   insertMenuItem.run('m402', 'r4', 'Starters', 'Crispy Chicken Nuggets (6pcs)', 180, 0, 1, 35, 'Tender chicken nuggets with chipotle dip.', 'https://images.unsplash.com/photo-1562967914-608f82629710?w=300&q=80');
-  insertMenuItem.run('m403', 'r4', 'Starters', 'Paneer Kathi Roll', 150, 1, 1, 40, 'Flaky paratha roll stuffed with spiced paneer tikka and mint mayo.', 'https://images.unsplash.com/photo-1509722747041-616f39b57569?w=300&q=80');
-  insertMenuItem.run('m404', 'r4', 'Starters', 'Chicken Tikka Roll', 190, 0, 1, 35, 'Succulent tandoori chicken wrapped in egg paratha with pickled onions.', 'https://images.unsplash.com/photo-1509722747041-616f39b57569?w=300&q=80');
+  insertMenuItem.run('m403', 'r4', 'Starters', 'Paneer Kathi Roll', 150, 1, 1, 40, 'Flaky paratha roll stuffed with spiced paneer tikka and mint mayo.', 'https://plus.unsplash.com/premium_photo-1679287668420-80c27ea4fb31?w=300&q=80');
+  insertMenuItem.run('m404', 'r4', 'Starters', 'Chicken Tikka Roll', 190, 0, 1, 35, 'Succulent tandoori chicken wrapped in egg paratha with pickled onions.', 'https://plus.unsplash.com/premium_photo-1679287668420-80c27ea4fb31?w=300&q=80');
   // Mains
   insertMenuItem.run('m405', 'r4', 'Mains', 'Midnight Special Cheese Maggi', 90, 1, 1, 50, 'Hot comforting masala noodles loaded with melted cheese.', 'https://images.unsplash.com/photo-1585032226651-759b368d7246?w=300&q=80');
   insertMenuItem.run('m406', 'r4', 'Mains', 'Egg Bhurji Cheese Maggi', 120, 0, 1, 40, 'Spicy scrambled eggs tossed with cheese Maggi.', 'https://images.unsplash.com/photo-1585032226651-759b368d7246?w=300&q=80');
-  insertMenuItem.run('m407', 'r4', 'Mains', 'Butter Chicken Wrap', 210, 0, 1, 30, 'Creamy shredded butter chicken rolled in soft roomali roti.', 'https://images.unsplash.com/photo-1509722747041-616f39b57569?w=300&q=80');
+  insertMenuItem.run('m407', 'r4', 'Mains', 'Butter Chicken Wrap', 210, 0, 1, 30, 'Creamy shredded butter chicken rolled in soft roomali roti.', 'https://plus.unsplash.com/premium_photo-1679287668420-80c27ea4fb31?w=300&q=80');
   insertMenuItem.run('m408', 'r4', 'Mains', 'Grilled Paneer Sandwich', 170, 1, 1, 35, 'Grilled brown bread sandwich loaded with spiced paneer and mozzarella.', 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=300&q=80');
   insertMenuItem.run('m409', 'r4', 'Mains', 'Margherita Pizza (8-inch)', 220, 1, 1, 30, 'Classic hand-tossed pizza with fresh basil and mozzarella.', 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300&q=80');
   insertMenuItem.run('m410', 'r4', 'Mains', 'Chicken Pepperoni Pizza (8-inch)', 290, 0, 1, 25, 'Loaded with smoky chicken pepperoni and extra cheese.', 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300&q=80');
@@ -178,7 +178,7 @@ export function seedDatabase(targetDb = db) {
   insertMenuItem.run('m412', 'r4', 'Breads', 'Stuffed Cheesy Garlic Pockets', 140, 1, 1, 35, 'Crisp pastry crust filled with sweet corn and liquid cheddar.', 'https://images.unsplash.com/photo-1585109649139-366815a0d713?w=300&q=80');
   // Desserts
   insertMenuItem.run('m413', 'r4', 'Desserts', 'Dark Chocolate Brownie', 130, 1, 1, 30, 'Decadent chocolate brownie served warm.', 'https://images.unsplash.com/photo-1607958996333-41aef7caefaa?w=300&q=80');
-  insertMenuItem.run('m414', 'r4', 'Desserts', 'Nutella Hazelnut Waffle', 160, 1, 1, 25, 'Crisp Belgian waffle smothered with pure Nutella.', 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=300&q=80');
+  insertMenuItem.run('m414', 'r4', 'Desserts', 'Nutella Hazelnut Waffle', 160, 1, 1, 25, 'Crisp Belgian waffle smothered with pure Nutella.', 'https://images.unsplash.com/photo-1562376552-0d160a2f238d?w=300&q=80');
   // Beverages
   insertMenuItem.run('m415', 'r4', 'Beverages', 'Vanilla Cold Coffee', 130, 1, 1, 40, 'Smooth cold coffee blended with vanilla cream.', 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=300&q=80');
   insertMenuItem.run('m416', 'r4', 'Beverages', 'Fresh Mint Lime Soda', 80, 1, 1, 50, 'Fizzy soda with hand-crushed mint leaves and lemon.', 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300&q=80');

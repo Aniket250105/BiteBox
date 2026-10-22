@@ -15,11 +15,11 @@ export const CUISINE_POOLS = {
   north_indian: {
     Starters: [
       { name: 'Paneer Tikka Angara', veg: true, basePrice: 240, desc: 'Smoky spiced cottage cheese skewers roasted in clay tandoor with mint chutney.', img: 'https://c.ndtvimg.com/2024-07/9fe2b05g_paneer-tikka_625x300_01_July_24.jpg' },
-      { name: 'Dahi Ke Kebab', veg: true, basePrice: 220, desc: 'Melt-in-mouth hung curd patties infused with green chilies and roasted cumin.', img: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&q=80' },
+      { name: 'Dahi Ke Kebab', veg: true, basePrice: 220, desc: 'Melt-in-mouth hung curd patties infused with green chilies and roasted cumin.', img: 'https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?w=300&q=80' },
       { name: 'Hara Bhara Kebab', veg: true, basePrice: 200, desc: 'Spinach and green pea patties shallow fried with cashews.', img: 'https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?w=300&q=80' },
       { name: 'Tandoori Soya Chaap', veg: true, basePrice: 230, desc: 'Tender marinated soya chunks roasted in a clay tandoor.', img: 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?w=300&q=80' },
-      { name: 'Corn Cheese Tikki', veg: true, basePrice: 210, desc: 'Golden patties of sweet corn and molten processed cheese.', img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=300&q=80' },
-      { name: 'Mushroom Galouti Kebab', veg: true, basePrice: 240, desc: 'Velvety minced button mushroom patties pan-seared with Awadhi potli spices.', img: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&q=80' },
+      { name: 'Corn Cheese Tikki', veg: true, basePrice: 210, desc: 'Golden patties of sweet corn and molten processed cheese.', img: 'https://images.unsplash.com/photo-1531749668029-2db88e4276c7?w=300&q=80' },
+      { name: 'Mushroom Galouti Kebab', veg: true, basePrice: 240, desc: 'Velvety minced button mushroom patties pan-seared with Awadhi potli spices.', img: 'https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?w=300&q=80' },
       { name: 'Chicken Malai Tikka', veg: false, basePrice: 320, desc: 'Creamy cardamom-scented boneless chicken kebabs.', img: 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?w=300&q=80' },
       { name: 'Mutton Seekh Kebab', veg: false, basePrice: 380, desc: 'Minced lamb spiced with royal garam masala, grilled on skewers.', img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=300&q=80' },
       { name: 'Tandoori Chicken Half', veg: false, basePrice: 340, desc: 'Classic bone-in roasted chicken with Punjabi marinade.', img: 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?w=300&q=80' },
@@ -41,17 +41,17 @@ export const CUISINE_POOLS = {
     ],
     Breads: [
       { name: 'Garlic Butter Naan', veg: true, basePrice: 75, desc: 'Freshly baked leavened flatbread brushed with garlic butter.', img: 'https://images.unsplash.com/photo-1626200419199-391ae4be7a41?w=300&q=80' },
-      { name: 'Butter Roti', veg: true, basePrice: 35, desc: 'Whole wheat tandoori roti with pure ghee.', img: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=300&q=80' },
+      { name: 'Butter Roti', veg: true, basePrice: 35, desc: 'Whole wheat tandoori roti with pure ghee.', img: 'https://images.unsplash.com/photo-1626074353765-517a681e40be?w=300&q=80' },
       { name: 'Laccha Paratha', veg: true, basePrice: 60, desc: 'Multi-layered flaky wheat bread.', img: 'https://images.unsplash.com/photo-1626074353765-517a681e40be?w=300&q=80' },
       { name: 'Cheese Chili Naan', veg: true, basePrice: 95, desc: 'Naan stuffed with melted cheddar and chopped green chilies.', img: 'https://images.unsplash.com/photo-1626200419199-391ae4be7a41?w=300&q=80' },
-      { name: 'Amritsari Kulcha', veg: true, basePrice: 85, desc: 'Stuffed potato and onion bread crisped in clay oven.', img: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=300&q=80' },
+      { name: 'Amritsari Kulcha', veg: true, basePrice: 85, desc: 'Stuffed potato and onion bread crisped in clay oven.', img: 'https://images.unsplash.com/photo-1788602564560-9bcbf0f9acb6?w=300&q=80' },
       { name: 'Roomali Roti', veg: true, basePrice: 50, desc: 'Paper thin handkerchief soft bread tossed on inverted wok.', img: 'https://images.unsplash.com/photo-1626200419199-391ae4be7a41?w=300&q=80' }
     ],
     Desserts: [
       { name: 'Gulab Jamun (2pcs)', veg: true, basePrice: 90, desc: 'Golden khoya dumplings steeped in warm rose cardamom syrup.', img: 'https://media.istockphoto.com/id/521788423/photo/gulab-jamun.jpg?s=612x612&w=0&k=20&c=oMoXZUYPBZq_N8h9yqB16HsmGF4G-oEcRwEg-K8zZ0o=' },
-      { name: 'Rasmalai (2pcs)', veg: true, basePrice: 110, desc: 'Soft chenna patties soaked in chilled saffron infused milk.', img: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=300&q=80' },
+      { name: 'Rasmalai (2pcs)', veg: true, basePrice: 110, desc: 'Soft chenna patties soaked in chilled saffron infused milk.', img: 'https://plus.unsplash.com/premium_photo-1707413391465-82ac03dd5555?w=300&q=80' },
       { name: 'Kesar Pista Kulfi', veg: true, basePrice: 100, desc: 'Traditional slow churned dense ice cream with pistachios.', img: 'https://images.unsplash.com/photo-1505394033641-40c6ad1178d7?w=300&q=80' },
-      { name: 'Warm Gajar Ka Halwa', veg: true, basePrice: 120, desc: 'Slow cooked grated carrots in whole milk, mawa and cashew nuts.', img: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=300&q=80' },
+      { name: 'Warm Gajar Ka Halwa', veg: true, basePrice: 120, desc: 'Slow cooked grated carrots in whole milk, mawa and cashew nuts.', img: 'https://images.unsplash.com/photo-1760263216784-a4ca9a841ff5?w=300&q=80' },
       { name: 'Shahi Tukda', veg: true, basePrice: 130, desc: 'Crispy ghee-fried bread rounds soaked in sugar syrup and topped with rabdi.', img: 'https://images.unsplash.com/photo-1505394033641-40c6ad1178d7?w=300&q=80' }
     ],
     Beverages: [
@@ -65,11 +65,11 @@ export const CUISINE_POOLS = {
   south_indian: {
     Starters: [
       { name: 'Ghee Podi Idli (10pcs)', veg: true, basePrice: 110, desc: 'Mini steamed rice cakes tossed in fiery gunpowder and desi ghee.', img: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=300&q=80' },
-      { name: 'Medu Vada (2pcs)', veg: true, basePrice: 90, desc: 'Crispy golden lentil donuts served with coconut chutney and sambar.', img: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=300&q=80' },
+      { name: 'Medu Vada (2pcs)', veg: true, basePrice: 90, desc: 'Crispy golden lentil donuts served with coconut chutney and sambar.', img: 'https://images.unsplash.com/photo-1730191843435-073792ba22bc?w=300&q=80' },
       { name: 'Paneer Pepper Fry', veg: true, basePrice: 220, desc: 'Tender paneer cubes tossed with fresh curry leaves and crushed black pepper.', img: 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?w=300&q=80' },
-      { name: 'Crispy Onion Pakoda', veg: true, basePrice: 100, desc: 'Thinly sliced onions coated in spiced besan, deep fried crunchy.', img: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=300&q=80' },
+      { name: 'Crispy Onion Pakoda', veg: true, basePrice: 100, desc: 'Thinly sliced onions coated in spiced besan, deep fried crunchy.', img: 'https://images.unsplash.com/photo-1765360024331-25b63e85272e?w=300&q=80' },
       { name: 'Mushroom Sukka', veg: true, basePrice: 210, desc: 'Button mushrooms sauteed in dry roasted Mangalorean coconut masala.', img: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&q=80' },
-      { name: 'Mirchi Bajji (3pcs)', veg: true, basePrice: 85, desc: 'Batter dipped mild green peppers fried and served with tangy onion relish.', img: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=300&q=80' },
+      { name: 'Mirchi Bajji (3pcs)', veg: true, basePrice: 85, desc: 'Batter dipped mild green peppers fried and served with tangy onion relish.', img: 'https://images.unsplash.com/photo-1765360024331-25b63e85272e?w=300&q=80' },
       { name: 'Chicken 65', veg: false, basePrice: 260, desc: 'Crispy deep fried chicken tossed with yogurt, curry leaves and green chilies.', img: 'https://images.unsplash.com/photo-1562967914-608f82629710?w=300&q=80' },
       { name: 'Mangalore Fish Fry', veg: false, basePrice: 310, desc: 'Fresh fish fillets rava fried in fiery Byadgi coastal spices.', img: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=300&q=80' },
       { name: 'Mutton Sukka Roast', veg: false, basePrice: 380, desc: 'Tender lamb chunks dry cooked with caramelized shallots and ground spices.', img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=300&q=80' }
@@ -77,26 +77,26 @@ export const CUISINE_POOLS = {
     Mains: [
       { name: 'Masala Dosa', veg: true, basePrice: 110, desc: 'Crispy fermented rice crepe filled with potato masala and trio of chutneys.', img: 'https://images.unsplash.com/photo-1668236543090-82eba5ee5976?w=300&q=80' },
       { name: 'Ghee Roast Paper Dosa', veg: true, basePrice: 130, desc: 'Ultra-crispy golden dosa drizzled with pure desi ghee.', img: 'https://images.unsplash.com/photo-1668236543090-82eba5ee5976?w=300&q=80' },
-      { name: 'Bisi Bele Bath with Boondi', veg: true, basePrice: 120, desc: 'Hearty Karnataka spiced rice, lentils, and garden vegetables with ghee.', img: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&q=80' },
+      { name: 'Bisi Bele Bath with Boondi', veg: true, basePrice: 120, desc: 'Hearty Karnataka spiced rice, lentils, and garden vegetables with ghee.', img: 'https://plus.unsplash.com/premium_photo-1694506374757-632d818eb023?w=300&q=80' },
       { name: 'South Indian Royal Thali', veg: true, basePrice: 220, desc: 'Full platter with rice, sambar, rasam, 2 poriyals, curd, papad, and payasam.', img: 'https://images.unsplash.com/photo-1625398407796-82650a8c135f?w=300&q=80' },
       { name: 'Onion Rava Masala Dosa', veg: true, basePrice: 125, desc: 'Crisp semolina crepe embedded with toasted onions and green chilies.', img: 'https://images.unsplash.com/photo-1668236543090-82eba5ee5976?w=300&q=80' },
-      { name: 'Curd Rice with Pomegranate', veg: true, basePrice: 95, desc: 'Comforting mashed rice with fresh yogurt, tempered with mustard and ginger.', img: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&q=80' },
+      { name: 'Curd Rice with Pomegranate', veg: true, basePrice: 95, desc: 'Comforting mashed rice with fresh yogurt, tempered with mustard and ginger.', img: 'https://plus.unsplash.com/premium_photo-1694141252026-3df1de888a21?w=300&q=80' },
       { name: 'Chettinad Chicken Curry', veg: false, basePrice: 340, desc: 'Fiery chicken gravy infused with stone flower, black pepper and roasted coconut.', img: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=300&q=80' },
       { name: 'Malabar Prawn Curry', veg: false, basePrice: 380, desc: 'Coastal style prawns gently poached in coconut milk and kokum gravy.', img: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=300&q=80' },
       { name: 'Kerala Mutton Stew', veg: false, basePrice: 390, desc: 'Tender mutton cooked in mild coconut cream with peppercorns and potatoes.', img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=300&q=80' }
     ],
     Breads: [
       { name: 'Malabar Parotta (2pcs)', veg: true, basePrice: 60, desc: 'Flaky multi-layered Kerala flatbread cooked golden brown.', img: 'https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=300&q=80' },
-      { name: 'Appam with Coconut Milk (2pcs)', veg: true, basePrice: 90, desc: 'Soft-centered bowl-shaped fermented rice pancakes with sweet coconut milk.', img: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=300&q=80' },
-      { name: 'Poori with Potato Saagu (3pcs)', veg: true, basePrice: 95, desc: 'Puffy whole-wheat bread served with Bengaluru style spiced vegetable saagu.', img: 'https://images.unsplash.com/photo-1626074353765-517a681e40be?w=300&q=80' },
+      { name: 'Appam with Coconut Milk (2pcs)', veg: true, basePrice: 90, desc: 'Soft-centered bowl-shaped fermented rice pancakes with sweet coconut milk.', img: 'https://images.unsplash.com/photo-1668236543090-82eba5ee5976?w=300&q=80' },
+      { name: 'Poori with Potato Saagu (3pcs)', veg: true, basePrice: 95, desc: 'Puffy whole-wheat bread served with Bengaluru style spiced vegetable saagu.', img: 'https://images.unsplash.com/photo-1789990642068-0840cf55e1cf?w=300&q=80' },
       { name: 'Thatte Idli with Ghee (2pcs)', veg: true, basePrice: 80, desc: 'Large plate-sized soft steamed rice cakes smothered in butter and chutney.', img: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=300&q=80' },
       { name: 'Neer Dosa with Chutney (3pcs)', veg: true, basePrice: 90, desc: 'Delicate lace-like rice crepes originating from Mangalorean coastal cuisine.', img: 'https://images.unsplash.com/photo-1668236543090-82eba5ee5976?w=300&q=80' }
     ],
     Desserts: [
-      { name: 'Ghee Mysore Pak', veg: true, basePrice: 80, desc: 'Rich melt-in-mouth golden sweet made from gram flour and pure ghee.', img: 'https://images.unsplash.com/photo-1505394033641-40c6ad1178d7?w=300&q=80' },
-      { name: 'Pineapple Kesari Bath', veg: true, basePrice: 65, desc: 'Warm roasted semolina pudding infused with pineapple chunks and cashews.', img: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=300&q=80' },
+      { name: 'Ghee Mysore Pak', veg: true, basePrice: 80, desc: 'Rich melt-in-mouth golden sweet made from gram flour and pure ghee.', img: 'https://plus.unsplash.com/premium_photo-1698500035173-fdea60f9294e?w=300&q=80' },
+      { name: 'Pineapple Kesari Bath', veg: true, basePrice: 65, desc: 'Warm roasted semolina pudding infused with pineapple chunks and cashews.', img: 'https://images.unsplash.com/photo-1760263216784-a4ca9a841ff5?w=300&q=80' },
       { name: 'Elaneer Payasam', veg: true, basePrice: 95, desc: 'Chilled delicate pudding made with fresh tender coconut pulp and milk.', img: 'https://images.unsplash.com/photo-1505394033641-40c6ad1178d7?w=300&q=80' },
-      { name: 'Rava Kesari with Dry Fruits', veg: true, basePrice: 70, desc: 'Classic saffron semolina sweet enriched with golden raisins.', img: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=300&q=80' }
+      { name: 'Rava Kesari with Dry Fruits', veg: true, basePrice: 70, desc: 'Classic saffron semolina sweet enriched with golden raisins.', img: 'https://images.unsplash.com/photo-1760263216784-a4ca9a841ff5?w=300&q=80' }
     ],
     Beverages: [
       { name: 'Degree Filter Coffee', veg: true, basePrice: 50, desc: 'Authentic frothy South Indian chicory brew served in a traditional dabara set.', img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=300&q=80' },
@@ -108,7 +108,7 @@ export const CUISINE_POOLS = {
 
   chinese: {
     Starters: [
-      { name: 'Crispy Veg Spring Rolls (4pcs)', veg: true, basePrice: 190, desc: 'Golden fried wrappers filled with shredded vegetables and glass noodles.', img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=300&q=80' },
+      { name: 'Crispy Veg Spring Rolls (4pcs)', veg: true, basePrice: 190, desc: 'Golden fried wrappers filled with shredded vegetables and glass noodles.', img: 'https://images.unsplash.com/photo-1581438761655-ebb4e43add30?w=300&q=80' },
       { name: 'Chilli Paneer Dry', veg: true, basePrice: 240, desc: 'Wok-tossed paneer with bell peppers, green chilies, and soy glaze.', img: 'https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?w=300&q=80' },
       { name: 'Crispy Corn Salt & Pepper', veg: true, basePrice: 200, desc: 'Fried sweet corn kernels tossed with crushed peppercorns and spring onions.', img: 'https://images.unsplash.com/photo-1551782450-a2132b4ba21d?w=300&q=80' },
       { name: 'Veg Steamed Momos (6pcs)', veg: true, basePrice: 170, desc: 'Thin-skinned Himalayan dumplings stuffed with minced vegetables and herbs.', img: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=300&q=80' },
@@ -129,14 +129,14 @@ export const CUISINE_POOLS = {
     ],
     Breads: [
       { name: 'Steamed Bao Buns (2pcs)', veg: true, basePrice: 120, desc: 'Soft pillowy steamed Asian buns served with sweet plum sauce.', img: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=300&q=80' },
-      { name: 'Crispy Fried Wonton Chips', veg: true, basePrice: 90, desc: 'Crunchy golden wonton crisps served with sweet chili dip.', img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=300&q=80' },
+      { name: 'Crispy Fried Wonton Chips', veg: true, basePrice: 90, desc: 'Crunchy golden wonton crisps served with sweet chili dip.', img: 'https://images.unsplash.com/photo-1781332147547-1f0edb2a78a4?w=300&q=80' },
       { name: 'Pan Fried Veg Gyoza (4pcs)', veg: true, basePrice: 160, desc: 'Crispy bottom potstickers stuffed with cabbage and mushrooms.', img: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=300&q=80' },
-      { name: 'Scallion Flaky Pancakes', veg: true, basePrice: 140, desc: 'Pan-fried Chinese layered flatbreads seasoned with chopped spring onions.', img: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=300&q=80' }
+      { name: 'Scallion Flaky Pancakes', veg: true, basePrice: 140, desc: 'Pan-fried Chinese layered flatbreads seasoned with chopped spring onions.', img: 'https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=300&q=80' }
     ],
     Desserts: [
       { name: 'Honey Darsaan with Vanilla', veg: true, basePrice: 140, desc: 'Fried crisp noodles coated in warm honey and sesame seeds with vanilla scoop.', img: 'https://images.unsplash.com/photo-1505394033641-40c6ad1178d7?w=300&q=80' },
       { name: 'Sweet Red Bean Sesame Balls (4pcs)', veg: true, basePrice: 120, desc: 'Crispy glutinous rice balls filled with sweet red bean paste.', img: 'https://images.unsplash.com/photo-1505394033641-40c6ad1178d7?w=300&q=80' },
-      { name: 'Crispy Date Wontons with Honey', veg: true, basePrice: 130, desc: 'Crisp pastry triangles stuffed with sweetened mashed dates.', img: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=300&q=80' }
+      { name: 'Crispy Date Wontons with Honey', veg: true, basePrice: 130, desc: 'Crisp pastry triangles stuffed with sweetened mashed dates.', img: 'https://images.unsplash.com/photo-1781332147547-1f0edb2a78a4?w=300&q=80' }
     ],
     Beverages: [
       { name: 'Jasmine Iced Tea', veg: true, basePrice: 90, desc: 'Chilled brewed jasmine green tea with fresh lemon slices.', img: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300&q=80' },
@@ -211,7 +211,7 @@ export const CUISINE_POOLS = {
       { name: 'Artisan Sourdough Loaf (Whole)', veg: true, basePrice: 140, desc: 'Naturally fermented rustic loaf with a chewy crumb and blistered golden crust.', img: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=300&q=80' },
       { name: 'Cinnamon Swirl Brioche', veg: true, basePrice: 110, desc: 'Warm sweet brioche pastry rolled with fragrant cinnamon sugar glaze.', img: 'https://images.unsplash.com/photo-1509722747041-616f39b57569?w=300&q=80' },
       { name: 'Garlic & Rosemary Focaccia', veg: true, basePrice: 120, desc: 'Olive oil infused Italian flatbread topped with sea salt and fresh rosemary.', img: 'https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?w=300&q=80' },
-      { name: 'Blueberry Crumble Muffin', veg: true, basePrice: 100, desc: 'Moist bakery muffin bursting with fresh blueberries and buttery sugar streusel.', img: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=300&q=80' },
+      { name: 'Blueberry Crumble Muffin', veg: true, basePrice: 100, desc: 'Moist bakery muffin bursting with fresh blueberries and buttery sugar streusel.', img: 'https://images.unsplash.com/photo-1586985289688-ca3cf47d3e6e?w=300&q=80' },
       { name: 'Chocolate Chip Brioche Bun', veg: true, basePrice: 90, desc: 'Soft sweet bakery bun studded with Belgian dark chocolate chips.', img: 'https://images.unsplash.com/photo-1509722747041-616f39b57569?w=300&q=80' },
       { name: 'Butter Brioche Toast with Jam', veg: true, basePrice: 80, desc: 'Two thick golden brioche slices served with strawberry preserve and salted butter.', img: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=300&q=80' }
     ],
