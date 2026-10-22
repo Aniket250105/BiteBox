@@ -114,11 +114,11 @@ export const BRAND_POOLS = {
       { name: 'Desi Ghee Mysore Pak', veg: true, basePrice: 75, desc: 'Melt-in-mouth royal sweet made from roasted besan, sugar, and generous pure ghee.', img: 'https://plus.unsplash.com/premium_photo-1698500035173-fdea60f9294e?w=300&q=80' },
       { name: 'Pineapple Kesari Bath', veg: true, basePrice: 65, desc: 'Warm roasted semolina pudding cooked with real pineapple chunks, saffron, and cashews.', img: 'https://images.unsplash.com/photo-1760263216784-a4ca9a841ff5?w=300&q=80' },
       { name: 'Badam Halwa (Royal Cup)', veg: true, basePrice: 110, desc: 'Rich, velvety sweet paste of ground California almonds, pure ghee, and saffron.', img: 'https://plus.unsplash.com/premium_photo-1698500035173-fdea60f9294e?w=300&q=80' },
-      { name: 'Elaneer Tender Coconut Payasam', veg: true, basePrice: 90, desc: 'Chilled delicate dessert made with fresh tender coconut flesh, coconut milk, and cardamom.', img: 'https://plus.unsplash.com/premium_photo-1707413391465-82ac03dd5555?w=300&q=80' }
+      { name: 'Elaneer Tender Coconut Payasam', veg: true, basePrice: 90, desc: 'Chilled delicate dessert made with fresh tender coconut flesh, coconut milk, and cardamom.', img: '/dishes/elaneer_payasam.jpg' }
     ],
     Beverages: [
       { name: 'Degree Filter Coffee (Dabara Set)', veg: true, basePrice: 40, desc: 'Traditional frothy brew of freshly roasted chicory coffee and boiled milk in brass dabara.', img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=300&q=80' },
-      { name: 'Hot Badam Milk with Saffron', veg: true, basePrice: 65, desc: 'Steaming thickened milk infused with ground almonds, cardamom, and Kashmiri saffron.', img: 'https://images.unsplash.com/photo-1528736235302-52922df5c122?w=300&q=80' },
+      { name: 'Hot Badam Milk with Saffron', veg: true, basePrice: 65, desc: 'Steaming thickened milk infused with ground almonds, cardamom, and Kashmiri saffron.', img: '/dishes/sweet_lassi.jpg' },
       { name: 'Masala Spiced Chaas (Majjege)', veg: true, basePrice: 40, desc: 'Cooling churned buttermilk seasoned with ginger, green chili, curry leaves, and asafoetida.', img: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300&q=80' },
       { name: 'Pure Tender Coconut Water', veg: true, basePrice: 60, desc: 'Fresh, naturally sweet hydrating water with tender pulp.', img: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300&q=80' }
     ]
@@ -132,11 +132,11 @@ export const BRAND_POOLS = {
       { name: 'Pani Puri / Golgappe (8pcs)', veg: true, basePrice: 80, desc: 'Crispy puris with spiced potato-chickpea mash, tangy mint water and sweet tamarind pani.', img: 'https://images.unsplash.com/photo-1649140041688-0f75446e707e?w=300&q=80' },
       { name: 'Aloo Tikki Chhole Chaat', veg: true, basePrice: 110, desc: 'Pan-fried crisp potato patties topped with spiced Amritsari chhole and whipped curd.', img: 'https://images.unsplash.com/photo-1649140041688-0f75446e707e?w=300&q=80' },
       { name: 'Paneer Pakoda Platter (4pcs)', veg: true, basePrice: 120, desc: 'Cottage cheese slices layered with mint chutney, batter-fried crisp with chaat masala.', img: 'https://images.unsplash.com/photo-1765360024331-25b63e85272e?w=300&q=80' },
-      { name: 'Khaman Dhokla (4pcs)', veg: true, basePrice: 70, desc: 'Soft, spongy steamed gram flour cakes tempered with mustard seeds and green chilies.', img: 'https://plus.unsplash.com/premium_photo-1713370407756-acedc62f5fbb?w=300&q=80' }
+      { name: 'Khaman Dhokla (4pcs)', veg: true, basePrice: 70, desc: 'Soft, spongy steamed gram flour cakes tempered with mustard seeds and green chilies.', img: '/dishes/khaman_dhokla.jpg' }
     ],
     Mains: [
       { name: 'Amritsari Chole Bhature (2 Bhature)', veg: true, basePrice: 160, desc: 'Fluffy fried bhaturas served with spicy dark Pindi chole, pickled onions, and green chili.', img: 'https://images.unsplash.com/photo-1788602564560-9bcbf0f9acb6?w=300&q=80' },
-      { name: 'Special Butter Pav Bhaji', veg: true, basePrice: 150, desc: 'Spiced mashed vegetables cooked in butter on tawa, served with 2 butter-toasted pavs.', img: 'https://plus.unsplash.com/premium_photo-1691030658477-1c8decbdfb18?w=300&q=80' },
+      { name: 'Special Butter Pav Bhaji', veg: true, basePrice: 150, desc: 'Spiced mashed vegetables cooked in butter on tawa, served with 2 butter-toasted pavs.', img: '/dishes/pav_bhaji.jpg' },
       { name: 'Paneer Butter Masala', veg: true, basePrice: 240, desc: 'Fresh malai paneer cubes simmered in rich creamy tomato, butter, and cashew nut gravy.', img: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=300&q=80' },
       { name: 'Dal Makhani Desi Ghee', veg: true, basePrice: 220, desc: 'Overnight slow-cooked black urad lentils infused with ginger, butter, cream, and pure ghee.', img: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&q=80' },
       { name: 'Kadhai Paneer', veg: true, basePrice: 235, desc: 'Cottage cheese chunks tossed with crunchy bell peppers, onions, and freshly ground spices.', img: 'https://images.unsplash.com/photo-1589302168068-964664d93dc0?w=300&q=80' },
@@ -152,14 +152,14 @@ export const BRAND_POOLS = {
     Desserts: [
       { name: 'Pure Kaju Katli (250g)', veg: true, basePrice: 280, desc: 'Diamond-cut silver-foiled fudge made with premium ground cashew nuts and sugar.', img: 'https://plus.unsplash.com/premium_photo-1698500035173-fdea60f9294e?w=300&q=80' },
       { name: 'Desi Ghee Motichoor Ladoo (4pcs)', veg: true, basePrice: 140, desc: 'Tiny golden gram flour pearls fried in pure ghee, bound with saffron sugar syrup.', img: 'https://images.unsplash.com/photo-1760263216784-a4ca9a841ff5?w=300&q=80' },
-      { name: 'Kesar Rasmalai (2pcs)', veg: true, basePrice: 110, desc: 'Delicate chenna patties soaked in thick saffron, pistachio, and cardamom infused milk.', img: 'https://plus.unsplash.com/premium_photo-1707413391465-82ac03dd5555?w=300&q=80' },
+      { name: 'Kesar Rasmalai (2pcs)', veg: true, basePrice: 110, desc: 'Delicate chenna patties soaked in thick saffron, pistachio, and cardamom infused milk.', img: '/dishes/kesar_rasmalai.jpg' },
       { name: 'Warm Gulab Jamun with Rabdi (2pcs)', veg: true, basePrice: 100, desc: 'Soft mawa dumplings served with warm sugar syrup and thick condensed rabdi.', img: 'https://media.istockphoto.com/id/521788423/photo/gulab-jamun.jpg?s=612x612&w=0&k=20&c=oMoXZUYPBZq_N8h9yqB16HsmGF4G-oEcRwEg-K8zZ0o=' },
-      { name: 'Sponge Rasgulla (2pcs)', veg: true, basePrice: 80, desc: 'Spongy cottage cheese rounds gently poached in fragrant sugar syrup.', img: 'https://plus.unsplash.com/premium_photo-1707413391465-82ac03dd5555?w=300&q=80' },
+      { name: 'Sponge Rasgulla (2pcs)', veg: true, basePrice: 80, desc: 'Spongy cottage cheese rounds gently poached in fragrant sugar syrup.', img: '/dishes/sponge_rasgulla.jpg' },
       { name: 'Hot Desi Ghee Jalebi (100g)', veg: true, basePrice: 90, desc: 'Crispy fried spiral pretzels soaked in hot saffron sugar syrup.', img: 'https://images.unsplash.com/photo-1760263216784-a4ca9a841ff5?w=300&q=80' }
     ],
     Beverages: [
-      { name: 'Patiala Sweet Lassi with Malai', veg: true, basePrice: 85, desc: 'Thick creamy churned yogurt beverage served with fresh clotted cream.', img: 'https://images.unsplash.com/photo-1528736235302-52922df5c122?w=300&q=80' },
-      { name: 'Kesar Pista Badam Lassi', veg: true, basePrice: 95, desc: 'Chilled sweet yogurt shake infused with saffron strands and slivered almonds.', img: 'https://images.unsplash.com/photo-1528736235302-52922df5c122?w=300&q=80' },
+      { name: 'Patiala Sweet Lassi with Malai', veg: true, basePrice: 85, desc: 'Thick creamy churned yogurt beverage served with fresh clotted cream.', img: '/dishes/sweet_lassi.jpg' },
+      { name: 'Kesar Pista Badam Lassi', veg: true, basePrice: 95, desc: 'Chilled sweet yogurt shake infused with saffron strands and slivered almonds.', img: '/dishes/sweet_lassi.jpg' },
       { name: 'Fresh Shikanji (Nimbu Soda)', veg: true, basePrice: 60, desc: 'Crisp sparkling lemonade flavored with roasted cumin, rock salt, and mint.', img: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300&q=80' },
       { name: 'Masala Spiced Buttermilk', veg: true, basePrice: 50, desc: 'Refreshing salted yogurt drink tempered with curry leaves and hing.', img: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300&q=80' }
     ]
@@ -355,7 +355,7 @@ export const BRAND_POOLS = {
     ],
     Beverages: [
       { name: 'Spiced Andhra Buttermilk (Majjiga)', veg: true, basePrice: 45, desc: 'Cooling churned curd beverage tempered with crushed ginger and green chili.', img: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300&q=80' },
-      { name: 'Sweet Punjabi Lassi', veg: true, basePrice: 80, desc: 'Thick sweetened yogurt beverage served chilled.', img: 'https://images.unsplash.com/photo-1528736235302-52922df5c122?w=300&q=80' },
+      { name: 'Sweet Punjabi Lassi', veg: true, basePrice: 80, desc: 'Thick sweetened yogurt beverage served chilled.', img: '/dishes/sweet_lassi.jpg' },
       { name: 'Thums Up Glass Bottle (300ml)', veg: true, basePrice: 40, desc: 'Classic strong fizzy cola, the ultimate pairing with biryani.', img: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=300&q=80' },
       { name: 'Fresh Lime Soda (Sweet & Salt)', veg: true, basePrice: 60, desc: 'Sparkling lemon beverage with rock salt and mint.', img: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300&q=80' }
     ]
@@ -392,12 +392,12 @@ export const BRAND_POOLS = {
       { name: 'Double Ka Meetha', veg: true, basePrice: 110, desc: 'Hyderabadi royal fried bread pudding steeped in saffron milk, cardamom, and roasted nuts.', img: 'https://images.unsplash.com/photo-1505394033641-40c6ad1178d7?w=300&q=80' },
       { name: 'Shahi Tukda with Rabdi', veg: true, basePrice: 130, desc: 'Ghee-fried bread rounds soaked in sugar syrup and topped with thick condensed rabdi.', img: 'https://images.unsplash.com/photo-1505394033641-40c6ad1178d7?w=300&q=80' },
       { name: 'Hot Gulab Jamun (2pcs)', veg: true, basePrice: 80, desc: 'Warm golden khoya balls soaked in rose-cardamom sugar syrup.', img: 'https://media.istockphoto.com/id/521788423/photo/gulab-jamun.jpg?s=612x612&w=0&k=20&c=oMoXZUYPBZq_N8h9yqB16HsmGF4G-oEcRwEg-K8zZ0o=' },
-      { name: 'Matka Phirni', veg: true, basePrice: 95, desc: 'Chilled creamy rice pudding scented with saffron and cardamom in clay pot.', img: 'https://plus.unsplash.com/premium_photo-1707413391465-82ac03dd5555?w=300&q=80' }
+      { name: 'Matka Phirni', veg: true, basePrice: 95, desc: 'Chilled creamy rice pudding scented with saffron and cardamom in clay pot.', img: '/dishes/matka_phirni.jpg' }
     ],
     Beverages: [
       { name: 'Thums Up Glass Bottle (300ml)', veg: true, basePrice: 40, desc: 'Chilled strong fizzy cola, the classic biryani companion.', img: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=300&q=80' },
       { name: 'Spiced Andhra Buttermilk (Majjiga)', veg: true, basePrice: 45, desc: 'Cooling churned curd beverage tempered with crushed ginger and green chili.', img: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300&q=80' },
-      { name: 'Sweet Punjabi Lassi', veg: true, basePrice: 80, desc: 'Thick sweetened yogurt beverage served chilled.', img: 'https://images.unsplash.com/photo-1528736235302-52922df5c122?w=300&q=80' },
+      { name: 'Sweet Punjabi Lassi', veg: true, basePrice: 80, desc: 'Thick sweetened yogurt beverage served chilled.', img: '/dishes/sweet_lassi.jpg' },
       { name: 'Fresh Lime Soda (Sweet & Salt)', veg: true, basePrice: 60, desc: 'Fizzy sparkling lemon drink.', img: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300&q=80' }
     ]
   },
@@ -474,7 +474,7 @@ export const BRAND_POOLS = {
       { name: 'Rabdi Jalebi', veg: true, basePrice: 110, desc: 'Crisp hot jalebis topped with thick condensed milk rabdi.', img: 'https://images.unsplash.com/photo-1760263216784-a4ca9a841ff5?w=300&q=80' }
     ],
     Beverages: [
-      { name: 'Patiala Heavy Sweet Lassi', veg: true, basePrice: 85, desc: 'Giant tumbler of thick churned yogurt beverage topped with clotted malai.', img: 'https://images.unsplash.com/photo-1528736235302-52922df5c122?w=300&q=80' },
+      { name: 'Patiala Heavy Sweet Lassi', veg: true, basePrice: 85, desc: 'Giant tumbler of thick churned yogurt beverage topped with clotted malai.', img: '/dishes/sweet_lassi.jpg' },
       { name: 'Spiced Masala Chaas', veg: true, basePrice: 45, desc: 'Cold salted buttermilk with roasted cumin and mint.', img: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300&q=80' },
       { name: 'Kulhad Masala Chai', veg: true, basePrice: 35, desc: 'Piping hot ginger-cardamom tea served in earthen clay cup.', img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=300&q=80' },
       { name: 'Thums Up Glass Bottle (300ml)', veg: true, basePrice: 35, desc: 'Chilled classic Indian cola.', img: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=300&q=80' }

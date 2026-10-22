@@ -107,10 +107,10 @@ export function seedDatabase(targetDb = db) {
   insertMenuItem.run('m117', 'r1', 'Breads', 'Laccha Paratha', 60, 1, 1, 80, 'Multi-layered flaky butter paratha.', 'https://images.unsplash.com/photo-1626074353765-517a681e40be?w=300&q=80');
   // Desserts
   insertMenuItem.run('m7', 'r1', 'Desserts', 'Gulab Jamun (2pcs)', 90, 1, 1, 50, 'Soft berry-sized balls soaked in rose-flavored sugar syrup.', 'https://media.istockphoto.com/id/521788423/photo/gulab-jamun.jpg?s=612x612&w=0&k=20&c=oMoXZUYPBZq_N8h9yqB16HsmGF4G-oEcRwEg-K8zZ0o=');
-  insertMenuItem.run('m118', 'r1', 'Desserts', 'Rasmalai (2pcs)', 110, 1, 1, 40, 'Soft cottage cheese patties steeped in cardamom infused saffron milk.', 'https://plus.unsplash.com/premium_photo-1707413391465-82ac03dd5555?w=300&q=80');
+  insertMenuItem.run('m118', 'r1', 'Desserts', 'Rasmalai (2pcs)', 110, 1, 1, 40, 'Soft cottage cheese patties steeped in cardamom infused saffron milk.', '/dishes/kesar_rasmalai.jpg');
   insertMenuItem.run('m119', 'r1', 'Desserts', 'Kesar Pista Kulfi', 120, 1, 1, 35, 'Traditional Indian dense ice cream with pistachios and saffron.', 'https://images.unsplash.com/photo-1505394033641-40c6ad1178d7?w=300&q=80');
   // Beverages
-  insertMenuItem.run('m120', 'r1', 'Beverages', 'Punjabi Sweet Lassi', 80, 1, 1, 50, 'Thick chilled sweet yogurt drink garnished with malai.', 'https://images.unsplash.com/photo-1528736235302-52922df5c122?w=300&q=80');
+  insertMenuItem.run('m120', 'r1', 'Beverages', 'Punjabi Sweet Lassi', 80, 1, 1, 50, 'Thick chilled sweet yogurt drink garnished with malai.', '/dishes/sweet_lassi.jpg');
 
   // --- Items for Burger & Co. (r2) - 17 items ---
   // Starters
@@ -147,7 +147,7 @@ export function seedDatabase(targetDb = db) {
   insertMenuItem.run('m308', 'r3', 'Mains', 'Rava Onion Dosa', 130, 1, 1, 40, 'Crispy semolina crepe studded with chopped onions and green chilies.', 'https://images.unsplash.com/photo-1668236543090-82eba5ee5976?w=300&q=80');
   insertMenuItem.run('m309', 'r3', 'Mains', 'Bisi Bele Bath', 120, 1, 1, 40, 'Traditional Karnataka spiced rice and lentil dish topped with boondi.', 'https://plus.unsplash.com/premium_photo-1694506374757-632d818eb023?w=300&q=80');
   insertMenuItem.run('m310', 'r3', 'Mains', 'South Indian Special Thali', 220, 1, 1, 30, 'Rice, sambar, rasam, 2 vegetable curries, curd, papad and sweet.', 'https://images.unsplash.com/photo-1625398407796-82650a8c135f?w=300&q=80');
-  insertMenuItem.run('m311', 'r3', 'Mains', 'Curd Rice with Mustard Tadka', 90, 1, 1, 40, 'Comforting yogurt rice tempered with mustard, ginger and pomegranate.', 'https://plus.unsplash.com/premium_photo-1694141252026-3df1de888a21?w=300&q=80');
+  insertMenuItem.run('m311', 'r3', 'Mains', 'Curd Rice with Mustard Tadka', 90, 1, 1, 40, 'Comforting yogurt rice tempered with mustard, ginger and pomegranate.', '/dishes/curd_rice.jpg');
   insertMenuItem.run('m312', 'r3', 'Mains', 'Ghee Podi Mini Idli (12pcs)', 110, 1, 1, 35, 'Bite-sized steamed idlis tossed in gun powder spice and aromatic pure ghee.', 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=300&q=80');
   // Breads
   insertMenuItem.run('m303', 'r3', 'Breads', 'Malabar Parotta (2pcs)', 60, 1, 1, 60, 'Flaky layered South Indian flatbread.', 'https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=300&q=80');
@@ -158,7 +158,7 @@ export function seedDatabase(targetDb = db) {
   insertMenuItem.run('m316', 'r3', 'Desserts', 'Pineapple Rava Kesari', 60, 1, 1, 40, 'Warm semolina pudding infused with pineapple chunks and roasted cashews.', 'https://images.unsplash.com/photo-1760263216784-a4ca9a841ff5?w=300&q=80');
   // Beverages
   insertMenuItem.run('m304', 'r3', 'Beverages', 'Filter Coffee', 50, 1, 1, 100, 'Authentic frothy South Indian chicory filter coffee.', 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=300&q=80');
-  insertMenuItem.run('m317', 'r3', 'Beverages', 'Chilled Badam Milk', 80, 1, 1, 40, 'Slow-simmered almond milk flavored with saffron and crushed cardamom.', 'https://images.unsplash.com/photo-1528736235302-52922df5c122?w=300&q=80');
+  insertMenuItem.run('m317', 'r3', 'Beverages', 'Chilled Badam Milk', 80, 1, 1, 40, 'Slow-simmered almond milk flavored with saffron and crushed cardamom.', '/dishes/sweet_lassi.jpg');
 
   // --- Items for Midnight Munchies (r4) - 16 items ---
   // Starters

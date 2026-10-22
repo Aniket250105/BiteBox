@@ -49,15 +49,15 @@ export const CUISINE_POOLS = {
     ],
     Desserts: [
       { name: 'Gulab Jamun (2pcs)', veg: true, basePrice: 90, desc: 'Golden khoya dumplings steeped in warm rose cardamom syrup.', img: 'https://media.istockphoto.com/id/521788423/photo/gulab-jamun.jpg?s=612x612&w=0&k=20&c=oMoXZUYPBZq_N8h9yqB16HsmGF4G-oEcRwEg-K8zZ0o=' },
-      { name: 'Rasmalai (2pcs)', veg: true, basePrice: 110, desc: 'Soft chenna patties soaked in chilled saffron infused milk.', img: 'https://plus.unsplash.com/premium_photo-1707413391465-82ac03dd5555?w=300&q=80' },
+      { name: 'Rasmalai (2pcs)', veg: true, basePrice: 110, desc: 'Soft chenna patties soaked in chilled saffron infused milk.', img: '/dishes/kesar_rasmalai.jpg' },
       { name: 'Kesar Pista Kulfi', veg: true, basePrice: 100, desc: 'Traditional slow churned dense ice cream with pistachios.', img: 'https://images.unsplash.com/photo-1505394033641-40c6ad1178d7?w=300&q=80' },
       { name: 'Warm Gajar Ka Halwa', veg: true, basePrice: 120, desc: 'Slow cooked grated carrots in whole milk, mawa and cashew nuts.', img: 'https://images.unsplash.com/photo-1760263216784-a4ca9a841ff5?w=300&q=80' },
       { name: 'Shahi Tukda', veg: true, basePrice: 130, desc: 'Crispy ghee-fried bread rounds soaked in sugar syrup and topped with rabdi.', img: 'https://images.unsplash.com/photo-1505394033641-40c6ad1178d7?w=300&q=80' }
     ],
     Beverages: [
-      { name: 'Patiala Sweet Lassi', veg: true, basePrice: 85, desc: 'Thick chilled sweet yogurt beverage topped with clotted malai.', img: 'https://images.unsplash.com/photo-1528736235302-52922df5c122?w=300&q=80' },
+      { name: 'Patiala Sweet Lassi', veg: true, basePrice: 85, desc: 'Thick chilled sweet yogurt beverage topped with clotted malai.', img: '/dishes/sweet_lassi.jpg' },
       { name: 'Masala Spiced Chaas', veg: true, basePrice: 60, desc: 'Refreshing buttermilk with roasted cumin and mint.', img: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300&q=80' },
-      { name: 'Mango Alphonso Lassi', veg: true, basePrice: 100, desc: 'Rich blended yogurt shake with pure Ratnagiri Alphonso pulp.', img: 'https://images.unsplash.com/photo-1528736235302-52922df5c122?w=300&q=80' },
+      { name: 'Mango Alphonso Lassi', veg: true, basePrice: 100, desc: 'Rich blended yogurt shake with pure Ratnagiri Alphonso pulp.', img: '/dishes/sweet_lassi.jpg' },
       { name: 'Kulhad Masala Chai', veg: true, basePrice: 45, desc: 'Brewed ginger cardamom tea served piping hot.', img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=300&q=80' }
     ]
   },
@@ -80,7 +80,7 @@ export const CUISINE_POOLS = {
       { name: 'Bisi Bele Bath with Boondi', veg: true, basePrice: 120, desc: 'Hearty Karnataka spiced rice, lentils, and garden vegetables with ghee.', img: 'https://plus.unsplash.com/premium_photo-1694506374757-632d818eb023?w=300&q=80' },
       { name: 'South Indian Royal Thali', veg: true, basePrice: 220, desc: 'Full platter with rice, sambar, rasam, 2 poriyals, curd, papad, and payasam.', img: 'https://images.unsplash.com/photo-1625398407796-82650a8c135f?w=300&q=80' },
       { name: 'Onion Rava Masala Dosa', veg: true, basePrice: 125, desc: 'Crisp semolina crepe embedded with toasted onions and green chilies.', img: 'https://images.unsplash.com/photo-1668236543090-82eba5ee5976?w=300&q=80' },
-      { name: 'Curd Rice with Pomegranate', veg: true, basePrice: 95, desc: 'Comforting mashed rice with fresh yogurt, tempered with mustard and ginger.', img: 'https://plus.unsplash.com/premium_photo-1694141252026-3df1de888a21?w=300&q=80' },
+      { name: 'Curd Rice with Pomegranate', veg: true, basePrice: 95, desc: 'Comforting mashed rice with fresh yogurt, tempered with mustard and ginger.', img: '/dishes/curd_rice.jpg' },
       { name: 'Chettinad Chicken Curry', veg: false, basePrice: 340, desc: 'Fiery chicken gravy infused with stone flower, black pepper and roasted coconut.', img: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=300&q=80' },
       { name: 'Malabar Prawn Curry', veg: false, basePrice: 380, desc: 'Coastal style prawns gently poached in coconut milk and kokum gravy.', img: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=300&q=80' },
       { name: 'Kerala Mutton Stew', veg: false, basePrice: 390, desc: 'Tender mutton cooked in mild coconut cream with peppercorns and potatoes.', img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=300&q=80' }
@@ -95,13 +95,13 @@ export const CUISINE_POOLS = {
     Desserts: [
       { name: 'Ghee Mysore Pak', veg: true, basePrice: 80, desc: 'Rich melt-in-mouth golden sweet made from gram flour and pure ghee.', img: 'https://plus.unsplash.com/premium_photo-1698500035173-fdea60f9294e?w=300&q=80' },
       { name: 'Pineapple Kesari Bath', veg: true, basePrice: 65, desc: 'Warm roasted semolina pudding infused with pineapple chunks and cashews.', img: 'https://images.unsplash.com/photo-1760263216784-a4ca9a841ff5?w=300&q=80' },
-      { name: 'Elaneer Payasam', veg: true, basePrice: 95, desc: 'Chilled delicate pudding made with fresh tender coconut pulp and milk.', img: 'https://images.unsplash.com/photo-1505394033641-40c6ad1178d7?w=300&q=80' },
+      { name: 'Elaneer Payasam', veg: true, basePrice: 95, desc: 'Chilled delicate pudding made with fresh tender coconut pulp and milk.', img: '/dishes/elaneer_payasam.jpg' },
       { name: 'Rava Kesari with Dry Fruits', veg: true, basePrice: 70, desc: 'Classic saffron semolina sweet enriched with golden raisins.', img: 'https://images.unsplash.com/photo-1760263216784-a4ca9a841ff5?w=300&q=80' }
     ],
     Beverages: [
       { name: 'Degree Filter Coffee', veg: true, basePrice: 50, desc: 'Authentic frothy South Indian chicory brew served in a traditional dabara set.', img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=300&q=80' },
       { name: 'Chilled Spiced Buttermilk', veg: true, basePrice: 45, desc: 'Cooling drink flavored with curry leaves, ginger, hing and green chilies.', img: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300&q=80' },
-      { name: 'Saffron Badam Milk', veg: true, basePrice: 75, desc: 'Warm sweetened milk infused with crushed almonds and saffron strands.', img: 'https://images.unsplash.com/photo-1528736235302-52922df5c122?w=300&q=80' },
+      { name: 'Saffron Badam Milk', veg: true, basePrice: 75, desc: 'Warm sweetened milk infused with crushed almonds and saffron strands.', img: '/dishes/sweet_lassi.jpg' },
       { name: 'Tender Coconut Cooler', veg: true, basePrice: 70, desc: 'Pure hydrating tender coconut water with lime splash.', img: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300&q=80' }
     ]
   },
