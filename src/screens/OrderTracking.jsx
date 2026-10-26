@@ -119,7 +119,6 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome }) => {
 
   // Helper to compute waypoints given destination and restaurant
   const resolveCurrentWaypoints = useCallback((order, profile) => {
-    // 1. Destination coordinates: check order, then orderDetails, then profile coords
     let destLat = Number(order?.delivery_lat || orderDetails?.delivery_lat);
     let destLng = Number(order?.delivery_lng || orderDetails?.delivery_lng);
 
@@ -133,7 +132,6 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome }) => {
       }
     }
 
-    // 2. Restaurant coordinates: check order restaurant, prop restaurant, orderDetails restaurant
     let restLat = Number(order?.restaurant?.lat || order?.restaurant_lat || restaurant?.lat || orderDetails?.restaurant?.lat || orderDetails?.restaurant_lat);
     let restLng = Number(order?.restaurant?.lng || order?.restaurant_lng || restaurant?.lng || orderDetails?.restaurant?.lng || orderDetails?.restaurant_lng);
 
@@ -152,6 +150,14 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome }) => {
   const [useSchematicMap, setUseSchematicMap] = useState(false);
   const [tileErrorOccurred, setTileErrorOccurred] = useState(false);
   const [toast, setToast] = useState({ message: '', type: '' });
+
+  // Draggable bottom sheet state (half & full)
+  const [isSheetExpanded, setIsSheetExpanded] = useState(false);
+  const [sheetTranslateY, setSheetTranslateY] = useState(0);
+  const [isDraggingSheet, setIsDraggingSheet] = useState(false);
+  const dragStartYRef = useRef(0);
+  const dragStartTranslateYRef = useRef(0);
+  const hasMovedRef = useRef(false);
 
   // Check health for demo mode
   useEffect(() => {
@@ -217,12 +223,25 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome }) => {
     }
   }, [orderId]);
 
-  // Polling on mount and every 3 seconds
+  const isRejected = liveOrder?.status === 'rejected';
+
+  // Polling on mount and every 3 seconds - stops automatically when delivered or rejected
   useEffect(() => {
+    if (isRejected || currentStageIndex === 5) {
+      return;
+    }
     fetchOrderState();
     const interval = setInterval(fetchOrderState, 3000);
     return () => clearInterval(interval);
-  }, [fetchOrderState]);
+  }, [fetchOrderState, isRejected, currentStageIndex]);
+
+  // Clean up all timers on unmount
+  useEffect(() => {
+    return () => {
+      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+      if (autoSimTimerRef.current) clearTimeout(autoSimTimerRef.current);
+    };
+  }, []);
 
   // Dynamically update waypoints as soon as live order data loads with coordinates
   useEffect(() => {
@@ -269,12 +288,10 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome }) => {
   const restaurantName = liveOrder?.restaurant?.name || restaurant?.name || orderDetails?.restaurant?.name || 'Spicy Symphony';
   const isCOD = (liveOrder?.payment?.payment_method || orderDetails?.paymentMethod) === 'COD';
   const assignedAgent = liveOrder?.agent || null;
-  const isRejected = liveOrder?.status === 'rejected';
 
   // Initialize Leaflet Map ONCE
   useEffect(() => {
     if (useSchematicMap || !mapContainerRef.current) return;
-
     if (mapInstanceRef.current) return;
 
     try {
@@ -282,14 +299,14 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome }) => {
       const endPoint = waypoints[waypoints.length - 1];
 
       const map = L.map(mapContainerRef.current, {
-        zoomControl: true,
+        zoomControl: false,
         attributionControl: true,
         scrollWheelZoom: false
       });
       mapInstanceRef.current = map;
 
       const bounds = L.latLngBounds(waypoints);
-      map.fitBounds(bounds, { padding: [45, 45] });
+      map.fitBounds(bounds, { padding: [55, 55] });
 
       const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
@@ -310,7 +327,7 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome }) => {
         className: 'custom-leaflet-marker',
         html: `
           <div class="marker-container restaurant-pin">
-            <div class="pin-badge">🏢</div>
+            <div class="pin-badge">🍽️</div>
             <div class="pin-tag" id="map-restaurant-pin-tag">${restaurantName}</div>
           </div>
         `,
@@ -326,7 +343,6 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome }) => {
           <div class="marker-container customer-pin">
             <div class="pulse-ring"></div>
             <div class="pin-badge">📍</div>
-            <div class="pin-tag customer-tag">Delivery Location</div>
           </div>
         `,
         iconSize: [42, 42],
@@ -334,21 +350,21 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome }) => {
       });
       customerMarkerRef.current = L.marker(endPoint, { icon: custIcon }).addTo(map);
 
-      // 3. Planned Route Polyline
+      // 3. Planned Route Polyline (Dashed)
       routePolylineRef.current = L.polyline(waypoints, {
-        color: '#E53935',
+        color: '#b9b1a6',
         weight: 5,
-        opacity: 0.45,
-        dashArray: '8, 8',
+        opacity: 0.85,
+        dashArray: '9, 8',
         lineCap: 'round',
         lineJoin: 'round'
       }).addTo(map);
 
-      // 4. Completed Trail Polyline (Solid)
+      // 4. Completed Trail Polyline (Solid Saffron)
       completedPolylineRef.current = L.polyline([startPoint], {
-        color: '#E53935',
+        color: '#FF6B2C',
         weight: 6,
-        opacity: 0.95,
+        opacity: 0.98,
         lineCap: 'round',
         lineJoin: 'round'
       }).addTo(map);
@@ -369,15 +385,19 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome }) => {
 
       // Invalidate map size after mount and after layout renders
       const timer = setTimeout(() => {
-        if (mapInstanceRef.current) {
-          mapInstanceRef.current.invalidateSize();
-          mapInstanceRef.current.fitBounds(L.latLngBounds(waypoints), { padding: [45, 45] });
+        if (mapInstanceRef.current && mapInstanceRef.current._loaded) {
+          try {
+            mapInstanceRef.current.invalidateSize();
+            mapInstanceRef.current.fitBounds(L.latLngBounds(waypoints), { padding: [55, 55] });
+          } catch {}
         }
       }, 150);
 
       const handleResize = () => {
-        if (mapInstanceRef.current) {
-          mapInstanceRef.current.invalidateSize();
+        if (mapInstanceRef.current && mapInstanceRef.current._loaded) {
+          try {
+            mapInstanceRef.current.invalidateSize();
+          } catch {}
         }
       };
       window.addEventListener('resize', handleResize);
@@ -386,7 +406,9 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome }) => {
         clearTimeout(timer);
         window.removeEventListener('resize', handleResize);
         if (mapInstanceRef.current) {
-          mapInstanceRef.current.remove();
+          try {
+            mapInstanceRef.current.remove();
+          } catch {}
           mapInstanceRef.current = null;
         }
       };
@@ -395,6 +417,18 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome }) => {
       setUseSchematicMap(true);
     }
   }, [useSchematicMap]);
+
+  // Invalidate map size on window resize and after sheet transitions
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (mapInstanceRef.current && mapInstanceRef.current._loaded) {
+        try {
+          mapInstanceRef.current.invalidateSize();
+        } catch {}
+      }
+    }, 320);
+    return () => clearTimeout(timer);
+  }, [isSheetExpanded]);
 
   // Update existing map markers & route polyline smoothly when waypoints or restaurant name change
   useEffect(() => {
@@ -417,9 +451,10 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome }) => {
       routePolylineRef.current.setLatLngs(waypoints);
     }
 
-    // Only auto-fit bounds on initial state (before scooter starts driving)
-    if (progress === 0 && mapInstanceRef.current) {
-      mapInstanceRef.current.fitBounds(L.latLngBounds(waypoints), { padding: [45, 45] });
+    if (progress === 0 && mapInstanceRef.current && mapInstanceRef.current._loaded) {
+      try {
+        mapInstanceRef.current.fitBounds(L.latLngBounds(waypoints), { padding: [55, 55] });
+      } catch {}
     }
   }, [waypoints, restaurantName, useSchematicMap, progress]);
 
@@ -469,7 +504,6 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome }) => {
       setProgress((prev) => {
         const next = prev + delta / baseDurationMs;
         if (next >= 1) {
-          // Trigger server advance to delivered if not already
           if (orderId && liveOrder?.status !== 'delivered') {
             apiService.advanceOrderStage(orderId, 'delivered').catch(() => {});
           }
@@ -496,13 +530,11 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome }) => {
 
     try {
       if (currentStageIndex === 0) {
-        // Restaurant decision: ACCEPT
         const res = await apiService.submitRestaurantDecision(orderId, 'ACCEPT');
         setToast({ message: '✅ Restaurant accepted order. Delivery partner assigned!', type: 'success' });
         setLiveOrder(res.order);
         setCurrentStageIndex(1);
       } else {
-        // Advance forward stage in state machine
         const res = await apiService.advanceOrderStage(orderId);
         setToast({ message: res.message || 'Advanced to next stage.', type: 'success' });
         setLiveOrder(res.order);
@@ -536,7 +568,7 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome }) => {
         await fetchOrderState();
 
         if (step === 4) {
-          setSpeedMultiplier(3); // accelerate drive
+          setSpeedMultiplier(3);
         } else if (step < 5) {
           autoSimTimerRef.current = setTimeout(runNext, 3000);
         }
@@ -573,10 +605,12 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome }) => {
   };
 
   const handleRecenter = () => {
-    if (mapInstanceRef.current) {
-      const bounds = L.latLngBounds(waypoints);
-      mapInstanceRef.current.fitBounds(bounds, { padding: [45, 45] });
-      setToast({ message: 'Map recentered on delivery route.', type: 'success' });
+    if (mapInstanceRef.current && mapInstanceRef.current._loaded) {
+      try {
+        const bounds = L.latLngBounds(waypoints);
+        mapInstanceRef.current.fitBounds(bounds, { padding: [55, 55] });
+        setToast({ message: 'Map recentered on delivery route.', type: 'success' });
+      } catch {}
     }
   };
 
@@ -595,20 +629,28 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome }) => {
     return Math.max(0.3, Math.round(R * c * 10) / 10);
   }, [waypoints]);
 
+  // Existing distance-based ETA calculation
   const calculateEta = () => {
     if (isRejected) return 'Cancelled';
     if (currentStageIndex === 5) return 'Delivered';
     const transitMin = Math.max(5, Math.round(routeDistanceKm * 6));
     const totalMin = 15 + transitMin;
-    if (currentStageIndex === 0) return `${totalMin} - ${totalMin + 5} mins`;
-    if (currentStageIndex === 1) return `${Math.max(15, totalMin - 5)} - ${totalMin} mins`;
-    if (currentStageIndex === 2) return `${Math.max(10, totalMin - 10)} mins`;
-    if (currentStageIndex === 3) return `${transitMin} mins`;
+    if (currentStageIndex === 0) return `${totalMin} - ${totalMin + 5} min`;
+    if (currentStageIndex === 1) return `${Math.max(15, totalMin - 5)} - ${totalMin} min`;
+    if (currentStageIndex === 2) return `${Math.max(10, totalMin - 10)} min`;
+    if (currentStageIndex === 3) return `${transitMin} min`;
     const remainingMinutes = Math.max(1, Math.round(transitMin * (1 - progress)));
-    return `${remainingMinutes} mins`;
+    return `${remainingMinutes} min`;
   };
 
-  const currentStage = STAGES[currentStageIndex] || STAGES[0];
+  // Live ETA arrival time (e.g. 12:35 PM)
+  const etaDeliveryTime = useMemo(() => {
+    const d = new Date();
+    const remainingMin = Math.max(1, Math.round(Math.max(5, Math.round(routeDistanceKm * 6)) * (1 - progress)));
+    d.setMinutes(d.getMinutes() + remainingMin);
+    return d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  }, [routeDistanceKm, progress]);
+
   const orderNumber = liveOrder?.order_number || orderDetails?.orderNumber || 'BB-ORDER';
   const totalAmount = liveOrder?.total_amount 
     ?? liveOrder?.payment?.amount 
@@ -616,176 +658,241 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome }) => {
     ?? orderDetails?.total_amount 
     ?? 0;
 
+  const itemCount = useMemo(() => {
+    if (liveOrder?.items && Array.isArray(liveOrder.items) && liveOrder.items.length > 0) {
+      return liveOrder.items.reduce((sum, item) => sum + (item.quantity || 1), 0);
+    }
+    if (orderDetails?.items && Array.isArray(orderDetails.items) && orderDetails.items.length > 0) {
+      return orderDetails.items.reduce((sum, item) => sum + (item.quantity || 1), 0);
+    }
+    if (orderDetails?.itemCount) {
+      return orderDetails.itemCount;
+    }
+    return 1;
+  }, [liveOrder?.items, orderDetails?.items, orderDetails?.itemCount]);
+
+  // Bottom Sheet Drag Handlers
+  const handlePointerDown = (e) => {
+    dragStartYRef.current = e.clientY;
+    dragStartTranslateYRef.current = sheetTranslateY;
+    hasMovedRef.current = false;
+    setIsDraggingSheet(true);
+    if (e.target.setPointerCapture) {
+      try { e.target.setPointerCapture(e.pointerId); } catch {}
+    }
+  };
+
+  const handlePointerMove = (e) => {
+    if (!isDraggingSheet) return;
+    const deltaY = e.clientY - dragStartYRef.current;
+    if (Math.abs(deltaY) > 4) {
+      hasMovedRef.current = true;
+    }
+    const maxUp = isSheetExpanded ? 0 : -280;
+    const maxDown = isSheetExpanded ? 280 : 0;
+    const newY = Math.max(maxUp, Math.min(deltaY, maxDown));
+    setSheetTranslateY(newY);
+  };
+
+  const handlePointerUp = () => {
+    if (!isDraggingSheet) return;
+    setIsDraggingSheet(false);
+
+    if (!hasMovedRef.current) {
+      setIsSheetExpanded(prev => !prev);
+      setSheetTranslateY(0);
+      return;
+    }
+
+    if (isSheetExpanded) {
+      if (sheetTranslateY > 60) {
+        setIsSheetExpanded(false);
+      }
+    } else {
+      if (sheetTranslateY < -60) {
+        setIsSheetExpanded(true);
+      }
+    }
+    setSheetTranslateY(0);
+  };
+
   return (
-    <div className="order-tracking-screen">
+    <div className="order-tracking-screen" id="order-tracking-screen">
       <Toast message={toast.message} type={toast.type} onClose={() => setToast({ message: '', type: '' })} />
 
-      {/* Screen Header */}
-      <div className="header tracking-header-bar">
-        <button className="back-btn" onClick={onHome} title="Back to Home">←</button>
-        <div className="header-title-box">
-          <h2 className="text-lg font-bold">Track Order</h2>
-          <span className="live-status-badge">
-            <span className="live-dot"></span> LIVE
-          </span>
+      {/* Top Floating Controls over Map */}
+      <div className="tracking-top-bar" role="navigation" aria-label="Tracking controls">
+        <button 
+          type="button" 
+          className="circbtn back-btn" 
+          onClick={onHome} 
+          aria-label="Back to home"
+          id="tracking-back-btn"
+          title="Back to Home"
+        >
+          ←
+        </button>
+
+        <div className="tracking-top-right">
+          {isDemoMode && showDemoPill && (
+            <button
+              type="button"
+              className={`chiplive-demo-btn demo-toggle-btn ${isDemoControlsOpen ? 'active' : ''}`}
+              onClick={() => setIsDemoControlsOpen(prev => !prev)}
+              title="Toggle Simulation & Demo Controls"
+            >
+              <span>🧪 Demo</span>
+              <span className="toggle-chevron">{isDemoControlsOpen ? '▴' : '▾'}</span>
+            </button>
+          )}
+
+          <div className="chiplive" aria-label="Live tracking active">
+            <i className="live-dot-pulse" aria-hidden="true"></i>
+            <span>Live tracking</span>
+          </div>
         </div>
-        {isDemoMode && showDemoPill && (
-          <button
-            className={`demo-toggle-btn ${isDemoControlsOpen ? 'active' : ''}`}
-            onClick={() => setIsDemoControlsOpen(!isDemoControlsOpen)}
-            title="Toggle Simulation & Demo Controls"
-          >
-            <span>🧪 Demo</span>
-            <span className="toggle-chevron">{isDemoControlsOpen ? '▴' : '▾'}</span>
-          </button>
+      </div>
+
+      {/* Full-bleed Live Delivery Map (Interactive Leaflet or Schematic SVG) */}
+      <div className="tmap map-wrapper-card" id="delivery-tracking-map-wrapper">
+        {!useSchematicMap ? (
+          <div 
+            id="leaflet-delivery-map" 
+            ref={mapContainerRef} 
+            className="leaflet-map-canvas"
+          ></div>
+        ) : (
+          <div className="schematic-map-canvas">
+            <svg width="100%" height="100%" viewBox="0 0 370 410" preserveAspectRatio="xMidYMid slice" className="schematic-map-svg">
+              <rect width="370" height="410" fill="var(--map-land, #F3EEE4)"/>
+              <path d="M0 300 C80 270 120 330 200 312 C270 296 320 336 370 308 L370 410 L0 410 Z" fill="#CFE3F3"/>
+              <rect x="22" y="110" width="90" height="70" rx="16" fill="#D9EBD3"/>
+              <rect x="240" y="196" width="100" height="64" rx="16" fill="#D9EBD3"/>
+              <g stroke="#fff" strokeWidth="13" strokeLinecap="round" fill="none">
+                <path d="M0 150 H370"/><path d="M0 240 H370"/>
+                <path d="M80 0 V410"/><path d="M200 0 V410"/><path d="M304 0 V410"/>
+              </g>
+              <g stroke="#e8dfd2" strokeWidth="1" fill="none">
+                <path d="M0 150 H370"/><path d="M0 240 H370"/>
+                <path d="M80 0 V410"/><path d="M200 0 V410"/><path d="M304 0 V410"/>
+              </g>
+              <path d="M80 240 H200 V150 H304 V120" stroke="#b9b1a6" strokeWidth="5" strokeDasharray="9 8" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d={`M80 240 H200 V${240 - progress * 90}`} stroke="#FF6B2C" strokeWidth="6" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+              <circle cx="80" cy="240" r="17" fill="#fff" stroke="#17171C" strokeWidth="3"/>
+              <text x="80" y="246" fontSize="17" textAnchor="middle">🍽️</text>
+              <circle cx="200" cy={240 - progress * 90} r="30" fill="rgba(255,107,44,.18)"/>
+              <circle cx="200" cy={240 - progress * 90} r="19" fill="#FF6B2C" stroke="#fff" strokeWidth="3"/>
+              <text x="200" y={247 - progress * 90} fontSize="19" textAnchor="middle">🛵</text>
+              <path d="M304 124 C292 106 292 90 304 82 C316 90 316 106 304 124 Z" fill="#17171C"/>
+              <circle cx="304" cy="100" r="6" fill="#fff"/>
+              <text x="362" y="402" fontSize="8.5" fill="#7b7b86" textAnchor="end">Leaflet | © OpenStreetMap contributors</text>
+            </svg>
+          </div>
+        )}
+
+        {!useSchematicMap && (
+          <div className="map-overlay-controls">
+            <button type="button" className="map-overlay-btn" onClick={handleRecenter} title="Recenter on Route">
+              ⌖ Recenter
+            </button>
+          </div>
         )}
       </div>
 
-      <div className="screen-content tracking-screen-body">
+      {/* Draggable Bottom Sheet (.sheet5) */}
+      <div 
+        className={`sheet5 ${isSheetExpanded ? 'expanded' : 'collapsed'}`}
+        style={sheetTranslateY !== 0 ? { transform: `translateY(${sheetTranslateY}px)`, transition: 'none' } : undefined}
+      >
+        {/* Drag Handle & Tappable Header Area */}
+        <div 
+          className="handle" 
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          role="button"
+          tabIndex={0}
+          aria-label={isSheetExpanded ? 'Collapse order details' : 'Expand order details'}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              setIsSheetExpanded(prev => !prev);
+            }
+          }}
+        ></div>
 
-        {/* Live ETA Banner */}
-        <div className="eta-banner-card">
-          <div className="eta-header">
-            <div>
-              <span className="text-xs font-semibold text-secondary uppercase tracking-wider">Estimated Delivery</span>
-              <h3 className="eta-time text-2xl font-bold">{calculateEta()}</h3>
-            </div>
-            <div className="eta-pill">
+        {/* ETA / Header Row (.arr) */}
+        <div className="arr">
+          <div>
+            <small>
               {isRejected 
-                ? '❌ Rejected' 
+                ? 'Status' 
                 : currentStageIndex === 5 
-                ? '🎉 Complete' 
+                ? 'Status' 
+                : currentStageIndex === 4 
+                ? 'Arriving in' 
+                : 'Estimated delivery'}
+            </small>
+            <b>
+              {isRejected ? (
+                'Cancelled'
+              ) : currentStageIndex === 5 ? (
+                'Delivered!'
+              ) : currentStageIndex === 4 ? (
+                <>
+                  {Math.max(1, Math.round(Math.max(5, Math.round(routeDistanceKm * 6)) * (1 - progress)))}{' '}
+                  <em>min</em>
+                </>
+              ) : (
+                <>
+                  {calculateEta().replace(' min', '')}{' '}
+                  <em>min</em>
+                </>
+              )}
+            </b>
+          </div>
+
+          {/* Status pill: "⚡ On time" is ONLY shown when out for delivery */}
+          <div 
+            className={`ontime ${
+              isRejected 
+                ? 'eta-rejected' 
+                : currentStageIndex === 5 
+                ? 'eta-done' 
+                : currentStageIndex === 4 
+                ? '' 
                 : currentStageIndex === 0 
-                ? '⏳ Awaiting' 
-                : '⚡ On Time'}
-            </div>
-          </div>
-          <div className="eta-progress-bar-bg">
-            <div
-              className="eta-progress-bar-fill"
-              style={{
-                width: isRejected 
-                  ? '100%' 
-                  : `${currentStageIndex === 5 ? 100 : currentStageIndex === 4 ? 65 + Math.round(progress * 33) : (currentStageIndex + 1) * 16}%`,
-                backgroundColor: isRejected ? '#D32F2F' : undefined
-              }}
-            ></div>
-          </div>
-          <div className="eta-footer-row text-xs text-secondary mt-2">
-            <span className="font-medium">{isRejected ? 'Order Rejected' : currentStage.title}</span>
-            <span className="eta-bullet-separator">•</span>
-            <span className="font-semibold">Order #{orderNumber}</span>
+                ? 'eta-awaiting' 
+                : 'eta-progress'
+            }`}
+          >
+            {isRejected 
+              ? '❌ Rejected' 
+              : currentStageIndex === 5 
+              ? '🎉 Delivered' 
+              : currentStageIndex === 4 
+              ? `⚡ On time · ${etaDeliveryTime}` 
+              : currentStageIndex === 0 
+              ? '⏳ Awaiting' 
+              : currentStageIndex === 1
+              ? '📝 Confirmed'
+              : currentStageIndex === 2
+              ? '🍳 Cooking'
+              : '🎒 Picked up'}
           </div>
         </div>
 
-        {/* Collapsible Demo Control Panel */}
-        {isDemoControlsOpen && (
-          <div className="demo-controls-panel slide-in-top">
-            <div className="demo-panel-header">
-              <span className="font-bold text-xs uppercase tracking-wider text-primary">🕹️ Live Demo Controls</span>
-              <span className="text-xs text-secondary">Stage 4b State Machine</span>
-            </div>
-
-            {/* Force Restaurant Rejection Toggle */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px dashed var(--color-border)' }}>
-              <div>
-                <span className="text-xs font-bold block" style={{ color: '#F57C00' }}>
-                  ⚡ Force restaurant rejection
-                </span>
-                <span className="text-xs text-secondary">
-                  Auto-rejects order during awaiting decision stage
-                </span>
-              </div>
-              <input 
-                type="checkbox" 
-                checked={forceRejectionDemo} 
-                onChange={(e) => setForceRejectionDemo(e.target.checked)} 
-                style={{ width: '18px', height: '18px', accentColor: '#F57C00' }}
-              />
-            </div>
-
-            <div className="demo-action-row" style={{ marginTop: '12px' }}>
-              <button
-                className="btn btn-primary demo-btn-sm"
-                onClick={handleSimulateNext}
-                disabled={isRejected || currentStageIndex === 5}
-              >
-                Simulate Next ▶
-              </button>
-
-              {isAutoSimulating ? (
-                <button className="btn btn-outline demo-btn-sm stop-btn" onClick={handleStopAutoSim}>
-                  ⏹ Stop Auto
-                </button>
-              ) : (
-                <button 
-                  className="btn btn-outline demo-btn-sm" 
-                  onClick={handleAutoRunDemo}
-                  disabled={isRejected || currentStageIndex === 5}
-                >
-                  ▶ Auto-Run (45s)
-                </button>
-              )}
-            </div>
-
-            <div className="demo-speed-row">
-              <span className="text-xs text-secondary font-medium">Trip Speed:</span>
-              {[1, 2, 5].map((speed) => (
-                <button
-                  key={speed}
-                  className={`speed-pill ${speedMultiplier === speed ? 'active' : ''}`}
-                  onClick={() => setSpeedMultiplier(speed)}
-                >
-                  {speed}x
-                </button>
-              ))}
-
-              <button
-                className="schematic-toggle-btn"
-                onClick={() => setUseSchematicMap(!useSchematicMap)}
-              >
-                {useSchematicMap ? '🗺️ OSM Tiles' : '📐 Schematic Map'}
-              </button>
-            </div>
-
-            {/* Re-seed demo database button */}
-            {isDemoMode && (
-              <div style={{ marginTop: '12px', paddingTop: '10px', borderTop: '1px dashed var(--color-border)' }}>
-                <button
-                  type="button"
-                  className="btn demo-btn-sm"
-                  style={{
-                    backgroundColor: '#D32F2F',
-                    color: '#FFFFFF',
-                    width: '100%',
-                    fontWeight: '700',
-                    border: 'none',
-                    padding: '8px 12px',
-                    borderRadius: 'var(--radius-md)'
-                  }}
-                  onClick={handleResetDemoData}
-                  disabled={resetLoading}
-                  title="Re-seed database, restore stock, and clear orders"
-                >
-                  {resetLoading ? 'Resetting Database...' : '🔄 Reset Demo Data (Re-seed DB)'}
-                </button>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* If Rejected: Show Dedicated Rejection State Card */}
-        {isRejected && (
-          <div className="rejected-order-card">
+        {/* If Rejected: Dedicated Rejection View Card (Replaces Stepper) */}
+        {isRejected ? (
+          <div className="rejected-order-card" role="alert">
             <div className="rejected-card-header">
-              <span className="rejected-badge-icon">✕</span>
+              <span className="rejected-badge-icon" aria-hidden="true">✕</span>
               <div>
                 <h3>Order Rejected by Restaurant</h3>
                 <span className="text-xs text-secondary">Order #{orderNumber}</span>
               </div>
             </div>
 
-            <p className="text-sm">
+            <p className="rejection-desc">
               We're sorry! The restaurant was unable to accept your order.
             </p>
 
@@ -794,7 +901,7 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome }) => {
               <span>{liveOrder?.rejection_reason || 'Kitchen overloaded with pending orders.'}</span>
             </div>
 
-            <div>
+            <div className="rejected-refund-container">
               {isCOD ? (
                 <span className="rejected-refund-pill pill-nocharge">
                   💵 No charge made (Pay on delivery cancelled)
@@ -806,211 +913,253 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome }) => {
               )}
             </div>
 
-            <p className="text-xs text-secondary mb-4">
-              Item stock has been safely restored to the restaurant menu.
-            </p>
-
-            <button className="rejected-return-btn" onClick={onHome}>
+            <button type="button" className="rejected-return-btn bigbtn" onClick={onHome}>
               ← Return to Restaurant Listing
             </button>
           </div>
-        )}
-
-        {/* Live Delivery Map (Interactive OSM Leaflet) */}
-        {!isRejected && (
-          <div className="map-wrapper-card">
-            <div className="map-header-bar">
-              <span className="map-badge">⚡ Route View</span>
-              <span className="map-subtext text-xs text-secondary font-medium">
-                {currentStageIndex === 4 ? 'Scooter is en-route' : 'Driver GPS Route'}
-              </span>
+        ) : (
+          /* 5-Stage Horizontal Stepper (.hstep) */
+          <div className="hstep" role="list" aria-label="Order progress tracker">
+            {/* 1: Confirmed */}
+            <div 
+              className={`n ${currentStageIndex > 1 ? 'd' : currentStageIndex === 1 ? 'a' : ''}`} 
+              role="listitem"
+              aria-current={currentStageIndex === 1 ? 'step' : undefined}
+            >
+              <i>{currentStageIndex > 1 ? '✓' : currentStageIndex === 1 ? '📝' : '○'}</i>
+              <span>Confirmed</span>
             </div>
 
-            {!useSchematicMap ? (
-              <div 
-                id="leaflet-delivery-map" 
-                ref={mapContainerRef} 
-                className="leaflet-map-canvas"
-              ></div>
-            ) : (
-              <div className="schematic-map-canvas">
-                <div className="schematic-node restaurant-node">
-                  <div className="node-icon">🏢</div>
-                  <div className="node-label">{restaurantName}</div>
-                </div>
-                <div className="schematic-node customer-node">
-                  <div className="node-icon">📍</div>
-                  <div className="node-label">Destination</div>
-                </div>
-                <svg className="schematic-route-svg">
-                  <path d="M 40 180 Q 200 40 360 40" className="schematic-path-bg" />
-                  <path
-                    d="M 40 180 Q 200 40 360 40"
-                    className="schematic-path-active"
-                    style={{ strokeDashoffset: `${320 * (1 - progress)}` }}
-                  />
-                </svg>
-                <div
-                  className="schematic-agent-node"
-                  style={{
-                    left: `${40 + progress * 320}px`,
-                    top: `${180 - Math.sin(progress * Math.PI) * 110 - progress * 140}px`
-                  }}
-                >
-                  <div className="scooter-circle">🛵</div>
-                </div>
-                <div className="schematic-watermark">
-                  <span>⚡ Offline Fallback Schematic Map</span>
-                </div>
-              </div>
-            )}
+            {/* 2: Cooking */}
+            <div 
+              className={`n ${currentStageIndex > 2 ? 'd' : currentStageIndex === 2 ? 'a' : ''}`} 
+              role="listitem"
+              aria-current={currentStageIndex === 2 ? 'step' : undefined}
+            >
+              <i>{currentStageIndex > 2 ? '✓' : currentStageIndex === 2 ? '🍳' : '○'}</i>
+              <span>Cooking</span>
+            </div>
 
-            <div className="map-overlay-controls">
-              {!useSchematicMap && (
-                <button className="map-overlay-btn" onClick={handleRecenter} title="Recenter on Route">
-                  ⌖ Recenter
-                </button>
-              )}
+            {/* 3: Picked up */}
+            <div 
+              className={`n ${currentStageIndex > 3 ? 'd' : currentStageIndex === 3 ? 'a' : ''}`} 
+              role="listitem"
+              aria-current={currentStageIndex === 3 ? 'step' : undefined}
+            >
+              <i>{currentStageIndex > 3 ? '✓' : currentStageIndex === 3 ? '🎒' : '○'}</i>
+              <span>Picked up</span>
+            </div>
+
+            {/* 4: On the way */}
+            <div 
+              className={`n ${currentStageIndex > 4 ? 'd' : currentStageIndex === 4 ? 'a' : ''}`} 
+              role="listitem"
+              aria-current={currentStageIndex === 4 ? 'step' : undefined}
+            >
+              <i>{currentStageIndex > 4 ? '✓' : currentStageIndex === 4 ? '🛵' : '○'}</i>
+              <span>On the way</span>
+            </div>
+
+            {/* 5: Delivered */}
+            <div 
+              className={`n ${currentStageIndex === 5 ? 'd' : ''}`} 
+              role="listitem"
+              aria-current={currentStageIndex === 5 ? 'step' : undefined}
+            >
+              <i>{currentStageIndex === 5 ? '✓' : '○'}</i>
+              <span>Delivered</span>
             </div>
           </div>
         )}
 
-        {/* Delivery Partner Card */}
+        {/* Delivery Partner Card (.agent5) - Hidden during rejection */}
         {!isRejected && (
           assignedAgent ? (
-            <div className="delivery-partner-card">
-              <div className="partner-main-info">
-                <div className="partner-initials-avatar">
-                  <span className="initials-text">
-                    {(assignedAgent.name || 'RK').split(' ').map(n => n[0]).join('')}
-                  </span>
-                  <span className="partner-online-dot"></span>
-                </div>
-
-                <div className="partner-details">
-                  <div className="partner-name-row">
-                    <h4 className="font-bold text-base">{assignedAgent.name}</h4>
-                    <span className="partner-rating-badge">★ {assignedAgent.rating || 4.9}</span>
-                  </div>
-                  <p className="partner-vehicle text-xs text-secondary">
-                    {assignedAgent.vehicle_model} • <span className="vehicle-plate">{assignedAgent.vehicle_plate}</span>
-                  </p>
-                  <p className="partner-status-tag text-xs font-semibold text-primary">
-                    {currentStageIndex === 5
-                      ? 'Delivered successfully'
-                      : currentStageIndex === 4
-                      ? 'On the way to your delivery location'
-                      : currentStageIndex === 3
-                      ? 'Collected parcel from restaurant'
-                      : 'Assigned to your order'}
-                  </p>
-                </div>
+            <div className="agent5">
+              <div className="av">
+                {(assignedAgent.name || 'RK').split(' ').map(n => n[0]).slice(0, 2).join('')}
               </div>
-
-              <div className="partner-actions-row">
-                <button
-                  className="partner-call-btn"
-                  onClick={() => setToast({ message: `Calling ${assignedAgent.name} (${assignedAgent.phone})...`, type: 'success' })}
-                >
-                  📞 Call Partner
-                </button>
-                <button
-                  className="partner-msg-btn"
-                  onClick={() => setToast({ message: 'Message sent: "Please leave at doorstep if unreachable."', type: 'success' })}
-                >
-                  💬 Message
-                </button>
+              <div className="tx">
+                <b>
+                  {assignedAgent.name}
+                  <span className="st">★ {assignedAgent.rating || '4.9'}</span>
+                </b>
+                <span>{assignedAgent.vehicle_model} · {assignedAgent.vehicle_plate}</span>
               </div>
+              <button
+                type="button"
+                className="rbtn m partner-msg-btn"
+                onClick={() => setToast({ message: 'Message sent: "Please leave at doorstep if unreachable."', type: 'success' })}
+                aria-label="Message delivery partner"
+                title="Message partner"
+              >
+                💬
+              </button>
+              <button
+                type="button"
+                className="rbtn c partner-call-btn"
+                onClick={() => setToast({ message: `Calling ${assignedAgent.name} (${assignedAgent.phone || '+91 98765 43210'})...`, type: 'success' })}
+                aria-label="Call delivery partner"
+                title="Call partner"
+              >
+                📞
+              </button>
             </div>
           ) : (
-            <div className="awaiting-agent-card">
-              <div className="partner-awaiting-box">
-                <span className="awaiting-agent-icon">🛵</span>
-                <div>
-                  <h5 className="font-semibold text-sm">Delivery Partner</h5>
-                  <p className="text-xs text-secondary mt-0.5">
-                    Delivery partner will be assigned once the restaurant accepts.
-                  </p>
-                </div>
+            <div className="agent5 awaiting awaiting-agent-card">
+              <div className="av awaiting-av">🛵</div>
+              <div className="tx">
+                <b>Delivery Partner</b>
+                <span>Delivery partner will be assigned once the restaurant accepts.</span>
               </div>
             </div>
           )
         )}
 
-        {/* Delivery Address & Order Details Summary */}
-        <div className="tracking-address-card">
-          <div className="address-header">
-            <span className="address-icon">📍</span>
-            <div>
-              <h5 className="font-semibold text-sm">Delivery Destination</h5>
-              <p className="text-xs text-secondary mt-0.5">{deliveryAddress}</p>
-            </div>
-          </div>
-
-          <div className="tracking-payment-summary-row">
-            <span className="text-xs text-secondary">Payment Method</span>
-            <span className="text-xs font-bold" style={{ color: isCOD ? '#F57C00' : 'var(--color-success)' }}>
-              {isCOD ? `Pay on delivery (₹${totalAmount})` : `Paid via Online (₹${totalAmount})`}
+        {/* Order Summary Row (.osum) */}
+        <div className="osum">
+          <div>
+            <b>Order #{orderNumber}</b>
+            <span>
+              {itemCount} {itemCount === 1 ? 'item' : 'items'} · {isCOD ? 'Pay on delivery' : 'Paid online'}
             </span>
+          </div>
+          <b className="osum-total">₹{totalAmount}</b>
+        </div>
+
+        {/* Expanded Sheet Extra Content */}
+        <div className="tracking-dest-card">
+          <div className="dl">
+            <div className="dest-icon" aria-hidden="true">📍</div>
+            <div className="tx">
+              <small>Deliver to</small>
+              <b>{deliveryAddress}</b>
+              <span>Restaurant: {restaurantName}</span>
+            </div>
           </div>
         </div>
 
-        {/* Synchronized Vertical Stage Timeline */}
-        {!isRejected && (
-          <div className="tracking-card">
-            <div className="timeline-header mb-4">
-              <h3 className="section-title text-base font-bold">Order Status</h3>
-              <span className="text-xs text-secondary">Order #{orderNumber}</span>
+        {/* Completed Delivery Celebration Banner */}
+        {currentStageIndex === 5 && !isRejected && (
+          <div className="delivered-card">
+            <div className="delivered-icon" aria-hidden="true">🎉</div>
+            <h3 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--success-text, #137A52)' }}>
+              Order Delivered!
+            </h3>
+            <p style={{ fontSize: '12px', color: 'var(--text-muted, #7B7B86)', marginTop: '4px' }}>
+              Enjoy your meal from {restaurantName}. Thanks for choosing BiteBox!
+            </p>
+            <button type="button" className="bigbtn" style={{ marginTop: '12px', width: '100%' }} onClick={onHome}>
+              Back to Restaurants →
+            </button>
+          </div>
+        )}
+
+        {/* Collapsible Demo Control Panel */}
+        {isDemoControlsOpen && (
+          <div className="demo-controls-panel">
+            <div className="demo-panel-header">
+              <span style={{ fontWeight: '700', fontSize: '12px', textTransform: 'uppercase', color: 'var(--sun, #FF6B2C)' }}>
+                🕹️ Live Demo Controls
+              </span>
+              <span style={{ fontSize: '11px', color: 'var(--text-muted, #7B7B86)' }}>
+                Stage 4b State Machine
+              </span>
             </div>
 
-            <div className="vertical-timeline">
-              {STAGES.map((stage, index) => {
-                const isCompleted = index < currentStageIndex;
-                const isActive = index === currentStageIndex;
-                const isFuture = index > currentStageIndex;
-
-                let statusClass = '';
-                if (isCompleted) statusClass = 'completed';
-                if (isActive) statusClass = 'active';
-                if (isFuture) statusClass = 'future';
-
-                return (
-                  <div key={stage.id} className={`timeline-item ${statusClass}`}>
-                    <div className="timeline-marker">
-                      <div className="marker-icon">
-                        {isCompleted ? '✓' : stage.icon}
-                      </div>
-                      {index !== STAGES.length - 1 && <div className="marker-line"></div>}
-                    </div>
-                    <div className="timeline-content">
-                      <div className="timeline-header-row">
-                        <h4 className="font-bold text-sm">{stage.title}</h4>
-                        <span className="timeline-time text-xs font-medium">
-                          {isCompleted || isActive ? stage.time : `Est. ${stage.defaultEta}m`}
-                        </span>
-                      </div>
-                      <p className="text-xs text-secondary mt-1">{stage.desc}</p>
-                    </div>
-                  </div>
-                );
-              })}
+            {/* Force Restaurant Rejection Toggle */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px dashed var(--border-line, #EFE6DC)' }}>
+              <div>
+                <span style={{ fontSize: '12px', fontWeight: '700', display: 'block', color: '#F57C00' }}>
+                  ⚡ Force restaurant rejection
+                </span>
+                <span style={{ fontSize: '11px', color: 'var(--text-muted, #7B7B86)' }}>
+                  Auto-rejects order during awaiting decision stage
+                </span>
+              </div>
+              <input 
+                type="checkbox" 
+                checked={forceRejectionDemo} 
+                onChange={(e) => setForceRejectionDemo(e.target.checked)} 
+                style={{ width: '18px', height: '18px', accentColor: '#F57C00', cursor: 'pointer' }}
+              />
             </div>
 
-            {/* Bottom Primary Action */}
-            <div className="tracking-actions mt-6">
-              {currentStageIndex < STAGES.length - 1 ? (
-                <button
-                  className="btn btn-outline w-full"
-                  onClick={handleSimulateNext}
-                >
-                  Simulate Next Stage
+            {/* Step Advance & Auto-Run Buttons */}
+            <div className="demo-action-row">
+              <button
+                type="button"
+                className="demo-btn-sm demo-btn-primary"
+                onClick={handleSimulateNext}
+                disabled={isRejected || currentStageIndex === 5}
+              >
+                Simulate Next ▶
+              </button>
+
+              {isAutoSimulating ? (
+                <button type="button" className="demo-btn-sm demo-btn-outline stop-btn" onClick={handleStopAutoSim}>
+                  ⏹ Stop Auto
                 </button>
               ) : (
-                <button className="btn btn-primary w-full" onClick={onHome}>
-                  Back to Home
+                <button 
+                  type="button"
+                  className="demo-btn-sm demo-btn-outline" 
+                  onClick={handleAutoRunDemo}
+                  disabled={isRejected || currentStageIndex === 5}
+                >
+                  ▶ Auto-Run (45s)
                 </button>
               )}
             </div>
+
+            {/* Speed Multiplier and Schematic Map Toggle */}
+            <div className="demo-speed-row">
+              <span style={{ fontSize: '11.5px', color: 'var(--text-muted, #7B7B86)', fontWeight: '600' }}>Speed:</span>
+              {[1, 2, 5].map((speed) => (
+                <button
+                  type="button"
+                  key={speed}
+                  className={`speed-pill ${speedMultiplier === speed ? 'active' : ''}`}
+                  onClick={() => setSpeedMultiplier(speed)}
+                >
+                  {speed}x
+                </button>
+              ))}
+
+              <button
+                type="button"
+                className="schematic-toggle-btn"
+                onClick={() => setUseSchematicMap(prev => !prev)}
+              >
+                {useSchematicMap ? '🗺️ OSM Tiles' : '📐 Schematic Map'}
+              </button>
+            </div>
+
+            {/* Re-seed demo database button */}
+            {isDemoMode && (
+              <div style={{ marginTop: '12px', paddingTop: '10px', borderTop: '1px dashed var(--border-line, #EFE6DC)' }}>
+                <button
+                  type="button"
+                  style={{
+                    backgroundColor: '#D32F2F',
+                    color: '#FFFFFF',
+                    width: '100%',
+                    fontWeight: '700',
+                    border: 'none',
+                    padding: '10px 14px',
+                    borderRadius: '14px',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    minHeight: '44px'
+                  }}
+                  onClick={handleResetDemoData}
+                  disabled={resetLoading}
+                  title="Re-seed database, restore stock, and clear orders"
+                >
+                  {resetLoading ? 'Resetting Database...' : '🔄 Reset Demo Data (Re-seed DB)'}
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

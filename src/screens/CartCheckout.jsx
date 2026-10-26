@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import './CartCheckout.css';
+import ImageWithFallback from '../components/ImageWithFallback';
 import Toast from '../components/Toast';
 import { apiService } from '../services/apiService';
-import { PRESET_LOCATIONS } from '../services/locationData';
+import { authService } from '../services/authService';
+import { PRESET_LOCATIONS, generateRouteWaypoints } from '../services/locationData';
 
 const CartCheckout = ({ 
   restaurant, 
@@ -15,8 +17,16 @@ const CartCheckout = ({
   const [menuItems, setMenuItems] = useState([]);
   const [couponInput, setCouponInput] = useState('');
   const [appliedCouponCode, setAppliedCouponCode] = useState('');
+  const [couponError, setCouponError] = useState('');
+  const [couponAnnouncement, setCouponAnnouncement] = useState('');
   
-  // Server-computed quote (The UI never calculates its own totals)
+  // Delivery address & location modal state
+  const [activeAddress, setActiveAddress] = useState(userProfile?.address || '');
+  const [showLocationModal, setShowLocationModal] = useState(false);
+  const [customAddressInput, setCustomAddressInput] = useState(userProfile?.address || '');
+  const [isDetectingGps, setIsDetectingGps] = useState(false);
+
+  // Server-computed quote (Never compute prices locally)
   const [serverQuote, setServerQuote] = useState(null);
   const [isQuoting, setIsQuoting] = useState(false);
   const [quoteError, setQuoteError] = useState(null);
@@ -25,8 +35,15 @@ const CartCheckout = ({
   const [isCreatingOrder, setIsCreatingOrder] = useState(false);
   const [toast, setToast] = useState({ message: '', type: '' });
   const [lastUpdatedId, setLastUpdatedId] = useState(null);
-
   const [isLoadingMenu, setIsLoadingMenu] = useState(true);
+
+  // Keep activeAddress in sync with userProfile
+  useEffect(() => {
+    if (userProfile?.address) {
+      setActiveAddress(userProfile.address);
+      setCustomAddressInput(userProfile.address);
+    }
+  }, [userProfile?.address]);
 
   // Load menu items from API for item details and images
   useEffect(() => {
@@ -59,15 +76,13 @@ const CartCheckout = ({
     }
   }, [menuItems, cart, updateCart]);
 
-  // Format cart items for server (strictly this restaurant's valid items)
+  // Format cart items for server
   const formattedItems = useMemo(() => {
-    if (menuItems.length === 0) {
-      return [];
-    }
+    if (menuItems.length === 0) return [];
     return cartItems.map(item => ({ menuItemId: item.id, quantity: item.qty }));
   }, [cartItems, menuItems.length]);
 
-  // Resolve delivery coordinates from userProfile coords, address string, or preset locations
+  // Resolve delivery coordinates
   const resolveDeliveryCoords = useCallback(() => {
     let lat = userProfile?.coords?.[0];
     let lng = userProfile?.coords?.[1];
@@ -76,24 +91,22 @@ const CartCheckout = ({
       return { lat: Number(lat), lng: Number(lng) };
     }
 
-    // Try extracting from address string like "Current GPS (13.0307, 77.4923)"
-    if (userProfile?.address) {
-      const match = userProfile.address.match(/\(?(-?\d+\.\d+),\s*(-?\d+\.\d+)\)?/);
+    if (activeAddress) {
+      const match = activeAddress.match(/\(?(-?\d+\.\d+),\s*(-?\d+\.\d+)\)?/);
       if (match) {
         return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
       }
 
-      // Check preset locations
-      const matched = PRESET_LOCATIONS.find(p => p.address === userProfile.address || (p.name && userProfile.address.includes(p.name)));
+      const matched = PRESET_LOCATIONS.find(p => p.address === activeAddress || (p.name && activeAddress.includes(p.name)));
       if (matched && matched.coords) {
         return { lat: matched.coords[0], lng: matched.coords[1] };
       }
     }
 
     return { lat: null, lng: null };
-  }, [userProfile]);
+  }, [userProfile, activeAddress]);
 
-  // Request order quote from server (database-backed calculations)
+  // Request order quote from server
   const fetchQuote = useCallback(async (couponToUse = appliedCouponCode) => {
     if (!restaurant?.id || formattedItems.length === 0) {
       setServerQuote(null);
@@ -107,12 +120,13 @@ const CartCheckout = ({
       const quote = await apiService.fetchOrderQuote({
         restaurantId: restaurant.id,
         items: formattedItems,
-        deliveryAddress: userProfile?.address || '',
+        deliveryAddress: activeAddress || '',
         deliveryLat: coords.lat,
         deliveryLng: coords.lng,
         couponCode: couponToUse || undefined
       });
       setServerQuote(quote);
+      setQuoteError(null);
     } catch (err) {
       setServerQuote(null);
       setQuoteError({
@@ -123,7 +137,7 @@ const CartCheckout = ({
     } finally {
       setIsQuoting(false);
     }
-  }, [restaurant?.id, userProfile?.address, formattedItems, appliedCouponCode, resolveDeliveryCoords]);
+  }, [restaurant?.id, activeAddress, formattedItems, appliedCouponCode, resolveDeliveryCoords]);
 
   // Trigger quote recalculation whenever items or delivery address change
   useEffect(() => {
@@ -131,32 +145,37 @@ const CartCheckout = ({
   }, [fetchQuote, appliedCouponCode]);
 
   // Apply Coupon via Server Quote
-  const handleApplyCoupon = async () => {
+  const handleApplyCoupon = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
     const code = couponInput.trim().toUpperCase();
     if (!code) {
-      setToast({ message: 'Please enter a coupon code.', type: 'error' });
+      setCouponError('Please enter a coupon code.');
+      setCouponAnnouncement('Please enter a coupon code.');
       return;
     }
 
-    const coords = resolveDeliveryCoords();
+    setCouponError('');
     setIsQuoting(true);
+    const coords = resolveDeliveryCoords();
     try {
       const quote = await apiService.fetchOrderQuote({
         restaurantId: restaurant.id,
         items: formattedItems,
-        deliveryAddress: userProfile?.address || '',
+        deliveryAddress: activeAddress || '',
         deliveryLat: coords.lat,
         deliveryLng: coords.lng,
         couponCode: code
       });
       setServerQuote(quote);
       setAppliedCouponCode(code);
-      setToast({ 
-        message: `Coupon ${code} applied! Saved ₹${quote.discountAmount}.`, 
-        type: 'success' 
-      });
+      setCouponError('');
+      const msg = `Coupon ${code} applied! ₹${quote.discountAmount} off.`;
+      setCouponAnnouncement(msg);
+      setToast({ message: msg, type: 'success' });
     } catch (err) {
-      setToast({ message: err.message || 'Invalid coupon code.', type: 'error' });
+      const errorMsg = err.message || 'Invalid coupon code.';
+      setCouponError(errorMsg);
+      setCouponAnnouncement(`Coupon error: ${errorMsg}`);
     } finally {
       setIsQuoting(false);
     }
@@ -166,19 +185,27 @@ const CartCheckout = ({
   const handleRemoveCoupon = () => {
     setCouponInput('');
     setAppliedCouponCode('');
+    setCouponError('');
+    setCouponAnnouncement('Coupon removed.');
     fetchQuote('');
-    setToast({ message: 'Coupon removed.', type: 'success' });
+    setToast({ message: 'Coupon removed.', type: 'info' });
   };
 
   const handleUpdateCart = (itemId, newQty) => {
     updateCart(itemId, newQty);
     setLastUpdatedId(itemId);
     setTimeout(() => setLastUpdatedId(null), 200);
+
+    // If all items removed, return to menu with friendly message
+    if (newQty <= 0 && cartItems.length <= 1) {
+      setToast({ message: 'Cart is empty. Returning to menu...', type: 'info' });
+      setTimeout(onBack, 700);
+    }
   };
 
-  // Proceed to Pay: Create order in database via POST /api/orders (JWT auth)
+  // Proceed to Payment: Create order via POST /api/orders
   const handleProceedToPayment = async () => {
-    if (!serverQuote || quoteError || isCreatingOrder) return;
+    if (!serverQuote || quoteError || isCreatingOrder || isQuoting) return;
 
     const coords = resolveDeliveryCoords();
     setIsCreatingOrder(true);
@@ -186,7 +213,7 @@ const CartCheckout = ({
       const orderRes = await apiService.createOrder({
         restaurantId: restaurant.id,
         items: formattedItems,
-        deliveryAddress: userProfile?.address || '',
+        deliveryAddress: activeAddress || '',
         deliveryLat: coords.lat,
         deliveryLng: coords.lng,
         couponCode: appliedCouponCode || undefined
@@ -222,85 +249,162 @@ const CartCheckout = ({
     }
   };
 
-  // Loading menu state while fetching details
+  // Delivery Location Change Handlers
+  const handleSelectPreset = async (preset) => {
+    setCustomAddressInput(preset.address);
+    setActiveAddress(preset.address);
+    authService.updateDeliveryLocation(preset.address, preset.coords, preset.waypoints);
+    setShowLocationModal(false);
+
+    // Check if restaurant delivers to new area
+    try {
+      const available = await apiService.fetchRestaurants(preset.address);
+      const stillDelivers = available.some(r => r.id === restaurant.id);
+      if (!stillDelivers) {
+        setToast({
+          message: `${restaurant.name} does not deliver to ${preset.address}.`,
+          type: 'warning'
+        });
+      }
+    } catch {}
+  };
+
+  const handleDetectGps = () => {
+    if (!navigator.geolocation) return;
+    setIsDetectingGps(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        const address = `Current GPS (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`;
+        const waypoints = generateRouteWaypoints(latitude, longitude);
+        setCustomAddressInput(address);
+        setActiveAddress(address);
+        authService.updateDeliveryLocation(address, [latitude, longitude], waypoints);
+        setIsDetectingGps(false);
+        setShowLocationModal(false);
+      },
+      () => setIsDetectingGps(false),
+      { timeout: 7000 }
+    );
+  };
+
+  const handleSaveCustomAddress = () => {
+    if (!customAddressInput.trim()) return;
+    const matched = PRESET_LOCATIONS.find(p => p.address === customAddressInput.trim());
+    const coords = matched?.coords || PRESET_LOCATIONS[0].coords;
+    const waypoints = matched?.waypoints || PRESET_LOCATIONS[0].waypoints;
+    setActiveAddress(customAddressInput.trim());
+    authService.updateDeliveryLocation(customAddressInput.trim(), coords, waypoints);
+    setShowLocationModal(false);
+  };
+
+  // Loading skeleton while fetching menu data
   if (isLoadingMenu) {
     return (
-      <div className="cart-checkout">
-        <div className="header checkout-header">
-          <button className="back-button" onClick={onBack}>←</button>
-          <div>
-            <h2 className="text-lg font-bold">{restaurant?.name || 'Your Cart'}</h2>
-            <p className="text-xs text-secondary">Loading order details...</p>
+      <div className="cart-screen">
+        <div className="cart-topbar">
+          <button type="button" className="circbtn" onClick={onBack}>←</button>
+          <div className="cart-title-col">
+            <b>Review order</b>
+            <span>{restaurant?.name || 'Your Cart'}</span>
           </div>
         </div>
-        <div className="screen-content" style={{ padding: '24px' }}>
-          <div className="skeleton" style={{ height: '70px', borderRadius: '12px', marginBottom: '16px' }}></div>
-          <div className="skeleton" style={{ height: '140px', borderRadius: '12px' }}></div>
+        <div className="cart-content-scroll">
+          <div className="cardw">
+            <div className="skeleton" style={{ height: '60px', borderRadius: '16px' }} />
+          </div>
+          <div className="cardw">
+            <div className="skeleton" style={{ height: '120px', borderRadius: '16px' }} />
+          </div>
         </div>
       </div>
     );
   }
 
-  // If cart is empty, show empty state
+  // Empty cart state
   if (cartItems.length === 0) {
     return (
-      <div className="cart-checkout empty-state">
-        <div className="header">
-          <button className="back-button" onClick={onBack}>←</button>
-          <h2>Cart</h2>
+      <div className="cart-screen empty">
+        <div className="cart-topbar">
+          <button type="button" className="circbtn" onClick={onBack}>←</button>
+          <div className="cart-title-col">
+            <b>Review order</b>
+            <span>Empty cart</span>
+          </div>
         </div>
-        <div className="empty-cart-message">
-          <div className="empty-icon">🛒</div>
+        <div className="cart-empty-state">
+          <div className="empty-cart-icon">🛒</div>
           <h3>Your cart is empty</h3>
-          <p className="text-secondary">Looks like you haven't added anything yet.</p>
-          <button className="btn btn-primary" onClick={onBack}>Browse Menu</button>
+          <p>Looks like you haven't added any dishes yet.</p>
+          <button type="button" className="bigbtn" onClick={onBack}>
+            Browse Menu
+          </button>
         </div>
       </div>
     );
   }
 
+  const totalItemCount = cartItems.reduce((acc, it) => acc + it.qty, 0);
+
   return (
-    <div className="cart-checkout">
-      <div className="header checkout-header">
-        <button className="back-button" onClick={onBack}>←</button>
-        <div>
-          <h2 className="text-lg font-bold">{restaurant?.name || 'Your Cart'}</h2>
-          <p className="text-xs text-secondary">
-            Deliver to: {userProfile?.address || 'Current Address'}
-          </p>
+    <div className="cart-screen">
+      {/* Screen Reader Aria-Live Announcement */}
+      <div role="status" aria-live="polite" className="sr-only">
+        {couponAnnouncement}
+      </div>
+
+      {/* 1. Top Bar */}
+      <div className="cart-topbar">
+        <button 
+          type="button" 
+          className="circbtn" 
+          onClick={onBack}
+          aria-label="Back to menu"
+        >
+          ←
+        </button>
+        <div className="cart-title-col">
+          <b>Review order</b>
+          <span>{restaurant?.name} · {totalItemCount} {totalItemCount === 1 ? 'item' : 'items'}</span>
         </div>
       </div>
 
-      <div className="screen-content">
+      {/* 2. Three-Step Tracker (Step 1 Cart is active, Steps 2 & 3 not clickable) */}
+      <div className="cart-steps" role="navigation" aria-label="Checkout Progress">
+        <div className="step-item on" aria-current="step">
+          <i>1</i>
+          <span>Cart</span>
+        </div>
+        <div className="step-line" />
+        <div className="step-item" aria-disabled="true">
+          <i>2</i>
+          <span>Payment</span>
+        </div>
+        <div className="step-line" />
+        <div className="step-item" aria-disabled="true">
+          <i>3</i>
+          <span>Track</span>
+        </div>
+      </div>
+
+      <div className="cart-content-scroll">
         {/* Demo Disclaimer Banner */}
         <div className="demo-disclaimer-banner" role="note">
           Demo prototype: menus and prices are sample data and no real order is placed.
         </div>
 
-        {/* Out-of-stock or Delivery Area Warning Banner */}
+        {/* Out-of-Stock or Delivery Area Warning Banner */}
         {quoteError && (
-          <div className="quote-error-banner">
+          <div className="quote-error-banner" role="alert">
             <div className="quote-error-header">
               <span>⚠️</span>
               <span>{quoteError.message}</span>
             </div>
-            {quoteError.message.includes('does not belong to') ? (
+            {quoteError.itemUnavailable && quoteError.itemName ? (
               <button 
-                className="quote-error-action-btn"
-                onClick={() => {
-                  Object.keys(cart).forEach(id => {
-                    if (!menuItems.some(m => m.id === id)) {
-                      updateCart(id, 0);
-                    }
-                  });
-                  setQuoteError(null);
-                }}
-              >
-                Clear Other Restaurant Items
-              </button>
-            ) : quoteError.itemUnavailable && quoteError.itemName ? (
-              <button 
-                className="quote-error-action-btn"
+                type="button"
+                className="btn-retry" 
+                style={{ fontSize: '11.5px', padding: '6px 12px' }}
                 onClick={() => {
                   const matchingItem = menuItems.find(m => m.name === quoteError.itemName);
                   if (matchingItem) {
@@ -312,132 +416,263 @@ const CartCheckout = ({
                 Remove {quoteError.itemName} from Cart
               </button>
             ) : (
-              <button className="quote-error-action-btn" onClick={onBack}>
+              <button 
+                type="button" 
+                className="btn-retry"
+                style={{ fontSize: '11.5px', padding: '6px 12px' }}
+                onClick={onBack}
+              >
                 Return to Restaurant
               </button>
             )}
           </div>
         )}
 
-        {/* Added Items Card */}
-        <div className="checkout-card items-list">
-          <h3 className="section-title text-base font-bold">Items Added</h3>
-          
-          {cartItems.map(item => {
+        {/* 3. Delivery Card with Static Inline SVG Mini-Map */}
+        <div className="cardw">
+          <div className="delivery-card-inner">
+            <div className="minimap" aria-hidden="true">
+              <svg width="54" height="54" viewBox="0 0 54 54">
+                <rect width="54" height="54" fill="var(--map-land, #F3EEE4)" />
+                <rect x="0" y="34" width="54" height="20" fill="var(--map-water, #CFE3F3)" />
+                <g stroke="var(--map-roads, #FFFFFF)" strokeWidth="5">
+                  <path d="M0 18 H54" />
+                  <path d="M22 0 V54" />
+                </g>
+                <circle cx="27" cy="22" r="9" fill="rgba(255,107,44,.25)" />
+                <circle cx="27" cy="22" r="5" fill="#FF6B2C" stroke="#FFFFFF" strokeWidth="2" />
+              </svg>
+            </div>
+            <div className="delivery-text-col">
+              <small>Deliver to</small>
+              <b>{activeAddress.split(',')[0] || 'Delivery Location'}</b>
+              <span>{activeAddress.split(',').slice(1).join(',').trim() || 'Tap change to switch area'}</span>
+            </div>
+            <button 
+              type="button" 
+              className="lnk-change-btn" 
+              onClick={() => setShowLocationModal(true)}
+              aria-label="Change delivery location"
+            >
+              Change
+            </button>
+          </div>
+        </div>
+
+        {/* 4. Items Card */}
+        <div className="cardw">
+          {cartItems.map((item) => {
             const isOutOfStock = quoteError?.itemUnavailable && quoteError?.itemName === item.name;
 
             return (
-              <div key={item.id} className={`cart-item ${isOutOfStock ? 'item-unavailable' : ''}`}>
-                <div className="cart-item-info">
-                  <div className={`veg-indicator ${item.isVeg ? 'veg' : 'non-veg'}`}>
-                    <div className="dot"></div>
-                  </div>
-                  <div>
-                    <h4 className="item-name font-medium">{item.name}</h4>
-                    <p className="item-price text-sm text-secondary">₹{item.price}</p>
-                    {isOutOfStock && (
-                      <span className="item-out-of-stock-badge">Out of Stock</span>
-                    )}
-                  </div>
+              <div key={item.id} className={`cart-dish-row ${isOutOfStock ? 'dish-unavailable' : ''}`}>
+                <div className="plate cart-dish-plate">
+                  <ImageWithFallback 
+                    src={item.image || item.image_url} 
+                    fallbackEmoji={item.isVeg ? '🥗' : '🍗'} 
+                    alt={item.name}
+                    isPlate={true}
+                  />
                 </div>
-                
-                <div className="cart-item-actions">
-                  <div className={`stepper cart-stepper ${lastUpdatedId === item.id ? 'animate-pop' : ''}`}>
-                    <button onClick={() => handleUpdateCart(item.id, item.qty - 1)}>−</button>
-                    <span>{item.qty}</span>
-                    <button onClick={() => handleUpdateCart(item.id, item.qty + 1)}>+</button>
-                  </div>
-                  <div className="cart-item-total font-semibold">
-                    ₹{item.price * item.qty}
-                  </div>
+                <div className="cart-dish-info">
+                  <b className="cart-dish-name">{item.name}</b>
+                  <span className="cart-dish-price">₹{item.price} each</span>
+                  {isOutOfStock && <span className="item-out-of-stock-badge">Out of Stock</span>}
+                </div>
+                <div className={`dish-qty-stepper light-stepper ${lastUpdatedId === item.id ? 'animate-pop' : ''}`}>
+                  <button 
+                    type="button" 
+                    className="qty-btn"
+                    onClick={() => handleUpdateCart(item.id, item.qty - 1)}
+                    aria-label={`Decrease quantity of ${item.name}`}
+                  >
+                    −
+                  </button>
+                  <span className="qty-number">{item.qty}</span>
+                  <button 
+                    type="button" 
+                    className="qty-btn"
+                    onClick={() => handleUpdateCart(item.id, item.qty + 1)}
+                    aria-label={`Increase quantity of ${item.name}`}
+                  >
+                    +
+                  </button>
                 </div>
               </div>
             );
           })}
-          
-          <button className="add-more-btn" onClick={onBack}>
+
+          <button type="button" className="btn-add-more" onClick={onBack}>
             + Add more items
           </button>
         </div>
 
-        {/* Coupon Input Section */}
-        <div className="checkout-card coupon-section">
-          <div className="coupon-input-group">
-            <span className="coupon-icon">🎟️</span>
-            <input 
-              type="text" 
-              placeholder="Enter Coupon Code (e.g. WELCOME50, BITEBOX10)" 
-              value={couponInput}
-              onChange={(e) => setCouponInput(e.target.value)}
-              disabled={Boolean(appliedCouponCode)}
-            />
-            {!appliedCouponCode ? (
-              <button 
-                className="apply-btn" 
-                onClick={handleApplyCoupon}
+        {/* 5. Ticket-Shaped Coupon Card (Three states: input with Apply, applied, and error) */}
+        <div className={`ticket-coupon-card ${appliedCouponCode ? 'applied' : couponError ? 'has-error' : ''}`}>
+          <span className="coupon-ticket-icon">🏷️</span>
+
+          {appliedCouponCode ? (
+            /* Applied State */
+            <div className="ticket-applied-info">
+              <b>{appliedCouponCode}</b>
+              <span>₹{serverQuote?.discountAmount || 0} off applied</span>
+            </div>
+          ) : (
+            /* Input State / Error State */
+            <form className="ticket-form" onSubmit={handleApplyCoupon}>
+              <input 
+                type="text" 
+                className="ticket-code-input"
+                placeholder="Enter coupon (e.g. WELCOME50)"
+                value={couponInput}
+                onChange={(e) => {
+                  setCouponInput(e.target.value.toUpperCase());
+                  if (couponError) setCouponError('');
+                }}
                 disabled={isQuoting}
+                aria-label="Coupon code"
+              />
+              <button 
+                type="submit" 
+                className="ticket-apply-btn"
+                disabled={isQuoting || !couponInput.trim()}
               >
-                {isQuoting ? '...' : 'APPLY'}
+                {isQuoting ? '...' : 'Apply'}
               </button>
+            </form>
+          )}
+
+          {appliedCouponCode && (
+            <button 
+              type="button" 
+              className="ticket-remove-lnk" 
+              onClick={handleRemoveCoupon}
+              aria-label="Remove coupon"
+            >
+              Remove
+            </button>
+          )}
+        </div>
+
+        {/* Inline Coupon Error Notice */}
+        {couponError && (
+          <div className="ticket-error-notice" role="alert">
+            <span>✕ {couponError}</span>
+          </div>
+        )}
+
+        {/* 6. Receipt-Style Bill (Numbers exclusively from server quote) */}
+        <div className="cardw receipt-bill">
+          <div className="receipt-row">
+            <span>Item total</span>
+            {isQuoting ? (
+              <div className="skeleton" style={{ width: '45px', height: '14px' }} />
             ) : (
-              <button className="remove-btn text-primary font-bold" onClick={handleRemoveCoupon}>
-                REMOVE
-              </button>
+              <span>₹{serverQuote?.itemTotal ?? '—'}</span>
+            )}
+          </div>
+
+          <div className="receipt-row">
+            <span>GST (5%)</span>
+            {isQuoting ? (
+              <div className="skeleton" style={{ width: '38px', height: '14px' }} />
+            ) : (
+              <span>₹{serverQuote?.taxAmount ?? '—'}</span>
+            )}
+          </div>
+
+          <div className="receipt-row">
+            <span>Delivery fee</span>
+            {isQuoting ? (
+              <div className="skeleton" style={{ width: '40px', height: '14px' }} />
+            ) : (
+              <span>₹{serverQuote?.deliveryFee ?? '—'}</span>
+            )}
+          </div>
+
+          {serverQuote?.discountAmount > 0 && (
+            <div className="receipt-row discount-green">
+              <span>Coupon discount ({appliedCouponCode})</span>
+              <span>−₹{serverQuote.discountAmount}</span>
+            </div>
+          )}
+
+          <div className="receipt-separator" />
+
+          <div className="receipt-total-row">
+            <span>To pay</span>
+            {isQuoting ? (
+              <div className="skeleton" style={{ width: '60px', height: '20px' }} />
+            ) : (
+              <b>₹{serverQuote?.totalAmount ?? '—'}</b>
             )}
           </div>
         </div>
-
-        {/* Bill Details Section (Exclusively rendered from server quote) */}
-        <div className="checkout-card bill-details" id="bill-details">
-          <h3 className="section-title text-base font-bold">
-            Bill Details {isQuoting && <span className="text-xs text-secondary font-normal">(Updating...)</span>}
-          </h3>
-          
-          <div className="bill-row">
-            <span className="text-secondary">Item Total</span>
-            <span>{serverQuote ? `₹${serverQuote.itemTotal}` : '—'}</span>
-          </div>
-          
-          <div className="bill-row">
-            <span className="text-secondary">Delivery Fee</span>
-            <span>{serverQuote ? `₹${serverQuote.deliveryFee}` : '—'}</span>
-          </div>
-          
-          <div className="bill-row">
-            <span className="text-secondary">Taxes & Charges (5%)</span>
-            <span>{serverQuote ? `₹${serverQuote.taxAmount}` : '—'}</span>
-          </div>
-          
-          {serverQuote?.discountAmount > 0 && (
-            <div className="bill-row discount-row text-success font-semibold">
-              <span>Item Discount ({appliedCouponCode})</span>
-              <span>- ₹{serverQuote.discountAmount}</span>
-            </div>
-          )}
-          
-          <hr className="divider" />
-          
-          <div className="bill-row grand-total font-bold text-lg">
-            <span>To Pay</span>
-            <span>{serverQuote ? `₹${serverQuote.totalAmount}` : '—'}</span>
-          </div>
-        </div>
       </div>
 
-      {/* Checkout Footer */}
-      <div className="checkout-footer">
-        <div className="pay-amount-summary">
-          <span className="font-bold text-lg">{serverQuote ? `₹${serverQuote.totalAmount}` : '—'}</span>
-          <a href="#bill-details" className="text-xs text-primary font-semibold">VIEW DETAILED BILL</a>
+      {/* 7. Sticky Bottom Bar */}
+      <div className="cart-bottombar">
+        <div className="bottombar-total-col">
+          <small>Total · {totalItemCount} {totalItemCount === 1 ? 'item' : 'items'}</small>
+          <b>{serverQuote ? `₹${serverQuote.totalAmount}` : '—'}</b>
         </div>
         <button 
-          className="btn btn-primary proceed-btn" 
+          type="button" 
+          className="bigbtn continue-btn"
           onClick={handleProceedToPayment}
-          disabled={!serverQuote || Boolean(quoteError) || isQuoting || isCreatingOrder}
+          disabled={!serverQuote || isQuoting || isCreatingOrder || Boolean(quoteError)}
         >
-          {isCreatingOrder ? 'Creating Order...' : isQuoting ? 'Quoting...' : 'Proceed to Pay'}
+          {isCreatingOrder ? 'Securing order...' : isQuoting ? 'Quoting...' : 'Continue to pay →'}
         </button>
       </div>
+
+      {/* Location Modal */}
+      {showLocationModal && (
+        <div className="modal-overlay" onClick={() => setShowLocationModal(false)}>
+          <div className="modal-card slide-in-top" onClick={e => e.stopPropagation()}>
+            <div className="modal-header-row">
+              <h3 className="modal-title font-bold">Change Delivery Location 📍</h3>
+              <button type="button" className="modal-close-btn" onClick={() => setShowLocationModal(false)}>✕</button>
+            </div>
+
+            <button
+              type="button"
+              className="btn-gps-detect"
+              onClick={handleDetectGps}
+              disabled={isDetectingGps}
+            >
+              {isDetectingGps ? 'Detecting GPS...' : '📡 Use Current Location (GPS)'}
+            </button>
+
+            <div className="preset-locations-grid">
+              {PRESET_LOCATIONS.map(p => (
+                <button
+                  key={p.id}
+                  type="button"
+                  className={`preset-chip ${activeAddress === p.address ? 'active' : ''}`}
+                  onClick={() => handleSelectPreset(p)}
+                >
+                  <span className="font-semibold text-xs">{p.name}</span>
+                </button>
+              ))}
+            </div>
+
+            <div className="form-group">
+              <label className="text-xs font-semibold">Custom Address</label>
+              <input
+                type="text"
+                className="form-input"
+                value={customAddressInput}
+                onChange={e => setCustomAddressInput(e.target.value)}
+              />
+            </div>
+
+            <button type="button" className="bigbtn w-full" onClick={handleSaveCustomAddress}>
+              Save & Update Location
+            </button>
+          </div>
+        </div>
+      )}
 
       <Toast 
         message={toast.message} 

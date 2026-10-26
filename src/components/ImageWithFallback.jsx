@@ -1,20 +1,20 @@
 import React, { useState } from 'react';
 import './ImageWithFallback.css';
 
-const ImageWithFallback = ({ src, fallbackEmoji, alt, className }) => {
+const ImageWithFallback = ({ src, fallbackEmoji, alt, className = '', isPlate = true }) => {
   const [hasError, setHasError] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
   return (
-    <div className={`img-wrapper ${className || ''}`}>
+    <div className={`img-wrapper ${isPlate ? 'plate' : ''} ${className}`}>
       {!isLoaded && !hasError && (
-        <div className="img-skeleton shimmer"></div>
+        <div className="img-skeleton shimmer" />
       )}
       
-      {!hasError ? (
+      {!hasError && src ? (
         <img
           src={src}
-          alt={alt}
+          alt={alt || 'Food item'}
           className={`actual-image ${isLoaded ? 'loaded' : ''}`}
           onLoad={() => setIsLoaded(true)}
           onError={() => setHasError(true)}
@@ -22,7 +22,7 @@ const ImageWithFallback = ({ src, fallbackEmoji, alt, className }) => {
         />
       ) : (
         <div className="img-fallback-placeholder">
-          <span className="fallback-emoji">{fallbackEmoji}</span>
+          <span className="fallback-emoji">{fallbackEmoji || '🍲'}</span>
         </div>
       )}
     </div>

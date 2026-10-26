@@ -3,10 +3,14 @@ import './PaymentScreen.css';
 import { SiGooglepay, SiPhonepe, SiPaytm } from 'react-icons/si';
 import { apiService } from '../services/apiService';
 import Toast from '../components/Toast';
+import SlideToPay from '../components/SlideToPay';
 import { useDemoPill } from '../utils/useDemoPill';
 
 const PaymentScreen = ({ orderDetails, onBack, onReturnToCart, onSuccess }) => {
-  const [selectedMethod, setSelectedMethod] = useState('upi');
+  const [selectedMethod, setSelectedMethod] = useState('upi'); // 'upi' | 'card' | 'cod'
+  const [selectedUpiApp, setSelectedUpiApp] = useState('gpay'); // 'gpay' | 'phonepe' | 'paytm'
+  const [upiIdInput, setUpiIdInput] = useState('');
+  const [isUpiVerified, setIsUpiVerified] = useState(false);
   const [paymentState, setPaymentState] = useState('idle'); // 'idle' | 'processing' | 'success' | 'failed'
   const [isProcessing, setIsProcessing] = useState(false);
   const [forceFailure, setForceFailure] = useState(false);
@@ -17,9 +21,17 @@ const PaymentScreen = ({ orderDetails, onBack, onReturnToCart, onSuccess }) => {
   const [attempts, setAttempts] = useState(1);
   const [toast, setToast] = useState({ message: '', type: '' });
 
+  // Card form state (strictly client-side only - never saved, stored, or sent over network)
+  const [cardNumber, setCardNumber] = useState('');
+  const [cardExpiry, setCardExpiry] = useState('');
+  const [cardCvv, setCardCvv] = useState('');
+
   const total = orderDetails?.totalAmount ?? orderDetails?.grandTotal ?? 0;
   const orderId = orderDetails?.orderId;
   const orderNumber = orderDetails?.orderNumber || 'Pending Order';
+  const restaurantName = orderDetails?.restaurant?.name || 'Restaurant';
+  const itemCount = orderDetails?.items?.length || 0;
+  const deliveryAddress = orderDetails?.deliveryAddress || orderDetails?.restaurant?.address || 'Current Address';
 
   // Check backend health for demo mode
   useEffect(() => {
@@ -30,14 +42,11 @@ const PaymentScreen = ({ orderDetails, onBack, onReturnToCart, onSuccess }) => {
           setIsDemoMode(data.demoMode);
         }
       })
-      .catch(() => {
-        // If unreachable, keep default
-      });
+      .catch(() => {});
   }, []);
 
   // Process Payment
   const handlePay = async () => {
-    // Ignore repeat clicks / already processing
     if (isProcessing) return;
 
     if (!orderId) {
@@ -60,7 +69,6 @@ const PaymentScreen = ({ orderDetails, onBack, onReturnToCart, onSuccess }) => {
       });
 
       if (!result.success) {
-        // Payment failed at gateway
         setPaymentState('failed');
         setFailureInfo({
           error: result.error || 'Transaction declined by payment gateway.',
@@ -76,7 +84,6 @@ const PaymentScreen = ({ orderDetails, onBack, onReturnToCart, onSuccess }) => {
         onSuccess(result);
       }, 1400);
     } catch (err) {
-      // Check if an item became unavailable between cart and payment
       if (err.itemUnavailable) {
         const itemName = err.itemName || 'An item in your order';
         setToast({ 
@@ -93,7 +100,6 @@ const PaymentScreen = ({ orderDetails, onBack, onReturnToCart, onSuccess }) => {
         return;
       }
 
-      // Normal payment failure
       setPaymentState('failed');
       setFailureInfo({
         error: err.message || 'Payment processing failed. Please retry.',
@@ -105,14 +111,24 @@ const PaymentScreen = ({ orderDetails, onBack, onReturnToCart, onSuccess }) => {
     }
   };
 
-  // Processing Spinner View
+  const handleVerifyUpi = () => {
+    if (!upiIdInput.includes('@')) {
+      setToast({ message: 'Please enter a valid UPI ID (e.g. name@upi)', type: 'error' });
+      setIsUpiVerified(false);
+    } else {
+      setIsUpiVerified(true);
+      setToast({ message: 'UPI ID verified successfully!', type: 'success' });
+    }
+  };
+
+  // Processing View
   if (paymentState === 'processing') {
     return (
       <div className="payment-screen center-content">
-        <div className="spinner"></div>
-        <h3 className="processing-text font-bold text-xl">Processing Payment...</h3>
-        <p className="text-secondary text-sm">Communicating with payment gateway for order #{orderNumber}</p>
-        <p className="text-xs text-secondary mt-4">Please do not refresh or close this screen.</p>
+        <div className="payment-spinner" />
+        <h3 className="processing-title">Processing Payment...</h3>
+        <p className="processing-sub">Communicating with payment gateway for order #{orderNumber}</p>
+        <small className="processing-note">Please do not close this screen.</small>
       </div>
     );
   }
@@ -120,18 +136,13 @@ const PaymentScreen = ({ orderDetails, onBack, onReturnToCart, onSuccess }) => {
   // Payment Success View
   if (paymentState === 'success') {
     return (
-      <div className="payment-screen center-content success-state">
-        <div className="success-icon-container">
-          <svg className="checkmark-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-            <circle className="checkmark-circle" cx="26" cy="26" r="25" fill="none" />
-            <path className="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
-          </svg>
-        </div>
-        <h3 className="success-text text-2xl font-bold">
+      <div className="payment-screen center-content">
+        <div className="payment-success-badge">✓</div>
+        <h3 className="success-title">
           {selectedMethod === 'cod' ? 'Order Placed!' : 'Payment Successful!'}
         </h3>
-        <p className="font-semibold text-sm mt-1">Order #{orderNumber}</p>
-        <p className="text-secondary text-xs mt-2">
+        <p className="success-order-num">Order #{orderNumber}</p>
+        <p className="success-sub">
           {selectedMethod === 'cod'
             ? 'Cash on delivery recorded. Awaiting restaurant confirmation...'
             : 'Transaction verified. Moving to live tracking...'}
@@ -140,32 +151,31 @@ const PaymentScreen = ({ orderDetails, onBack, onReturnToCart, onSuccess }) => {
     );
   }
 
-  // Payment Failed State View with Retry Button
+  // Failed State View with Retry
   if (paymentState === 'failed') {
     return (
       <div className="payment-screen center-content failed-state">
-        <div className="failed-icon-container">
-          <span>✕</span>
-        </div>
-        <h3 className="failed-text text-2xl font-bold">Payment Failed</h3>
+        <div className="failed-icon-badge">✕</div>
+        <h3 className="failed-title">Payment Failed</h3>
         
         {failureInfo?.attempts && (
-          <span className="failed-attempt-badge">
+          <span className="failed-attempt-pill">
             Attempt #{failureInfo.attempts} Failed
           </span>
         )}
 
-        <p className="text-secondary text-sm max-w-sm mb-4">
+        <p className="failed-desc">
           {failureInfo?.error || 'Your payment was declined by the bank or gateway.'}
         </p>
         
-        <p className="text-xs text-secondary">
+        <p className="failed-note">
           Order #{orderNumber} has not been charged and your stock remains intact.
         </p>
 
-        <div className="failed-actions">
+        <div className="failed-actions-col">
           <button 
-            className="retry-pay-btn" 
+            type="button"
+            className="bigbtn" 
             onClick={handlePay}
             disabled={isProcessing}
           >
@@ -173,7 +183,9 @@ const PaymentScreen = ({ orderDetails, onBack, onReturnToCart, onSuccess }) => {
           </button>
           
           <button 
-            className="change-method-btn" 
+            type="button"
+            className="btn-retry" 
+            style={{ background: 'var(--bg-surface)', color: 'var(--text-main)', border: '1px solid var(--border-line)' }}
             onClick={() => setPaymentState('idle')}
             disabled={isProcessing}
           >
@@ -181,9 +193,9 @@ const PaymentScreen = ({ orderDetails, onBack, onReturnToCart, onSuccess }) => {
           </button>
 
           <button 
-            className="btn text-secondary text-xs" 
+            type="button"
+            className="return-cart-btn" 
             onClick={onBack}
-            style={{ background: 'none', border: 'none', marginTop: '8px' }}
           >
             ← Return to Cart
           </button>
@@ -200,192 +212,264 @@ const PaymentScreen = ({ orderDetails, onBack, onReturnToCart, onSuccess }) => {
 
   return (
     <div className="payment-screen">
-      <div className="header payment-header">
-        <button className="back-button" onClick={onBack}>←</button>
-        <div>
-          <h2 className="text-lg font-bold">Payment</h2>
-          <p className="text-xs text-secondary">Order #{orderNumber}</p>
+      {/* 1. Top Bar */}
+      <div className="payment-topbar">
+        <button 
+          type="button" 
+          className="circbtn" 
+          onClick={onBack}
+          aria-label="Back to checkout"
+        >
+          ←
+        </button>
+        <div className="payment-title-col">
+          <b>Payment</b>
+          <span>Step 2 of 3</span>
         </div>
+
         {isDemoMode && showDemoPill && (
           <button
             type="button"
-            className="demo-toggle-btn"
-            style={{
-              marginLeft: 'auto',
-              background: isDemoOpen ? 'var(--color-primary)' : 'var(--color-surface)',
-              border: '1px solid var(--color-border)',
-              borderRadius: 'var(--radius-full)',
-              padding: '4px 10px',
-              fontSize: '0.75rem',
-              fontWeight: '700',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              color: isDemoOpen ? '#FFFFFF' : 'var(--color-text)'
-            }}
+            className={`demo-toggle-chip ${isDemoOpen ? 'active' : ''}`}
             onClick={() => setIsDemoOpen(!isDemoOpen)}
             title="Toggle Demo Controls"
           >
             <span>🧪 Demo</span>
-            <span>{isDemoOpen ? '▴' : '▾'}</span>
           </button>
         )}
       </div>
 
-      <div className="screen-content">
-        <div className="order-recap">
-          <div>
-            <span className="text-secondary text-xs uppercase tracking-wider block">Total Payable</span>
-            <span className="recap-amount font-bold text-2xl">₹{total}</span>
-          </div>
-          <div className="text-right">
-            <span className="text-xs text-secondary block">{orderDetails?.restaurant?.name || 'Restaurant Order'}</span>
-            <span className="text-xs font-semibold text-primary">{orderDetails?.items?.length || 0} items</span>
-          </div>
+      <div className="payment-content-scroll">
+        {/* 2. Amount Glow Hero Card */}
+        <div className="payment-hero-card">
+          <small>Amount to pay</small>
+          <b>₹{total}</b>
+          <span>
+            {restaurantName} · {itemCount} {itemCount === 1 ? 'item' : 'items'}
+            {orderDetails?.couponCode ? ` · ${orderDetails.couponCode} applied` : ''}
+          </span>
         </div>
 
-        <h3 className="section-title text-base font-bold">Select Payment Method</h3>
-
-        <div className="payment-methods">
-          {/* UPI Option */}
-          <div 
-            className={`payment-method-card ${selectedMethod === 'upi' ? 'selected' : ''}`}
-            onClick={() => setSelectedMethod('upi')}
-          >
-            <div className="method-header">
-              <div className="method-title-group">
-                <span className="method-icon">📱</span>
-                <div>
-                  <span className="font-semibold block">UPI (Instant)</span>
-                  <span className="text-xs text-secondary">Google Pay, PhonePe, Paytm, or UPI ID</span>
-                </div>
+        {/* Collapsible Demo Control Panel */}
+        {isDemoOpen && (
+          <div className="demo-rehearsal-panel slide-in-top" style={{ position: 'relative', top: 'auto', left: 'auto', right: 'auto', margin: '10px 16px 0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <span className="font-bold text-xs uppercase tracking-wider text-primary">
+                  ⚡ Force Payment Failure
+                </span>
+                <p className="text-xs text-secondary" style={{ marginTop: '2px', fontSize: '0.72rem' }}>
+                  Simulates a declined card/gateway error for testing retry.
+                </p>
               </div>
-              <div className="radio-circle">
-                {selectedMethod === 'upi' && <div className="radio-inner"></div>}
-              </div>
+              <input 
+                type="checkbox" 
+                checked={forceFailure} 
+                onChange={(e) => setForceFailure(e.target.checked)} 
+                style={{ width: '20px', height: '20px', accentColor: 'var(--sun)' }}
+              />
             </div>
-            {selectedMethod === 'upi' && (
-              <div className="method-details">
-                <div className="upi-options">
-                  <button type="button" className="upi-app-btn"><SiGooglepay size={22} color="#4285F4" /> <span>Google Pay</span></button>
-                  <button type="button" className="upi-app-btn"><SiPhonepe size={18} color="#5f259f" /> <span>PhonePe</span></button>
-                  <button type="button" className="upi-app-btn"><SiPaytm size={22} color="#00BAF2" /> <span>Paytm</span></button>
-                </div>
-                <div className="upi-manual">
-                  <p className="text-xs text-secondary mb-2">Or verify via UPI ID</p>
+          </div>
+        )}
+
+        {/* 3. Segmented Method Control (UPI, Card, Cash) */}
+        <div className="payment-segmented-control" role="tablist">
+          <button 
+            type="button" 
+            className={`seg-btn ${selectedMethod === 'upi' ? 'on' : ''}`}
+            onClick={() => setSelectedMethod('upi')}
+            role="tab"
+            aria-selected={selectedMethod === 'upi'}
+          >
+            UPI
+          </button>
+          <button 
+            type="button" 
+            className={`seg-btn ${selectedMethod === 'card' ? 'on' : ''}`}
+            onClick={() => setSelectedMethod('card')}
+            role="tab"
+            aria-selected={selectedMethod === 'card'}
+          >
+            Card
+          </button>
+          <button 
+            type="button" 
+            className={`seg-btn ${selectedMethod === 'cod' ? 'on' : ''}`}
+            onClick={() => setSelectedMethod('cod')}
+            role="tab"
+            aria-selected={selectedMethod === 'cod'}
+          >
+            Cash
+          </button>
+        </div>
+
+        {/* 4. Method Details */}
+        {selectedMethod === 'upi' && (
+          <div className="upi-content-section">
+            <div className="payment-section-label">Pay with a UPI app</div>
+            <div className="upi-apps-row">
+              <button 
+                type="button" 
+                className={`upi-app-tile ${selectedUpiApp === 'gpay' ? 'on' : ''}`}
+                onClick={() => setSelectedUpiApp('gpay')}
+              >
+                <i className="app-icon" style={{ background: '#4285F4' }}>
+                  <SiGooglepay size={22} color="#fff" />
+                </i>
+                <span>Google Pay</span>
+              </button>
+
+              <button 
+                type="button" 
+                className={`upi-app-tile ${selectedUpiApp === 'phonepe' ? 'on' : ''}`}
+                onClick={() => setSelectedUpiApp('phonepe')}
+              >
+                <i className="app-icon" style={{ background: '#5F259F' }}>
+                  <SiPhonepe size={20} color="#fff" />
+                </i>
+                <span>PhonePe</span>
+              </button>
+
+              <button 
+                type="button" 
+                className={`upi-app-tile ${selectedUpiApp === 'paytm' ? 'on' : ''}`}
+                onClick={() => setSelectedUpiApp('paytm')}
+              >
+                <i className="app-icon" style={{ background: '#00BAF2' }}>
+                  <SiPaytm size={24} color="#fff" />
+                </i>
+                <span>Paytm</span>
+              </button>
+            </div>
+
+            <div className="payment-section-label" style={{ marginTop: '14px' }}>Or enter UPI ID</div>
+            <div className="upi-id-input-box">
+              <input 
+                type="text" 
+                placeholder="yourname@upi" 
+                value={upiIdInput}
+                onChange={(e) => {
+                  setUpiIdInput(e.target.value);
+                  setIsUpiVerified(false);
+                }}
+                className="upi-input-field"
+              />
+              <button 
+                type="button" 
+                className="btn-verify-upi" 
+                onClick={handleVerifyUpi}
+              >
+                {isUpiVerified ? '✓ Verified' : 'Verify'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {selectedMethod === 'card' && (
+          <div className="card-content-section">
+            <div className="payment-section-label">Credit or Debit Card</div>
+            <div className="cardw card-form-card">
+              <div className="form-group">
+                <label className="text-xs font-semibold">Card Number</label>
+                <input 
+                  type="text" 
+                  className="form-input" 
+                  value={cardNumber}
+                  onChange={(e) => setCardNumber(e.target.value)}
+                  placeholder="4532 •••• •••• 4242"
+                  autoComplete="off"
+                  name="cardnumber"
+                  id="payment-card-number"
+                />
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '10px' }}>
+                <div className="form-group">
+                  <label className="text-xs font-semibold">Expiry Date</label>
                   <input 
                     type="text" 
-                    defaultValue="aniket@okhdfcbank" 
-                    placeholder="example@upi" 
-                    className="mock-input" 
+                    className="form-input" 
+                    value={cardExpiry}
+                    onChange={(e) => setCardExpiry(e.target.value)}
+                    placeholder="MM/YY"
+                    autoComplete="off"
+                    name="exp-date"
+                    id="payment-card-expiry"
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="text-xs font-semibold">CVV</label>
+                  <input 
+                    type="password" 
+                    className="form-input" 
+                    value={cardCvv}
+                    onChange={(e) => setCardCvv(e.target.value)}
+                    maxLength={4}
+                    placeholder="•••"
+                    autoComplete="off"
+                    name="cvc"
+                    id="payment-card-cvv"
                   />
                 </div>
               </div>
-            )}
-          </div>
-
-          {/* Card Option */}
-          <div 
-            className={`payment-method-card ${selectedMethod === 'card' ? 'selected' : ''}`}
-            onClick={() => setSelectedMethod('card')}
-          >
-            <div className="method-header">
-              <div className="method-title-group">
-                <span className="method-icon">💳</span>
-                <div>
-                  <span className="font-semibold block">Credit / Debit Card</span>
-                  <span className="text-xs text-secondary">Visa, Mastercard, RuPay</span>
-                </div>
-              </div>
-              <div className="radio-circle">
-                {selectedMethod === 'card' && <div className="radio-inner"></div>}
+              <div className="card-demo-note" style={{ fontSize: '11.5px', color: 'var(--text-muted, #7B7B86)', marginTop: '10px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <span>⚠️</span>
+                <span>Demo only: don’t enter real card details</span>
               </div>
             </div>
-            {selectedMethod === 'card' && (
-              <div className="method-details card-details">
-                <input 
-                  type="text" 
-                  defaultValue="4532 •••• •••• 8821" 
-                  placeholder="Card Number" 
-                  className="mock-input" 
-                />
-                <div className="card-row">
-                  <input type="text" defaultValue="08/29" placeholder="MM/YY" className="mock-input half-input" />
-                  <input type="password" defaultValue="•••" placeholder="CVV" className="mock-input half-input" maxLength="3" />
-                </div>
-                <input 
-                  type="text" 
-                  defaultValue="Aniket Sharma" 
-                  placeholder="Name on Card" 
-                  className="mock-input" 
-                />
-              </div>
-            )}
           </div>
+        )}
 
-          {/* Cash on Delivery Option */}
-          <div 
-            className={`payment-method-card ${selectedMethod === 'cod' ? 'selected' : ''}`}
-            onClick={() => setSelectedMethod('cod')}
-          >
-            <div className="method-header">
-              <div className="method-title-group">
-                <span className="method-icon">💵</span>
+        {selectedMethod === 'cod' && (
+          <div className="cod-content-section">
+            <div className="cardw cod-info-card">
+              <div className="cod-header-row">
+                <span style={{ fontSize: '24px' }}>💵</span>
                 <div>
-                  <span className="font-semibold block">Cash on Delivery</span>
-                  <span className="text-xs text-secondary">Pay cash to delivery partner on arrival</span>
+                  <b>Pay on delivery</b>
+                  <p className="text-xs text-secondary mt-1">
+                    Keep exact cash of <strong>₹{total}</strong> ready to pay the delivery partner upon arrival. No card or online transfer needed now.
+                  </p>
                 </div>
-              </div>
-              <div className="radio-circle">
-                {selectedMethod === 'cod' && <div className="radio-inner"></div>}
               </div>
             </div>
-            {selectedMethod === 'cod' && (
-              <div className="method-details">
-                <p className="text-xs text-secondary">
-                  Pay on delivery (₹{total}) in cash or via UPI directly to the delivery partner on arrival.
-                </p>
-              </div>
-            )}
+          </div>
+        )}
+
+        {/* 5. Trust Note */}
+        <div className="payment-trust-note">
+          🔒 Simulated payment for this demo. No real money moves.
+        </div>
+
+        {/* 6. Delivery Address & Estimated Arrival Card */}
+        <div className="cardw payment-recap-card">
+          <div className="recap-row">
+            <span style={{ fontSize: '18px' }}>📍</span>
+            <div className="recap-text">
+              <b>{restaurantName} → Doorstep</b>
+              <span>{deliveryAddress}</span>
+            </div>
+          </div>
+          <div className="recap-separator" />
+          <div className="recap-row">
+            <span style={{ fontSize: '18px' }}>🕒</span>
+            <div className="recap-text">
+              <b>Estimated arrival</b>
+              <span>25–30 min after the restaurant confirms</span>
+            </div>
           </div>
         </div>
 
-        {/* Demo-only switch: Force Payment Failure (UPI & Card only - collapsed by default) */}
-        {isDemoMode && isDemoOpen && selectedMethod !== 'cod' && (
-          <div className="demo-payment-card slide-in-top">
-            <div className="demo-payment-info">
-              <span className="demo-payment-label">
-                ⚡ Force payment failure (Demo)
-              </span>
-              <span className="demo-payment-desc">
-                Simulates gateway rejection for UPI/Card. Stock is preserved.
-              </span>
-            </div>
-            <label className="demo-switch" title="Toggle forced payment failure">
-              <input 
-                type="checkbox" 
-                checked={forceFailure}
-                onChange={(e) => setForceFailure(e.target.checked)}
-              />
-              <span className="demo-slider"></span>
-            </label>
-          </div>
-        )}
-      </div>
-
-      <div className="checkout-footer payment-footer">
-        <button 
-          className="btn btn-primary pay-btn" 
-          onClick={handlePay}
-          disabled={isProcessing}
-        >
-          {isProcessing 
-            ? 'Processing...' 
-            : selectedMethod === 'cod' 
-              ? `Place Order • Pay on delivery (₹${total})` 
-              : `Pay ₹${total}`}
-        </button>
+        {/* 7. Slide to Pay Control */}
+        <div className="slide-to-pay-container">
+          <SlideToPay 
+            amount={total}
+            isCash={selectedMethod === 'cod'}
+            subLabel="Swipe right to confirm"
+            isProcessing={isProcessing}
+            paymentState={paymentState}
+            onSlideComplete={handlePay}
+          />
+        </div>
       </div>
 
       <Toast 

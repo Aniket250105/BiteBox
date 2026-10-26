@@ -1,7 +1,29 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import './MenuPage.css';
 import ImageWithFallback from '../components/ImageWithFallback';
 import { apiService } from '../services/apiService';
+
+// Deterministic pastel color palette for dish cards
+const PASTEL_PALETTE = [
+  '#FFE6D1', // warm peach
+  '#FFDDD6', // soft coral
+  '#DDF0DC', // pale mint
+  '#FFF3D6', // soft custard
+  '#E8E3DD', // warm stone
+  '#E3E8F8', // lavender mist
+  '#FBE4EB', // rose blush
+  '#E2F4EE'  // sage foam
+];
+
+function getPastelBackground(id) {
+  let hash = 0;
+  const str = String(id || '');
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash << 5) - hash + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return PASTEL_PALETTE[Math.abs(hash) % PASTEL_PALETTE.length];
+}
 
 const MenuPage = ({ restaurant, onBack, cart, updateCart, onViewCart, cartRestaurant, onReplaceCart }) => {
   const [menuItems, setMenuItems] = useState([]);
@@ -21,7 +43,7 @@ const MenuPage = ({ restaurant, onBack, cart, updateCart, onViewCart, cartRestau
       const items = res.menu || [];
       setMenuItems(items);
 
-      // Auto-select category (e.g. Biryani, Burger, Pizza, Dosa restaurants default to Mains where their specialty dishes live)
+      // Auto-select category (Biryani, Burger, Pizza, Dosa restaurants default to Mains)
       const cats = [...new Set(items.map(item => item.category))];
       if (cats.length > 0) {
         const prefersMains = /biryani|biriyani|briyani|pizza|pizzeria|burger|dosa|thali|meals/i.test(
@@ -35,7 +57,7 @@ const MenuPage = ({ restaurant, onBack, cart, updateCart, onViewCart, cartRestau
     } finally {
       setIsLoading(false);
     }
-  }, [restaurant?.id]);
+  }, [restaurant?.id, restaurant?.name, restaurant?.cuisine]);
 
   useEffect(() => {
     loadMenu();
@@ -43,8 +65,10 @@ const MenuPage = ({ restaurant, onBack, cart, updateCart, onViewCart, cartRestau
 
   if (!restaurant) return null;
 
-  // Group items by category
-  const categories = [...new Set(menuItems.map(item => item.category))];
+  // Group items by category dynamically from menu data
+  const categories = useMemo(() => {
+    return [...new Set(menuItems.map(item => item.category))];
+  }, [menuItems]);
 
   // Cart calculations using loaded menu items
   let totalItems = 0;
@@ -80,172 +104,265 @@ const MenuPage = ({ restaurant, onBack, cart, updateCart, onViewCart, cartRestau
     !activeCategory || item.category === activeCategory
   );
 
+  // Up to three cuisine tags
+  const cuisineTags = useMemo(() => {
+    if (restaurant.cuisines && restaurant.cuisines.length > 0) {
+      return restaurant.cuisines.slice(0, 3);
+    }
+    if (restaurant.cuisine) {
+      return restaurant.cuisine.split(',').map(s => s.trim()).filter(Boolean).slice(0, 3);
+    }
+    return ['Specialty'];
+  }, [restaurant.cuisines, restaurant.cuisine]);
+
+  const deliveryTimeStr = restaurant.deliveryTime || restaurant.delivery_time_est || '20–30 min';
+  const distanceStr = restaurant.distanceText || (restaurant.distanceKm ? `${restaurant.distanceKm} km` : 'Nearby');
+  const ratingText = restaurant.rating !== null && restaurant.rating !== undefined 
+    ? `★ ${restaurant.rating}` 
+    : '★ New';
+
   return (
-    <div className="menu-page">
-      {/* Restaurant Header */}
-      <div className="header menu-header">
-        <button className="back-button" onClick={onBack}>
-          ←
-        </button>
-        <div className="menu-header-info">
-          <h2 className="text-xl font-bold">{restaurant.name}</h2>
-          <p className="text-sm text-secondary">
-            {restaurant.rating !== null && restaurant.rating !== undefined ? `⭐ ${restaurant.rating}` : '⭐ New'} • {restaurant.deliveryTime || restaurant.delivery_time_est || 'Nearby'}
-          </p>
+    <div className="menu-screen">
+      {/* 1. Gradient Hero Header (No fake device chrome, runs to top edge) */}
+      <div className="menu-hero">
+        <div className="menu-hero-ambient-circle-1" />
+        <div className="menu-hero-ambient-circle-2" />
+
+        {/* Back Button with 44px touch target */}
+        <div className="menu-hero-nav">
+          <button 
+            type="button" 
+            className="circbtn menu-back-btn" 
+            onClick={onBack}
+            aria-label="Back to restaurants"
+          >
+            ←
+          </button>
+        </div>
+
+        {/* Large Restaurant Plate Frame (128px) */}
+        <div className="plate menu-hero-plate">
+          <ImageWithFallback 
+            src={restaurant.image || restaurant.image_url} 
+            fallbackEmoji={restaurant.emoji || '🍛'}
+            alt={restaurant.name}
+            isPlate={true}
+          />
         </div>
       </div>
 
-      <div className="screen-content menu-content">
-        {/* Demo Disclaimer Banner */}
-        <div className="demo-disclaimer-banner" role="note">
-          Demo prototype: menus and prices are sample data and no real order is placed.
+      {/* 2. Overlapping White Restaurant Info Card */}
+      <div className="menu-info-card">
+        <h2 className="menu-restaurant-name">{restaurant.name}</h2>
+        
+        <div className="menu-info-meta-row">
+          <b className="meta-rating">{ratingText}</b>
+          <i className="dotsep" />
+          <span>{deliveryTimeStr}</span>
+          <i className="dotsep" />
+          <span>{distanceStr}</span>
+          <i className="dotsep" />
+          <span className={restaurant.isOpen ? 'meta-open' : 'meta-closed'}>
+            {restaurant.isOpen ? 'Open now' : 'Closed'}
+          </span>
         </div>
 
-        {/* Notice if cart has items from another restaurant */}
-        {cartRestaurant && cartRestaurant.id !== restaurant.id && Object.keys(cart).length > 0 && (
-          <div className="other-cart-notice-banner">
-            <span>🛒</span>
-            <span>Your cart has items from <strong>{cartRestaurant.name}</strong>. Adding items here will start a new cart.</span>
-          </div>
-        )}
-        {/* Category Tabs */}
-        {!isLoading && !error && categories.length > 0 && (
-          <div className="category-tabs">
+        <div className="menu-cuisine-tags">
+          {cuisineTags.map(tag => (
+            <span key={tag} className="cuisine-tag">{tag}</span>
+          ))}
+          {(restaurant.isDemoFallback || restaurant.source === 'seed' || (restaurant.distanceKm && restaurant.distanceKm > 3.0)) && (
+            <span className="badge-demo-restaurant">Demo restaurant</span>
+          )}
+        </div>
+      </div>
+
+      {/* Notice if cart has items from another restaurant */}
+      {cartRestaurant && cartRestaurant.id !== restaurant.id && Object.keys(cart).length > 0 && (
+        <div className="other-cart-notice-banner">
+          <span>🛒</span>
+          <span>Your cart has items from <strong>{cartRestaurant.name}</strong>. Adding items here will start a new cart.</span>
+        </div>
+      )}
+
+      {/* 3. Category Pills (Sticky below hero while scrolling) */}
+      {!isLoading && !error && categories.length > 0 && (
+        <div className="menu-category-pills-bar">
+          <div className="menu-category-pills-scroll">
             {categories.map((cat) => (
-              <div 
+              <button 
                 key={cat} 
-                className={`category-tab ${activeCategory === cat ? 'active' : ''}`}
+                type="button"
+                className={`category-pill ${activeCategory === cat ? 'on' : ''}`}
                 onClick={() => setActiveCategory(cat)}
               >
                 {cat}
-              </div>
+              </button>
             ))}
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Loading Skeletons */}
-        {isLoading && (
-          <div className="menu-sections">
-            <div className="skeleton" style={{ height: '38px', width: '100%', marginBottom: '16px', borderRadius: '8px' }}></div>
-            {[1, 2, 3].map(n => (
-              <div 
-                key={n} 
-                className="menu-item-card" 
-                style={{ padding: '16px', display: 'flex', justifyContent: 'space-between', gap: '16px', pointerEvents: 'none' }}
-              >
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
-                  <div className="skeleton" style={{ height: '14px', width: '30px' }}></div>
-                  <div className="skeleton" style={{ height: '20px', width: '65%' }}></div>
-                  <div className="skeleton" style={{ height: '16px', width: '35%' }}></div>
-                  <div className="skeleton" style={{ height: '12px', width: '85%' }}></div>
+      {/* 4. Loading Skeletons */}
+      {isLoading && (
+        <div className="menu-grid-container">
+          <div className="menu-dish-grid">
+            {[1, 2, 3, 4].map(n => (
+              <div key={n} className="dish-card skeleton-card">
+                <div className="skeleton skeleton-dish-img" />
+                <div className="dish-card-body">
+                  <div className="skeleton" style={{ height: '16px', width: '70%', marginBottom: '8px' }} />
+                  <div className="skeleton" style={{ height: '14px', width: '40%' }} />
                 </div>
-                <div className="skeleton" style={{ width: '96px', height: '96px', borderRadius: '12px' }}></div>
               </div>
             ))}
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Error State with Retry Button */}
-        {!isLoading && error && (
-          <div className="friendly-error-state">
-            <div className="friendly-error-icon">🍳</div>
-            <div className="friendly-error-title">Couldn't load menu</div>
-            <div className="friendly-error-desc">{error}</div>
-            <button className="btn-retry" onClick={loadMenu}>
-              🔄 Try Again
-            </button>
-          </div>
-        )}
+      {/* Error State with Retry Button */}
+      {!isLoading && error && (
+        <div className="friendly-error-state">
+          <div className="friendly-error-icon">🍳</div>
+          <div className="friendly-error-title">Couldn't load menu</div>
+          <div className="friendly-error-desc">{error}</div>
+          <button type="button" className="btn-retry" onClick={loadMenu}>
+            🔄 Try Again
+          </button>
+        </div>
+      )}
 
-        {/* Menu Items List */}
-        {!isLoading && !error && (
-          <div className="menu-sections">
-            <div className="menu-section">
-              <h3 className="category-title text-lg font-bold">{activeCategory}</h3>
-              <div className="items-list">
-                {currentCategoryItems.map(item => {
-                  const qty = cart[item.id] || 0;
-                  
-                  return (
-                    <div key={item.id} className={`menu-item-card ${!item.isAvailable ? 'out-of-stock' : ''}`}>
-                      <div className="item-details">
-                        <div className={`veg-indicator ${item.isVeg ? 'veg' : 'non-veg'}`}>
-                          <div className="dot"></div>
-                        </div>
-                        <h4 className="item-name font-bold text-base">{item.name}</h4>
-                        <p className="item-price font-medium">₹{item.price}</p>
-                        <p className="item-desc text-xs text-secondary">{item.description}</p>
-                      </div>
-                      
-                      <div className="item-actions">
-                        <div className="item-image-placeholder">
-                          <ImageWithFallback
-                            src={item.image || item.image_url}
-                            fallbackEmoji={item.isVeg ? '🥗' : '🍗'}
-                            alt={item.name}
-                          />
-                        </div>
-                        
-                        {!item.isAvailable ? (
-                          <div className="add-btn-container disabled">
-                            <span>Out of stock</span>
-                          </div>
-                        ) : qty === 0 ? (
-                          <button 
-                            className="add-btn"
-                            onClick={() => handleUpdateCart(item.id, 1)}
-                          >
-                            ADD
-                          </button>
-                        ) : (
-                          <div className={`stepper ${lastUpdatedId === item.id ? 'animate-pop' : ''}`}>
-                            <button onClick={() => handleUpdateCart(item.id, qty - 1)}>−</button>
-                            <span>{qty}</span>
-                            <button onClick={() => handleUpdateCart(item.id, qty + 1)}>+</button>
-                          </div>
-                        )}
-                      </div>
+      {/* 5. Two-Column Dish Grid */}
+      {!isLoading && !error && (
+        <div className="menu-grid-container">
+          <div className="menu-dish-grid">
+            {currentCategoryItems.map(item => {
+              const qty = cart[item.id] || 0;
+              const isAvailable = item.isAvailable && (item.stockQuantity === undefined || item.stockQuantity > 0);
+              const pastelBg = getPastelBackground(item.id);
+
+              return (
+                <div 
+                  key={item.id} 
+                  className={`dish-card ${!isAvailable ? 'sold' : ''}`}
+                  aria-disabled={!isAvailable}
+                >
+                  {/* Pastel Image Area with Veg/Non-Veg Marker and Circular Plate */}
+                  <div className="dish-img-area" style={{ background: pastelBg }}>
+                    {/* Veg / Non-veg Marker */}
+                    <div className={`dish-veg-marker ${item.isVeg ? 'veg' : 'nv'}`} title={item.isVeg ? 'Vegetarian' : 'Non-Vegetarian'} />
+                    
+                    {/* Circular Plate Frame (72px) with Image */}
+                    <div className="plate dish-plate">
+                      <ImageWithFallback
+                        src={item.image || item.image_url}
+                        fallbackEmoji={item.isVeg ? '🥗' : '🍗'}
+                        alt={item.name}
+                        isPlate={true}
+                      />
                     </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
+                  </div>
 
-      {/* Floating View Cart Bar */}
-      {totalItems > 0 && (
-        <div className="floating-cart-bar" onClick={onViewCart}>
-          <div className="cart-summary">
-            <span className="cart-items-count font-bold">{totalItems} item{totalItems > 1 ? 's' : ''}</span>
-            <span className="cart-total text-sm">| ₹{totalPrice}</span>
+                  {/* Body: Name, Price, and Add / Stepper / Sold Tag */}
+                  <div className="dish-card-body">
+                    <div className="dish-name" title={item.name}>{item.name}</div>
+                    
+                    <div className="dish-price-row">
+                      <b>₹{item.price}</b>
+
+                      {!isAvailable ? (
+                        <div className="soldtag">Sold out</div>
+                      ) : qty === 0 ? (
+                        <button 
+                          type="button"
+                          className="dish-plus-btn"
+                          onClick={() => handleUpdateCart(item.id, 1)}
+                          aria-label={`Add ${item.name} to cart`}
+                        >
+                          <span className="plus-icon">+</span>
+                        </button>
+                      ) : (
+                        <div className={`dish-qty-stepper ${lastUpdatedId === item.id ? 'animate-pop' : ''}`}>
+                          <button 
+                            type="button" 
+                            className="qty-btn"
+                            onClick={() => handleUpdateCart(item.id, qty - 1)}
+                            aria-label={`Decrease quantity of ${item.name}`}
+                          >
+                            −
+                          </button>
+                          <span className="qty-number">{qty}</span>
+                          <button 
+                            type="button" 
+                            className="qty-btn"
+                            onClick={() => handleUpdateCart(item.id, qty + 1)}
+                            aria-label={`Increase quantity of ${item.name}`}
+                          >
+                            +
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-          <div className="view-cart-action font-bold">
-            View Cart 🛒
+
+          {/* Demo Disclaimer under the dish grid */}
+          <div className="menu-demo-disclaimer" role="note">
+            Demo prototype: menus and prices are sample data and no real order is placed.
+          </div>
+        </div>
+      )}
+
+      {/* 6. Floating Dark Cart Pill (Contrasting in both Light and Dark modes) */}
+      {totalItems > 0 && (
+        <div 
+          className="menu-cart-pill" 
+          onClick={onViewCart}
+          role="button"
+          tabIndex={0}
+          aria-label={`View cart with ${totalItems} items, total ₹${totalPrice}`}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') onViewCart();
+          }}
+        >
+          <div className="cart-pill-count">{totalItems}</div>
+          <div className="cart-pill-text">
+            <small>Your cart</small>
+            <b>₹{totalPrice}</b>
+          </div>
+          <div className="cart-pill-cta">
+            View cart →
           </div>
         </div>
       )}
 
       {/* Replace Cart Confirmation Modal */}
       {replaceModal.isOpen && (
-        <div className="replace-modal-overlay" onClick={() => setReplaceModal({ isOpen: false, itemId: null, qty: 1 })}>
-          <div className="replace-modal-content" onClick={e => e.stopPropagation()}>
-            <div className="replace-modal-icon">🛒</div>
-            <h3 className="replace-modal-title">Replace cart items?</h3>
-            <p className="replace-modal-desc">
+        <div className="modal-overlay" onClick={() => setReplaceModal({ isOpen: false, itemId: null, qty: 1 })}>
+          <div className="modal-card slide-in-top" onClick={e => e.stopPropagation()}>
+            <div className="replace-modal-header">
+              <span className="replace-modal-icon">🛒</span>
+              <h3 className="modal-title font-bold">Replace cart items?</h3>
+            </div>
+            <p className="replace-modal-desc text-secondary">
               Your cart contains items from <strong>{cartRestaurant?.name || 'another restaurant'}</strong>.
               Would you like to discard your existing cart and start a fresh order from <strong>{restaurant.name}</strong>?
             </p>
             <div className="replace-modal-actions">
               <button 
-                className="replace-modal-btn cancel-btn"
+                type="button"
+                className="btn-retry" 
+                style={{ background: 'var(--bg-surface)', color: 'var(--text-main)', border: '1px solid var(--border-line)' }}
                 onClick={() => setReplaceModal({ isOpen: false, itemId: null, qty: 1 })}
               >
                 Cancel
               </button>
               <button 
-                className="replace-modal-btn confirm-btn"
+                type="button"
+                className="bigbtn"
                 onClick={() => {
                   if (onReplaceCart) {
                     onReplaceCart(replaceModal.itemId, replaceModal.qty, restaurant);
@@ -269,4 +386,3 @@ const MenuPage = ({ restaurant, onBack, cart, updateCart, onViewCart, cartRestau
 };
 
 export default MenuPage;
-

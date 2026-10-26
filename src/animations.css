@@ -1,6 +1,6 @@
 /* Screen transitions and animations */
 .screen-transition {
-  animation: screenFadeIn 0.3s ease-out;
+  animation: screenFadeIn 0.25s ease-out;
   width: 100%;
   flex: 1;
   display: flex;
@@ -10,7 +10,7 @@
 @keyframes screenFadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -24,6 +24,53 @@
 
 @keyframes pop {
   0% { transform: scale(1); }
-  50% { transform: scale(1.15); }
+  50% { transform: scale(1.12); }
   100% { transform: scale(1); }
+}
+
+@keyframes pulseGlow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 107, 44, 0.45);
+  }
+  70% {
+    box-shadow: 0 0 0 12px rgba(255, 107, 44, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 107, 44, 0);
+  }
+}
+
+@keyframes liveDotPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.35);
+    opacity: 0.7;
+  }
+}
+
+/* Slide in from top */
+.slide-in-top {
+  animation: slideInTop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideInTop {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .screen-transition,
+  .animate-pop,
+  .slide-in-top {
+    animation: none !important;
+  }
 }

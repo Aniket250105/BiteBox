@@ -1,8 +1,13 @@
+/* ==========================================================================
+   RestaurantPortal.css - Saffron & Ink Design System (Kitchen Dispatch)
+   ========================================================================== */
+
 .restaurant-portal {
   min-height: 100vh;
-  background-color: var(--color-bg);
-  padding: 24px 20px;
-  font-family: var(--font-body);
+  background-color: var(--bg-page, #FFF7EF);
+  color: var(--text-main, #17171C);
+  padding: 32px 20px;
+  font-family: var(--font-body, 'Inter', sans-serif);
 }
 
 .portal-container {
@@ -10,30 +15,36 @@
   margin: 0 auto;
 }
 
+/* Header */
 .portal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 28px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border-line, #EFE6DC);
+  flex-wrap: wrap;
+  gap: 16px;
 }
 
 .portal-title-group h1 {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
+  font-family: var(--font-heading, 'Outfit', sans-serif);
   font-weight: 800;
+  letter-spacing: -0.02em;
   display: flex;
   align-items: center;
   gap: 10px;
+  color: var(--text-main, #17171C);
 }
 
 .portal-tag {
-  background: #FFF3E0;
-  color: #E65100;
+  background: var(--sunsoft, #FFEEE2);
+  color: var(--sun, #FF6B2C);
   font-size: 0.72rem;
   font-weight: 700;
-  padding: 3px 8px;
-  border-radius: 6px;
+  padding: 4px 10px;
+  border-radius: 12px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -49,45 +60,73 @@
   align-items: center;
   gap: 6px;
   font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--color-success);
+  font-weight: 700;
+  color: var(--success-text, #137A52);
+  background: var(--success-bg, #E6F6EE);
+  padding: 6px 12px;
+  border-radius: 14px;
 }
 
 .portal-live-dot {
   width: 8px;
   height: 8px;
-  background-color: var(--color-success);
+  background-color: var(--veg-green, #1F9D6B);
   border-radius: 50%;
-  animation: pulseDot 1.5s infinite;
+  animation: pulsePortalDot 1.8s infinite;
 }
 
-@keyframes pulseDot {
-  0% { transform: scale(0.95); opacity: 0.8; }
+@keyframes pulsePortalDot {
+  0% { transform: scale(0.9); opacity: 0.8; }
   50% { transform: scale(1.3); opacity: 1; }
-  100% { transform: scale(0.95); opacity: 0.8; }
+  100% { transform: scale(0.9); opacity: 0.8; }
 }
 
 .portal-refresh-btn {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  padding: 8px 14px;
-  border-radius: var(--radius-md);
+  background: var(--bg-surface, #FFFFFF);
+  border: 1px solid var(--border-line, #EFE6DC);
+  padding: 10px 16px;
+  border-radius: 16px;
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  color: var(--color-text);
+  color: var(--text-main, #17171C);
+  box-shadow: 0 4px 10px rgba(40, 20, 5, 0.08);
+  transition: transform 0.15s ease;
+  min-height: 44px;
+}
+
+.portal-refresh-btn:active {
+  transform: scale(0.96);
 }
 
 .portal-customer-link {
-  background: var(--color-primary);
-  color: white;
+  background: linear-gradient(135deg, var(--sun2, #FF8F3F), var(--sun, #FF6B2C));
+  color: #FFFFFF;
   border: none;
-  padding: 8px 14px;
-  border-radius: var(--radius-md);
+  padding: 10px 18px;
+  border-radius: 16px;
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   text-decoration: none;
+  box-shadow: 0 8px 16px rgba(255, 107, 44, 0.35);
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  transition: transform 0.15s ease;
+}
+
+.portal-customer-link:active {
+  transform: scale(0.96);
+}
+
+/* Orders Feed */
+.empty-portal {
+  background: var(--bg-surface, #FFFFFF);
+  border: 1px dashed var(--border-line, #EFE6DC);
+  border-radius: var(--radius-card, 22px);
+  padding: 48px 24px;
+  text-align: center;
 }
 
 .portal-orders-list {
@@ -97,193 +136,249 @@
 }
 
 .portal-order-card {
-  background: var(--color-surface);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-sm);
-  padding: 20px;
+  background: var(--bg-surface, #FFFFFF);
+  border-radius: var(--radius-card, 22px);
+  border: 1.5px solid var(--border-line, #EFE6DC);
+  box-shadow: var(--shadow-card, 0 8px 18px rgba(120, 70, 30, 0.09));
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .portal-order-card.pending-decision {
-  border-left: 5px solid #FF9800;
-  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.12);
+  border-left: 6px solid var(--sun, #FF6B2C);
+  box-shadow: 0 8px 22px rgba(255, 107, 44, 0.14);
 }
 
 .portal-order-card.confirmed-order {
-  border-left: 5px solid #2E7D32;
+  border-left: 6px solid var(--veg-green, #1F9D6B);
 }
 
 .portal-order-card.rejected-order {
-  border-left: 5px solid #D32F2F;
-  opacity: 0.85;
+  border-left: 6px solid #D93025;
+  opacity: 0.88;
 }
 
 .order-card-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 12px;
 }
 
 .order-card-id {
-  font-size: 1.05rem;
+  font-size: 1.15rem;
   font-weight: 800;
+  font-family: var(--font-heading, 'Outfit', sans-serif);
+  color: var(--text-main, #17171C);
 }
 
 .order-restaurant-label {
   font-size: 0.85rem;
-  color: var(--color-text-secondary);
+  color: var(--text-muted, #7B7B86);
+  font-weight: 600;
 }
 
 .order-status-badge {
-  padding: 5px 12px;
-  border-radius: var(--radius-full);
+  padding: 6px 14px;
+  border-radius: 14px;
   font-size: 0.78rem;
   font-weight: 700;
   text-transform: capitalize;
 }
 
 .badge-awaiting {
-  background: #FFF3E0;
-  color: #E65100;
+  background: var(--sunsoft, #FFEEE2);
+  color: var(--sun, #FF6B2C);
 }
 
-.badge-confirmed {
-  background: #E8F5E9;
-  color: #2E7D32;
+.badge-confirmed,
+.badge-delivered {
+  background: var(--success-bg, #E6F6EE);
+  color: var(--success-text, #137A52);
 }
 
 .badge-rejected {
-  background: #FFEBEE;
-  color: #C62828;
+  background: rgba(217, 48, 37, 0.12);
+  color: #D93025;
 }
 
 .badge-progress {
-  background: #E3F2FD;
-  color: #1565C0;
+  background: #FFF4D6;
+  color: #B7791F;
 }
 
-.badge-delivered {
-  background: #EDE7F6;
-  color: #4527A0;
-}
-
-.order-card-body {
-  margin: 14px 0;
-  padding: 12px 0;
-  border-top: 1px dashed var(--color-border);
-  border-bottom: 1px dashed var(--color-border);
-}
-
+/* Items Table */
 .order-items-table {
   width: 100%;
-  font-size: 0.9rem;
-  margin-bottom: 10px;
+  border-collapse: collapse;
+  margin-top: 6px;
 }
 
 .order-items-table td {
-  padding: 4px 0;
+  padding: 8px 0;
+  font-size: 0.9rem;
+  border-bottom: 1px dashed var(--border-line, #EFE6DC);
+  color: var(--text-main, #17171C);
 }
 
 .order-payment-info {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.92rem;
-  margin-top: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
 }
 
 .order-payment-pill {
-  font-size: 0.8rem;
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 10px;
+  font-size: 0.75rem;
   font-weight: 700;
-  padding: 3px 8px;
-  border-radius: 4px;
+  margin-top: 2px;
 }
 
 .pill-cod {
-  background: #FFF9C4;
-  color: #F57F17;
+  background: #FFF4D6;
+  color: #B7791F;
 }
 
 .pill-online {
-  background: #E8F5E9;
-  color: #2E7D32;
+  background: var(--success-bg, #E6F6EE);
+  color: var(--success-text, #137A52);
 }
 
+/* Actions */
 .order-actions-bar {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
-  margin-top: 14px;
+  margin-top: 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-line, #EFE6DC);
+  flex-wrap: wrap;
 }
 
 .decision-buttons-group {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .btn-accept {
-  background: #2E7D32;
-  color: white;
+  background: linear-gradient(135deg, var(--sun2, #FF8F3F), var(--sun, #FF6B2C));
+  color: #FFFFFF;
   border: none;
-  padding: 9px 18px;
-  border-radius: var(--radius-md);
+  padding: 10px 18px;
+  border-radius: 16px;
+  font-size: 0.85rem;
   font-weight: 700;
-  font-size: 0.9rem;
   cursor: pointer;
+  box-shadow: 0 6px 14px rgba(255, 107, 44, 0.35);
+  min-height: 44px;
+  transition: transform 0.15s ease;
 }
 
-.btn-accept:hover {
-  background: #1B5E20;
+.btn-accept:active {
+  transform: scale(0.96);
 }
 
 .reject-container {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex: 1;
 }
 
 .reject-reason-select {
-  padding: 8px 10px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-border);
-  background: var(--color-bg);
-  color: var(--color-text);
-  font-size: 0.82rem;
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 14px;
+  border: 1.5px solid var(--border-line, #EFE6DC);
+  background-color: var(--bg-surface, #FFFFFF);
+  color: var(--text-main, #17171C);
+  font-size: 0.8rem;
+  outline: none;
+  min-height: 44px;
 }
 
 .btn-reject {
-  background: #D32F2F;
-  color: white;
-  border: none;
-  padding: 9px 16px;
-  border-radius: var(--radius-md);
+  background: rgba(217, 48, 37, 0.1);
+  color: #D93025;
+  border: 1.5px solid rgba(217, 48, 37, 0.25);
+  padding: 8px 14px;
+  border-radius: 14px;
+  font-size: 0.82rem;
   font-weight: 700;
-  font-size: 0.9rem;
   cursor: pointer;
+  min-height: 44px;
+  transition: all 0.15s ease;
 }
 
 .btn-reject:hover {
-  background: #B71C1C;
+  background: #D93025;
+  color: #FFFFFF;
 }
 
 .btn-advance {
-  background: var(--color-primary);
-  color: white;
+  background: #17171C;
+  color: #FFFFFF;
   border: none;
-  padding: 8px 16px;
-  border-radius: var(--radius-md);
-  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 16px;
   font-size: 0.85rem;
+  font-weight: 700;
   cursor: pointer;
+  min-height: 44px;
+  transition: transform 0.15s ease;
 }
 
-.empty-portal {
-  text-align: center;
-  padding: 60px 20px;
-  color: var(--color-text-secondary);
+.btn-advance:active {
+  transform: scale(0.96);
+}
+
+/* --------------------------------------------------------------------------
+   Dark Mode Overrides
+   -------------------------------------------------------------------------- */
+[data-theme='dark'] .restaurant-portal {
+  background-color: var(--bg-page, #121214);
+  color: var(--text-main, #F5F1EC);
+}
+
+[data-theme='dark'] .portal-order-card,
+[data-theme='dark'] .empty-portal,
+[data-theme='dark'] .portal-refresh-btn,
+[data-theme='dark'] .reject-reason-select {
+  background-color: var(--bg-surface, #1C1C21);
+  color: var(--text-main, #F5F1EC);
+  border-color: var(--border-line, #2E2E36);
+}
+
+[data-theme='dark'] .order-card-id {
+  color: var(--text-main, #F5F1EC);
+}
+
+[data-theme='dark'] .order-items-table td {
+  border-color: #2E2E36;
+  color: var(--text-main, #F5F1EC);
+}
+
+[data-theme='dark'] .order-actions-bar,
+[data-theme='dark'] .portal-header {
+  border-color: #2E2E36;
+}
+
+[data-theme='dark'] .btn-advance {
+  background: #F5F1EC;
+  color: #17171C;
+}
+
+/* --------------------------------------------------------------------------
+   Reduced Motion
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .portal-live-dot {
+    animation: none !important;
+  }
 }

@@ -181,3 +181,52 @@ Before demonstrating BiteBox in a live rehearsal, presentation, or review:
    - Confirm the prompt: *"This clears all orders and restores stock. Continue?"*.
    - All past orders and simulated payments will be wiped, inventory will be restored to initial quantities (for both seeded and OSM generated dishes), and the demo account `aniket@bitebox.com` and `geo_cache` will be cleanly preserved.
 
+---
+
+## 🎨 UI Design System: "Saffron & Ink"
+
+BiteBox features a bespoke, production-grade design system dubbed **"Saffron & Ink"**, engineered to feel dynamic, tactile, and visually stunning:
+
+### 1. Palette & Typography
+- **Primary Accents**: Saffron (`#FF6B2C`) and Sun Orange (`#FF8F3F`), blended in subtle `135deg` linear gradients (`var(--accent-gradient)`).
+- **Ink Surfaces**: Deep Ink (`#17171C`) paired with a warm Cream backdrop (`#FFF7EF`) in light mode; Rich Obsidian (`#121214`) and Slate Surface (`#1C1C21`) in dark mode.
+- **Typography**: Google Fonts **Outfit** for bold, expressive headings (`font-weight: 700/800`, `letter-spacing: -0.02em` to `-0.03em`) and **Inter** for clean, readable data typography.
+
+### 2. Screen-by-Screen Highlights
+- **1. Discover Screen**:
+  - Full-bleed Leaflet interactive map with custom OSM tiles.
+  - Saffron-dashed 3 km delivery boundary with distance badge chip.
+  - Draggable 2-state bottom sheet (collapsed half and expanded full) with independent internal scrolling.
+  - Floating location badge and search bar.
+- **2. Menu Screen**:
+  - 224px gradient hero header with 128px circular plate dish presentation and safe-area inset back button.
+  - Overlapping restaurant info card with live delivery time, distance, open status, and cuisine chips.
+  - Sticky horizontally-scrollable category filter pills.
+  - 2-column dish grid with deterministic pastel backdrops based on item IDs, veg/non-veg indicator dots, and 44px steppers.
+  - High-contrast floating cart pill (`#17171C` in light, `#F5F1EC` in dark).
+- **3. Cart & Checkout Screen**:
+  - Top restaurant recap and 3-step navigation tracker (`1 Cart` $\to$ `2 Payment` $\to$ `3 Track`).
+  - Delivery card with zero-network static SVG mini-map and location change modal.
+  - Ticket-shaped coupon card with 3 unified states (input with Enter submit, applied with "₹X off applied" & Remove, and inline error banner).
+  - Receipt bill strictly computed server-side with shimmer skeletons during quoting.
+  - Sticky bottom payment bar with safe-area bottom clearance padding.
+- **4. Payment Screen**:
+  - Dark amount hero card (`.hero2`) with subtle top-right radial glow showing exact server-quoted bill.
+  - 3-segment switcher (UPI, Card, Cash on Delivery).
+  - Interactive UPI app selector (Google Pay, PhonePe, Paytm with selection badges) and verified UPI ID input.
+  - Client-isolated Card form (`autoComplete="off"`, card details never sent over network, with visible demo disclaimer).
+  - Custom `SlideToPay` component with draggable circular saffron knob, drag feedback, visible focus ring, and screen-reader announcements.
+- **5. Order Tracking Screen**:
+  - Top floating circular back button and "Live tracking" chip with pulsing red dot indicator.
+  - Live Leaflet map with restaurant marker (`🍽️`), rotating delivery scooter (`🛵`) with glowing orange halo, and customer pin (`📍`).
+  - Draggable bottom sheet with distance-based ETA; conditional `"⚡ On time"` badge displayed strictly while out for delivery.
+  - 5-stage server-driven horizontal stepper (`Confirmed` $\to$ `Cooking` $\to$ `Picked up` $\to$ `On the way` $\to$ `Delivered`).
+  - Delivery partner card with initials avatar, star rating, vehicle plate, and round call/chat buttons.
+  - Rejection card replacing stepper on rejected orders with refund status badge.
+
+### 3. Dual-Theme Support & Accessibility
+- **Complete Dark Mode**: Automatic theme detection and manual overrides (`[data-theme='dark']`). Contrast pills dynamically invert (`#F5F1EC` background with `#17171C` text) for optimal contrast.
+- **Reduced Motion**: Full support for `prefers-reduced-motion: reduce`, instantly disabling pulse animations, halos, and spring transitions.
+- **Touch Ergonomics**: All interactive buttons, chips, and steppers adhere strictly to a minimum $44\text{px} \times 44\text{px}$ touch target area.
+
+
