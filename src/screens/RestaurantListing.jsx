@@ -509,7 +509,7 @@ const RestaurantListing = ({
   const placesWithin3KmCount = restaurants.filter(r => r.distanceKm === null || r.distanceKm <= 3.0).length;
 
   return (
-    <div className="discover-screen">
+    <div className={`discover-screen ${isSheetExpanded ? 'sheet-is-expanded' : ''}`}>
       {/* 1. Full-Width Top Map Area */}
       <div className="discover-map-wrapper">
         {!useSchematicMap ? (
@@ -597,85 +597,85 @@ const RestaurantListing = ({
             </svg>
           </div>
         )}
+      </div>
 
-        {/* Floating Top Controls: Location Pill, Avatar, Search Bar */}
-        <div className="discover-floating-top">
-          <div className="discover-top-row">
-            <button 
-              type="button" 
-              className="discover-locpill" 
-              onClick={handleOpenLocationModal}
-              title="Change delivery location"
-            >
-              <span className="loc-icon">📍</span>
-              <div className="loc-text-col">
-                <small>Deliver to</small>
-                <div className="loc-address-line">{displayAddress} ▾</div>
-              </div>
-            </button>
+      {/* Floating Top Controls: Location Pill, Avatar, Search Bar */}
+      <div className="discover-floating-top">
+        <div className="discover-top-row">
+          <button 
+            type="button" 
+            className="discover-locpill" 
+            onClick={handleOpenLocationModal}
+            title="Change delivery location"
+          >
+            <span className="loc-icon">📍</span>
+            <div className="loc-text-col">
+              <small>Deliver to</small>
+              <div className="loc-address-line">{displayAddress} ▾</div>
+            </div>
+          </button>
 
-            <div className="discover-top-right-actions">
-              {isDemoMode && showDemoPill && (
-                <button
-                  type="button"
-                  className={`demo-toggle-chip ${isDemoPanelOpen ? 'active' : ''}`}
-                  onClick={() => setIsDemoPanelOpen(!isDemoPanelOpen)}
-                  title="Toggle Demo Controls"
-                >
-                  <span>🧪 Demo</span>
-                </button>
-              )}
-
+          <div className="discover-top-right-actions">
+            {isDemoMode && showDemoPill && (
               <button
                 type="button"
-                className="discover-avatar-btn"
-                onClick={() => setShowUserDropdown(!showUserDropdown)}
-                title="User profile"
+                className={`demo-toggle-chip ${isDemoPanelOpen ? 'active' : ''}`}
+                onClick={() => setIsDemoPanelOpen(!isDemoPanelOpen)}
+                title="Toggle Demo Controls"
               >
-                {userInitial}
-              </button>
-
-              {showUserDropdown && (
-                <div className="user-dropdown-menu slide-in-top" onClick={e => e.stopPropagation()}>
-                  <div className="user-dropdown-header">
-                    <span className="dropdown-user-name font-bold text-xs">{userProfile.name}</span>
-                    <span className="dropdown-user-id text-xs text-secondary">{userProfile.email || userProfile.phone || userProfile.identifier}</span>
-                  </div>
-                  <button
-                    type="button"
-                    className="dropdown-item logout-item"
-                    onClick={() => {
-                      setShowUserDropdown(false);
-                      onLogout();
-                    }}
-                  >
-                    Log Out
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Floating Search Bar (Filter icon omitted as per specification) */}
-          <div className="discover-searchbar-container">
-            <span className="search-icon">🔍</span>
-            <input 
-              type="text" 
-              className="discover-search-input" 
-              placeholder="Search restaurants or dishes" 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            {searchQuery && (
-              <button 
-                type="button" 
-                className="search-clear-btn"
-                onClick={() => setSearchQuery('')}
-              >
-                ✕
+                <span>🧪 Demo</span>
               </button>
             )}
+
+            <button
+              type="button"
+              className="discover-avatar-btn"
+              onClick={() => setShowUserDropdown(!showUserDropdown)}
+              title="User profile"
+            >
+              {userInitial}
+            </button>
+
+            {showUserDropdown && (
+              <div className="user-dropdown-menu slide-in-top" onClick={e => e.stopPropagation()}>
+                <div className="user-dropdown-header">
+                  <span className="dropdown-user-name font-bold text-xs">{userProfile.name}</span>
+                  <span className="dropdown-user-id text-xs text-secondary">{userProfile.email || userProfile.phone || userProfile.identifier}</span>
+                </div>
+                <button
+                  type="button"
+                  className="dropdown-item logout-item"
+                  onClick={() => {
+                    setShowUserDropdown(false);
+                    onLogout();
+                  }}
+                >
+                  Log Out
+                </button>
+              </div>
+            )}
           </div>
+        </div>
+
+        {/* Floating Search Bar (Filter icon omitted as per specification) */}
+        <div className="discover-searchbar-container">
+          <span className="search-icon">🔍</span>
+          <input 
+            type="text" 
+            className="discover-search-input" 
+            placeholder="Search restaurants or dishes" 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          {searchQuery && (
+            <button 
+              type="button" 
+              className="search-clear-btn"
+              onClick={() => setSearchQuery('')}
+            >
+              ✕
+            </button>
+          )}
         </div>
       </div>
 
