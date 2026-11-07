@@ -17,6 +17,51 @@ L.Icon.Default.mergeOptions({
   shadowUrl: ''
 });
 
+// Check if a restaurant is a seeded place (can keep photographic thumbnail)
+export const isSeededRestaurant = (r) => {
+  if (!r) return false;
+  return Boolean(
+    r.source === 'seed' ||
+    r.source === 'seed-fallback' ||
+    r.isDemoFallback ||
+    ['r1', 'r2', 'r3', 'r4'].includes(r.id)
+  );
+};
+
+// Return a neutral cuisine emoji for live OSM places
+export const getCuisineEmoji = (r) => {
+  if (!r) return '🍽️';
+  const text = `${(r.cuisines || []).join(' ')} ${r.cuisine || ''} ${r.name || ''} ${r.amenity || ''}`.toLowerCase();
+  if (text.includes('coffee') || text.includes('cafe') || text.includes('café') || text.includes('tea') || text.includes('bakery') || text.includes('bakes')) {
+    return '☕';
+  }
+  if (text.includes('salad') || text.includes('healthy') || text.includes('bowl')) {
+    return '🥗';
+  }
+  if (text.includes('juice') || text.includes('shake') || text.includes('smoothie') || text.includes('beverage')) {
+    return '🧃';
+  }
+  if (text.includes('burger') || text.includes('sandwich') || text.includes('fast_food') || text.includes('fast food') || text.includes('wrap')) {
+    return '🍔';
+  }
+  if (text.includes('pizza') || text.includes('italian') || text.includes('pasta')) {
+    return '🍕';
+  }
+  if (text.includes('chinese') || text.includes('asian') || text.includes('noodle') || text.includes('momo') || text.includes('ramen')) {
+    return '🥢';
+  }
+  if (text.includes('ice cream') || text.includes('dessert') || text.includes('sweet') || text.includes('cake') || text.includes('waffle')) {
+    return '🧁';
+  }
+  if (text.includes('south indian') || text.includes('dosa') || text.includes('idli') || text.includes('veg') || text.includes('tiffin')) {
+    return '🌿';
+  }
+  if (text.includes('biryani') || text.includes('curry') || text.includes('thali') || text.includes('rice') || text.includes('north indian') || text.includes('mughlai')) {
+    return '🍛';
+  }
+  return r.emoji || '🍽️';
+};
+
 const RestaurantListing = ({ 
   onSelectRestaurant, 
   userProfile, 
@@ -56,6 +101,7 @@ const RestaurantListing = ({
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markersGroupRef = useRef(null);
+  const [mapReady, setMapReady] = useState(false);
   const [useSchematicMap, setUseSchematicMap] = useState(false);
   const [selectedPinRestaurantId, setSelectedPinRestaurantId] = useState(null);
   const listRowsRef = useRef({});
@@ -231,6 +277,12 @@ const RestaurantListing = ({
     if (useSchematicMap || !mapContainerRef.current || !isAuthLocationComplete) return;
     if (mapInstanceRef.current) return;
 
+    // Check if network is explicitly offline
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      setUseSchematicMap(true);
+      return;
+    }
+
     const [lat, lng] = customerCoords;
 
     try {
@@ -242,26 +294,97 @@ const RestaurantListing = ({
       });
       mapInstanceRef.current = map;
 
-      // Add OpenStreetMap tiles with failure tolerance
+      // Invalidate size on initial mount
+      map.whenReady(() => {
+        setTimeout(() => {
+          if (map._loaded && typeof map.invalidateSize === 'function') {
+            map.invalidateSize();
+          }
+        }, 60);
+        setTimeout(() => {
+          if (map._loaded && typeof map.invalidateSize === 'function') {
+            map.invalidateSize();
+          }
+        }, 300);
+      });
+
+      // Add OpenStreetMap tiles with failure tolerance & 3-second fallback timer
+      let hasAnyTileLoaded = false;
+      let consecutiveTileErrors = 0;
+
       const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19
       }).addTo(map);
 
-      let consecutiveTileErrors = 0;
+      tileLayer.on('tileload', () => {
+        hasAnyTileLoaded = true;
+      });
+
       tileLayer.on('tileerror', () => {
         consecutiveTileErrors++;
-        if (consecutiveTileErrors > 6) {
+        // If consecutive errors happen and no tiles have loaded, trigger schematic early
+        if (consecutiveTileErrors >= 2 && !hasAnyTileLoaded) {
           setUseSchematicMap(true);
         }
       });
 
+      // Fallback timer: if tiles haven't loaded within about 3 seconds, or there are no tiles, fallback to schematic
+      const tileTimeoutId = setTimeout(() => {
+        if (!hasAnyTileLoaded) {
+          console.warn('Tiles failed to load within 3 seconds, switching to schematic fallback');
+          setUseSchematicMap(true);
+        }
+      }, 3000);
+
       const markersGroup = L.layerGroup().addTo(map);
       markersGroupRef.current = markersGroup;
+
+      const handleResize = () => {
+        if (map._loaded && typeof map.invalidateSize === 'function') {
+          map.invalidateSize();
+        }
+      };
+      window.addEventListener('resize', handleResize);
+
+      setMapReady(true);
+
+      return () => {
+        clearTimeout(tileTimeoutId);
+        window.removeEventListener('resize', handleResize);
+      };
     } catch (e) {
       console.warn('Leaflet map initialization failed, falling back to schematic:', e);
       setUseSchematicMap(true);
     }
   }, [useSchematicMap, isAuthLocationComplete, customerCoords]);
+
+  // Clean up Leaflet map when switching to schematic map
+  useEffect(() => {
+    if (useSchematicMap && mapInstanceRef.current) {
+      try {
+        mapInstanceRef.current.remove();
+      } catch {}
+      mapInstanceRef.current = null;
+      markersGroupRef.current = null;
+      setMapReady(false);
+    }
+  }, [useSchematicMap]);
+
+  // Invalidate map size on sheet expansion/collapse transitions
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map || !map._loaded || useSchematicMap) return;
+
+    if (typeof map.invalidateSize === 'function') {
+      map.invalidateSize();
+    }
+    const timer = setTimeout(() => {
+      if (mapInstanceRef.current && mapInstanceRef.current._loaded) {
+        mapInstanceRef.current.invalidateSize();
+      }
+    }, 320);
+    return () => clearTimeout(timer);
+  }, [isSheetExpanded, useSchematicMap]);
 
   // 2. Update Leaflet Markers whenever pins or selection changes
   useEffect(() => {
@@ -352,7 +475,7 @@ const RestaurantListing = ({
         map.invalidateSize();
       }
     } catch {}
-  }, [customerCoords, pinnedRestaurants, selectedPinRestaurantId, useSchematicMap]);
+  }, [customerCoords, pinnedRestaurants, selectedPinRestaurantId, useSchematicMap, mapReady]);
 
   // Cleanup map on unmount
   useEffect(() => {
@@ -397,6 +520,9 @@ const RestaurantListing = ({
     if (!hasMovedRef.current) {
       setIsSheetExpanded(prev => !prev);
       setSheetTranslateY(0);
+      if (mapInstanceRef.current && mapInstanceRef.current._loaded) {
+        setTimeout(() => { try { mapInstanceRef.current?.invalidateSize(); } catch {} }, 60);
+      }
       return;
     }
 
@@ -411,6 +537,9 @@ const RestaurantListing = ({
       }
     }
     setSheetTranslateY(0);
+    if (mapInstanceRef.current && mapInstanceRef.current._loaded) {
+      setTimeout(() => { try { mapInstanceRef.current?.invalidateSize(); } catch {} }, 60);
+    }
   };
 
   // Location modal handlers
@@ -534,7 +663,7 @@ const RestaurantListing = ({
                 <path d="M296 0 V372" />
                 <path d="M0 120 L370 232" />
               </g>
-              <g stroke="#E8DFD2" strokeWidth="1" fill="none">
+              <g stroke="var(--border-line, #E8DFD2)" strokeWidth="1" fill="none">
                 <path d="M0 178 H370" />
                 <path d="M0 286 H370" />
                 <path d="M92 0 V372" />
@@ -549,8 +678,8 @@ const RestaurantListing = ({
                 <text x="24" y="15" fontSize="11" fontWeight="700" fill="#FFFFFF" textAnchor="middle">3 km</text>
               </g>
               {/* Customer dot with halo */}
-              <circle cx="185" cy="245" r="22" fill="rgba(23,23,28,.12)" />
-              <circle cx="185" cy="245" r="9" fill="#17171C" stroke="#FFFFFF" strokeWidth="3.5" />
+              <circle cx="185" cy="245" r="22" className="schematic-customer-halo" />
+              <circle cx="185" cy="245" r="9" className="schematic-customer-dot" />
               
               {/* Render dynamic pins for pinned restaurants in schematic view */}
               {pinnedRestaurants.slice(0, 4).map((r, idx) => {
@@ -869,6 +998,9 @@ const RestaurantListing = ({
                   else if ((restaurant.cuisine || '').toLowerCase().includes('burger')) thumbGrad = 'linear-gradient(135deg, #FFE0A3, #E9A23B)';
                   else if (isClosed) thumbGrad = 'linear-gradient(135deg, #D7CCE8, #8F7DB5)';
 
+                  const isSeeded = isSeededRestaurant(restaurant);
+                  const cuisineEmoji = getCuisineEmoji(restaurant);
+
                   return (
                     <div
                       key={restaurant.id}
@@ -880,8 +1012,8 @@ const RestaurantListing = ({
                       <div className="row-thumbnail" style={{ background: thumbGrad }}>
                         <div className="plate row-plate">
                           <ImageWithFallback 
-                            src={restaurant.image} 
-                            fallbackEmoji={restaurant.emoji || '🍛'}
+                            src={isSeeded ? restaurant.image : null} 
+                            fallbackEmoji={cuisineEmoji}
                             alt={restaurant.name} 
                             isPlate={true}
                           />
