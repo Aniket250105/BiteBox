@@ -316,6 +316,29 @@
   flex: none;
 }
 
+.theme-toggle-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--glass-fill-strong);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
+  box-shadow: var(--glass-shadow), var(--glass-highlight);
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  cursor: pointer;
+  flex: none;
+  transition: transform 0.15s ease;
+}
+
+.theme-toggle-btn:active {
+  transform: scale(0.92);
+}
+
 .user-dropdown-menu {
   position: absolute;
   top: 48px;
@@ -678,9 +701,11 @@
 .row-plate {
   width: 52px;
   height: 52px;
-  font-size: 28px;
   position: relative;
   z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .row-info {

@@ -6,7 +6,7 @@ import Toast from '../components/Toast';
 import SlideToPay from '../components/SlideToPay';
 import { useDemoPill } from '../utils/useDemoPill';
 
-const PaymentScreen = ({ orderDetails, onBack, onReturnToCart, onSuccess }) => {
+const PaymentScreen = ({ orderDetails, onBack, onReturnToCart, onSuccess, theme = 'light', onToggleTheme }) => {
   const [selectedMethod, setSelectedMethod] = useState('upi'); // 'upi' | 'card' | 'cod'
   const [selectedUpiApp, setSelectedUpiApp] = useState('gpay'); // 'gpay' | 'phonepe' | 'paytm'
   const [upiIdInput, setUpiIdInput] = useState('');
@@ -241,6 +241,18 @@ const PaymentScreen = ({ orderDetails, onBack, onReturnToCart, onSuccess }) => {
           <b>Payment</b>
           <span>Step 2 of 3</span>
         </div>
+
+        {onToggleTheme && (
+          <button
+            type="button"
+            className="circbtn"
+            onClick={onToggleTheme}
+            title={theme === 'dark' ? 'Switch to Light theme' : 'Switch to Dark theme'}
+            aria-label={theme === 'dark' ? 'Switch to Light theme' : 'Switch to Dark theme'}
+          >
+            <span>{theme === 'dark' ? '☀️' : '🌙'}</span>
+          </button>
+        )}
 
         {isDemoMode && showDemoPill && (
           <button

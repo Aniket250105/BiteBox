@@ -5,7 +5,7 @@ import { apiService } from '../services/apiService';
 import { PRESET_LOCATIONS, generateRouteWaypoints } from '../services/locationData';
 import { useDemoPill } from '../utils/useDemoPill';
 
-const AuthLocationFlow = ({ onComplete, initialMessage }) => {
+const AuthLocationFlow = ({ onComplete, initialMessage, theme = 'light', onToggleTheme }) => {
   // Step state: 'auth' | 'location'
   const [currentStep, setCurrentStep] = useState('auth');
   const [authMode, setAuthMode] = useState('login'); // 'login' | 'register'
@@ -217,7 +217,19 @@ const AuthLocationFlow = ({ onComplete, initialMessage }) => {
         /* STEP 1: LOGIN / REGISTER CARD */
         <div className="auth-card slide-in-top">
           {/* Header & Demo Toggle */}
-          <div className="auth-header">
+          <div className="auth-header" style={{ position: 'relative' }}>
+            {onToggleTheme && (
+              <button
+                type="button"
+                className="circbtn"
+                onClick={onToggleTheme}
+                title={theme === 'dark' ? 'Switch to Light theme' : 'Switch to Dark theme'}
+                aria-label={theme === 'dark' ? 'Switch to Light theme' : 'Switch to Dark theme'}
+                style={{ position: 'absolute', top: 0, right: 0 }}
+              >
+                <span>{theme === 'dark' ? '☀️' : '🌙'}</span>
+              </button>
+            )}
             <div className="brand-logo-row">
               <span className="brand-icon">🍱</span>
               <h1 className="brand-name">BiteBox</h1>

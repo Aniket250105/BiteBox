@@ -58,6 +58,26 @@ function App() {
 
   const isRestaurantRoute = window.location.pathname.startsWith('/restaurant') || window.location.search.includes('view=restaurant');
 
+  // Global Light/Dark Theme State (Defaults to Light mode for bright Saffron & Ink aesthetic)
+  const [theme, setTheme] = useState(() => {
+    try {
+      const saved = localStorage.getItem('bitebox_theme');
+      if (saved === 'light' || saved === 'dark') return saved;
+    } catch {}
+    return 'light';
+  });
+
+  React.useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    try {
+      localStorage.setItem('bitebox_theme', theme);
+    } catch {}
+  }, [theme]);
+
+  const handleToggleTheme = () => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+  };
+
   // Initialize glassmorphism state from user preference
   React.useEffect(() => {
     try {
@@ -313,6 +333,8 @@ function App() {
             onLogout={handleLogout}
             sessionExpiredNotice={sessionExpiredNotice}
             onClearExpiredNotice={() => setSessionExpiredNotice('')}
+            theme={theme}
+            onToggleTheme={handleToggleTheme}
           />
         )}
         
@@ -325,6 +347,8 @@ function App() {
             onViewCart={goToCheckout}
             cartRestaurant={cartRestaurant}
             onReplaceCart={handleReplaceCart}
+            theme={theme}
+            onToggleTheme={handleToggleTheme}
           />
         )}
 
@@ -336,6 +360,8 @@ function App() {
             userProfile={userProfile}
             onBack={handleBackToMenu}
             onProceedToPayment={proceedToPayment}
+            theme={theme}
+            onToggleTheme={handleToggleTheme}
           />
         )}
 
@@ -345,6 +371,8 @@ function App() {
             onBack={handleBackToCheckout}
             onReturnToCart={handleReturnToCartFromPayment}
             onSuccess={handlePaymentSuccess}
+            theme={theme}
+            onToggleTheme={handleToggleTheme}
           />
         )}
         
@@ -353,6 +381,8 @@ function App() {
             restaurant={selectedRestaurant} 
             orderDetails={orderDetails}
             userProfile={userProfile}
+            theme={theme}
+            onToggleTheme={handleToggleTheme}
             onHome={() => {
               setCurrentScreen('listing');
               setSelectedRestaurant(null);

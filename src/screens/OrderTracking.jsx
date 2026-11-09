@@ -111,7 +111,7 @@ function generateWaypoints(destLat, destLng, restLat = null, restLng = null) {
   ];
 }
 
-const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome }) => {
+const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome, theme = 'light', onToggleTheme }) => {
   // Live server-polled order record
   const [liveOrder, setLiveOrder] = useState(null);
   const orderId = orderDetails?.orderId || orderDetails?.id;
@@ -766,6 +766,18 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome }) => {
             <i className="live-dot-pulse" aria-hidden="true"></i>
             <span>Live tracking</span>
           </div>
+
+          {onToggleTheme && (
+            <button
+              type="button"
+              className="circbtn"
+              onClick={onToggleTheme}
+              title={theme === 'dark' ? 'Switch to Light theme' : 'Switch to Dark theme'}
+              aria-label={theme === 'dark' ? 'Switch to Light theme' : 'Switch to Dark theme'}
+            >
+              <span>{theme === 'dark' ? '☀️' : '🌙'}</span>
+            </button>
+          )}
         </div>
       </div>
 

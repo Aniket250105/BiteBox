@@ -25,7 +25,7 @@ function getPastelBackground(id) {
   return PASTEL_PALETTE[Math.abs(hash) % PASTEL_PALETTE.length];
 }
 
-const MenuPage = ({ restaurant, onBack, cart, updateCart, onViewCart, cartRestaurant, onReplaceCart }) => {
+const MenuPage = ({ restaurant, onBack, cart, updateCart, onViewCart, cartRestaurant, onReplaceCart, theme = 'light', onToggleTheme }) => {
   const [menuItems, setMenuItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -138,6 +138,18 @@ const MenuPage = ({ restaurant, onBack, cart, updateCart, onViewCart, cartRestau
           >
             ←
           </button>
+          {onToggleTheme && (
+            <button
+              type="button"
+              className="circbtn menu-back-btn"
+              onClick={onToggleTheme}
+              title={theme === 'dark' ? 'Switch to Light theme' : 'Switch to Dark theme'}
+              aria-label={theme === 'dark' ? 'Switch to Light theme' : 'Switch to Dark theme'}
+              style={{ marginLeft: 'auto' }}
+            >
+              <span>{theme === 'dark' ? '☀️' : '🌙'}</span>
+            </button>
+          )}
         </div>
 
         {/* Large Restaurant Plate Frame (128px) */}

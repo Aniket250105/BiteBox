@@ -12,7 +12,9 @@ const CartCheckout = ({
   updateCart, 
   userProfile, 
   onBack, 
-  onProceedToPayment 
+  onProceedToPayment,
+  theme = 'light',
+  onToggleTheme
 }) => {
   const [menuItems, setMenuItems] = useState([]);
   const [couponInput, setCouponInput] = useState('');
@@ -367,6 +369,17 @@ const CartCheckout = ({
           <b>Review order</b>
           <span>{restaurant?.name} · {totalItemCount} {totalItemCount === 1 ? 'item' : 'items'}</span>
         </div>
+        {onToggleTheme && (
+          <button
+            type="button"
+            className="circbtn"
+            onClick={onToggleTheme}
+            title={theme === 'dark' ? 'Switch to Light theme' : 'Switch to Dark theme'}
+            aria-label={theme === 'dark' ? 'Switch to Light theme' : 'Switch to Dark theme'}
+          >
+            <span>{theme === 'dark' ? '☀️' : '🌙'}</span>
+          </button>
+        )}
       </div>
 
       {/* 2. Three-Step Tracker (Step 1 Cart is active, Steps 2 & 3 not clickable) */}

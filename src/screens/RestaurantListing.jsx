@@ -69,7 +69,9 @@ const RestaurantListing = ({
   onDeliveryLocationChange,
   onLogout,
   sessionExpiredNotice,
-  onClearExpiredNotice
+  onClearExpiredNotice,
+  theme = 'light',
+  onToggleTheme
 }) => {
   const [restaurants, setRestaurants] = useState([]);
   const [fallbackNotice, setFallbackNotice] = useState(null);
@@ -643,6 +645,8 @@ const RestaurantListing = ({
             }
           }} 
           initialMessage={sessionExpiredNotice}
+          theme={theme}
+          onToggleTheme={onToggleTheme}
         />
       </div>
     );
@@ -760,6 +764,18 @@ const RestaurantListing = ({
           </button>
 
           <div className="discover-top-right-actions">
+            {onToggleTheme && (
+              <button
+                type="button"
+                className="circbtn theme-toggle-btn"
+                onClick={onToggleTheme}
+                title={theme === 'dark' ? 'Switch to Light theme' : 'Switch to Dark theme'}
+                aria-label={theme === 'dark' ? 'Switch to Light theme' : 'Switch to Dark theme'}
+              >
+                <span>{theme === 'dark' ? '☀️' : '🌙'}</span>
+              </button>
+            )}
+
             {isDemoMode && showDemoPill && (
               <button
                 type="button"
@@ -786,6 +802,18 @@ const RestaurantListing = ({
                   <span className="dropdown-user-name font-bold text-xs">{userProfile.name}</span>
                   <span className="dropdown-user-id text-xs text-secondary">{userProfile.email || userProfile.phone || userProfile.identifier}</span>
                 </div>
+                {onToggleTheme && (
+                  <button
+                    type="button"
+                    className="dropdown-item"
+                    onClick={() => {
+                      onToggleTheme();
+                      setShowUserDropdown(false);
+                    }}
+                  >
+                    {theme === 'dark' ? '☀️ Switch to Light Mode' : '🌙 Switch to Dark Mode'}
+                  </button>
+                )}
                 <button
                   type="button"
                   className="dropdown-item logout-item"
@@ -836,6 +864,26 @@ const RestaurantListing = ({
               </p>
             </div>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              {onToggleTheme && (
+                <button
+                  type="button"
+                  className="btn-theme-toggle"
+                  style={{
+                    background: 'var(--glass-fill-standard)',
+                    color: 'var(--text-main)',
+                    border: '1.5px solid var(--border-line)',
+                    padding: '6px 12px',
+                    borderRadius: 'var(--radius-full)',
+                    fontWeight: '700',
+                    fontSize: '0.72rem',
+                    cursor: 'pointer'
+                  }}
+                  onClick={onToggleTheme}
+                  title="Toggle Theme"
+                >
+                  {theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode'}
+                </button>
+              )}
               <button
                 type="button"
                 className="btn-glass-toggle"
@@ -1045,7 +1093,7 @@ const RestaurantListing = ({
                     >
                       {/* 70px Thumbnail with Circular Plate */}
                       <div className="row-thumbnail" style={{ background: thumbGrad }}>
-                        <div className="plate row-plate">
+                        <div className="row-plate">
                           <ImageWithFallback 
                             src={isSeeded ? restaurant.image : null} 
                             fallbackEmoji={cuisineEmoji}

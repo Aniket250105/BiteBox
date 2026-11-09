@@ -7,7 +7,7 @@ const ImageWithFallback = ({ src, fallbackEmoji, alt, className = '', isPlate = 
 
   return (
     <div className={`img-wrapper ${isPlate ? 'plate' : ''} ${className}`}>
-      {!isLoaded && !hasError && (
+      {!isLoaded && !hasError && src && (
         <div className="img-skeleton shimmer" />
       )}
       

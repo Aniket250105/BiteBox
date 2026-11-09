@@ -18,7 +18,8 @@
 
 [data-theme='dark'] .img-wrapper.plate,
 .dark-theme .img-wrapper.plate {
-  background: radial-gradient(circle at 35% 30%, #2A2A33, #1A1A20);
+  background: radial-gradient(circle at 35% 30%, #363642, #23232C);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.20), 0 4px 10px rgba(0, 0, 0, 0.35);
 }
 
 .img-wrapper.plate .actual-image {
@@ -52,14 +53,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 50%;
   background: radial-gradient(circle at 35% 30%, #FFFFFF, #F5EDE3);
 }
 
 [data-theme='dark'] .img-fallback-placeholder {
-  background: radial-gradient(circle at 35% 30%, #2A2A33, #1A1A20);
+  background: radial-gradient(circle at 35% 30%, #363642, #23232C);
 }
 
 .fallback-emoji {
   font-size: 1.8rem;
+  line-height: 1;
   user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
