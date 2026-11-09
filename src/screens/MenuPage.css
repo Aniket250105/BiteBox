@@ -233,19 +233,11 @@
 }
 
 .category-pill.on {
-  background: var(--text-main);
-  color: var(--bg-page);
-  border-color: var(--text-main);
+  background: #FFFFFF;
+  color: var(--text-main);
+  border: 1px solid rgba(255, 255, 255, 0.95);
   font-weight: 700;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-[data-theme='dark'] .category-pill.on,
-.dark-theme .category-pill.on {
-  background: #F5F1EC;
-  color: #17171C;
-  border-color: #F5F1EC;
-  box-shadow: 0 4px 14px rgba(255, 255, 255, 0.18);
+  box-shadow: 0 4px 10px rgba(60, 30, 10, 0.12), inset 0 1.5px 0.5px rgba(255, 255, 255, 0.95);
 }
 
 /* 4. Two-Column Dish Grid */
@@ -261,12 +253,10 @@
 }
 
 .dish-card {
-  background: var(--glass-fill-strong);
-  backdrop-filter: var(--glass-blur-sm);
-  -webkit-backdrop-filter: var(--glass-blur-sm);
-  border: var(--glass-border);
-  box-shadow: var(--glass-shadow), var(--glass-highlight);
-  border-radius: var(--radius-card);
+  background: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 4px 14px rgba(120, 60, 20, 0.06), 0 1px 3px rgba(0, 0, 0, 0.03);
+  border-radius: 20px;
   overflow: hidden;
   position: relative;
   display: flex;
@@ -276,7 +266,7 @@
 
 .dish-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18), var(--glass-highlight);
+  box-shadow: 0 8px 22px rgba(120, 60, 20, 0.10);
 }
 
 html[data-glass="off"] .dish-card {
@@ -514,6 +504,19 @@ html[data-glass="off"] .dish-card {
   box-shadow: var(--glass-shadow);
   cursor: pointer;
   transition: transform 0.15s ease;
+  overflow: hidden;
+}
+
+.menu-cart-pill::before {
+  content: '';
+  position: absolute;
+  right: -25px;
+  top: -35px;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 143, 63, 0.45), transparent 65%);
+  pointer-events: none;
 }
 
 [data-theme='dark'] .menu-cart-pill,
