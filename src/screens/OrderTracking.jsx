@@ -1095,6 +1095,38 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome, theme = 
           </div>
         )}
 
+        {/* Completed Delivery Celebration Banner - Moved to top when order is delivered */}
+        {currentStageIndex === 5 && !isRejected && (
+          <div className="delivered-card">
+            <div className="delivered-icon" aria-hidden="true">🎉</div>
+            <h3 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--success-text, #137A52)' }}>
+              Order Delivered!
+            </h3>
+            <p style={{ fontSize: '12px', color: 'var(--text-muted, #7B7B86)', marginTop: '4px' }}>
+              Enjoy your meal from {restaurantName}. Thanks for choosing BiteBox!
+            </p>
+            <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+              <button
+                type="button"
+                className="bigbtn"
+                style={{
+                  flex: 1,
+                  background: '#FFFFFF',
+                  color: 'var(--sun, #FF6B2C)',
+                  border: '1.5px solid var(--sun, #FF6B2C)',
+                  boxShadow: 'none'
+                }}
+                onClick={handleRestartDemo}
+              >
+                🔄 Replay Demo
+              </button>
+              <button type="button" className="bigbtn" style={{ flex: 1 }} onClick={onHome}>
+                Back to Home →
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Delivery Partner Card (.agent5) - Hidden during rejection */}
         {!isRejected && (
           assignedAgent ? (
@@ -1139,7 +1171,30 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome, theme = 
           )
         )}
 
-        {/* Interactive Live Tracking Demo Card */}
+        {/* Order Summary Row (.osum) */}
+        <div className="osum">
+          <div>
+            <b>Order #{orderNumber}</b>
+            <span>
+              {itemCount} {itemCount === 1 ? 'item' : 'items'} · {isCOD ? 'Pay on delivery' : 'Paid online'}
+            </span>
+          </div>
+          <b className="osum-total">₹{totalAmount}</b>
+        </div>
+
+        {/* Expanded Sheet Extra Content */}
+        <div className="tracking-dest-card">
+          <div className="dl">
+            <div className="dest-icon" aria-hidden="true">📍</div>
+            <div className="tx">
+              <small>Deliver to</small>
+              <b>{deliveryAddress}</b>
+              <span>Restaurant: {restaurantName}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Interactive Live Tracking Demo Card - Moved to the bottom */}
         <div className="live-demo-card" id="live-tracking-demo-card">
           <div className="live-demo-card-header">
             <div className="live-demo-badge">
@@ -1239,61 +1294,6 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome, theme = 
             </button>
           </div>
         </div>
-
-        {/* Order Summary Row (.osum) */}
-        <div className="osum">
-          <div>
-            <b>Order #{orderNumber}</b>
-            <span>
-              {itemCount} {itemCount === 1 ? 'item' : 'items'} · {isCOD ? 'Pay on delivery' : 'Paid online'}
-            </span>
-          </div>
-          <b className="osum-total">₹{totalAmount}</b>
-        </div>
-
-        {/* Expanded Sheet Extra Content */}
-        <div className="tracking-dest-card">
-          <div className="dl">
-            <div className="dest-icon" aria-hidden="true">📍</div>
-            <div className="tx">
-              <small>Deliver to</small>
-              <b>{deliveryAddress}</b>
-              <span>Restaurant: {restaurantName}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Completed Delivery Celebration Banner */}
-        {currentStageIndex === 5 && !isRejected && (
-          <div className="delivered-card">
-            <div className="delivered-icon" aria-hidden="true">🎉</div>
-            <h3 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--success-text, #137A52)' }}>
-              Order Delivered!
-            </h3>
-            <p style={{ fontSize: '12px', color: 'var(--text-muted, #7B7B86)', marginTop: '4px' }}>
-              Enjoy your meal from {restaurantName}. Thanks for choosing BiteBox!
-            </p>
-            <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
-              <button
-                type="button"
-                className="bigbtn"
-                style={{
-                  flex: 1,
-                  background: '#FFFFFF',
-                  color: 'var(--sun, #FF6B2C)',
-                  border: '1.5px solid var(--sun, #FF6B2C)',
-                  boxShadow: 'none'
-                }}
-                onClick={handleRestartDemo}
-              >
-                🔄 Replay Demo
-              </button>
-              <button type="button" className="bigbtn" style={{ flex: 1 }} onClick={onHome}>
-                Back to Home →
-              </button>
-            </div>
-          </div>
-        )}
 
         {/* Collapsible Demo Control Panel */}
         {isDemoControlsOpen && (
