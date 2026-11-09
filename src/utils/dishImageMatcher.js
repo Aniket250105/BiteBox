@@ -76,3 +76,4 @@ export function resolveDishImage(name, rawSrc, isVeg) {
   // Default
   return { src: rawSrc, emoji: isVeg ? '🥗' : '🍗', usePhoto: Boolean(rawSrc) };
 }
+

@@ -530,8 +530,8 @@ const RestaurantListing = ({
               <div class="pin-triangle"></div>
             </div>
           `,
-          iconSize: [80, 28],
-          iconAnchor: [40, 28]
+          iconSize: [96, 28],
+          iconAnchor: [48, 28]
         });
 
         const marker = L.marker([cluster.centerLat, cluster.centerLng], { icon: pinIcon, zIndexOffset: isAnySelected ? 900 : 500 });

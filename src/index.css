@@ -138,13 +138,14 @@
     --amount-hero-text: #F5F1EC;
     
     /* Glassmorphism Design Tokens - Dark Theme (Lighter, translucent, luminous frosted glass) */
-    --glass-fill-standard: rgba(255, 255, 255, 0.18);
-    --glass-fill-strong: rgba(60, 60, 75, 0.48);
-    --glass-border: 1px solid rgba(255, 255, 255, 0.28);
-    --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.35);
-    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.28);
+    --glass-fill-standard: rgba(255, 255, 255, 0.12);
+    --glass-fill-strong: rgba(60, 60, 75, 0.45);
+    --glass-highlight-gradient: linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.04));
+    --glass-border: 1px solid rgba(255, 255, 255, 0.22);
+    --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.28);
+    --glass-shadow: 0 10px 32px rgba(0, 0, 0, 0.35);
     --glass-blur: blur(20px) saturate(140%);
-    --glass-blur-sm: blur(12px) saturate(130%);
+    --glass-blur-sm: blur(14px) saturate(130%);
     --glass-saffron: rgba(255, 107, 44, 0.22);
     --glass-saffron-border: 1px solid rgba(255, 107, 44, 0.40);
     --glass-darkpill: rgba(245, 241, 236, 0.92);
@@ -206,12 +207,12 @@
   --amount-hero-bg: #25252B;
   --amount-hero-text: #F5F1EC;
   
-  /* Glassmorphism Design Tokens - Dark Theme (Lowered fills & subtle diagonal gradient) */
-  --glass-fill-standard: rgba(28, 28, 33, 0.30);
-  --glass-fill-strong: rgba(28, 28, 33, 0.42);
-  --glass-highlight-gradient: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03));
-  --glass-border: 1px solid rgba(255, 255, 255, 0.18);
-  --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  /* Glassmorphism Design Tokens - Dark Theme (Lighter, translucent, luminous frosted glass) */
+  --glass-fill-standard: rgba(255, 255, 255, 0.12);
+  --glass-fill-strong: rgba(60, 60, 75, 0.45);
+  --glass-highlight-gradient: linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.04));
+  --glass-border: 1px solid rgba(255, 255, 255, 0.22);
+  --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.28);
   --glass-shadow: 0 10px 32px rgba(0, 0, 0, 0.35);
   --glass-blur: blur(20px) saturate(140%);
   --glass-blur-sm: blur(14px) saturate(130%);
@@ -511,7 +512,8 @@ html[data-glass="off"] .payment-topbar,
 html[data-glass="off"] .payment-segmented-control,
 html[data-glass="off"] .slide-track,
 html[data-glass="off"] .tracking-sheet,
-html[data-glass="off"] .modal-card {
+html[data-glass="off"] .modal-card,
+html[data-glass="off"] .discover-row {
   background-image: none !important;
 }
 
@@ -709,7 +711,8 @@ button {
 
 [data-theme='dark'] .plate,
 .dark-theme .plate {
-  background: radial-gradient(circle at 35% 30%, #2A2A33, #1A1A20);
+  background: radial-gradient(circle at 35% 30%, #FFFFFF, #F0E8DD);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), inset 0 0 0 1.5px rgba(255, 255, 255, 0.4);
 }
 
 /* Solid Surface Card (.cardw) */
