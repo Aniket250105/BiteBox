@@ -4,7 +4,7 @@ import ImageWithFallback from '../components/ImageWithFallback';
 import AuthLocationFlow from '../components/AuthLocationFlow';
 import { PRESET_LOCATIONS, generateRouteWaypoints } from '../services/locationData';
 import { authService } from '../services/authService';
-import { apiService } from '../services/apiService';
+import { apiService, API_BASE } from '../services/apiService';
 import { useDemoPill } from '../utils/useDemoPill';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -85,6 +85,7 @@ const RestaurantListing = ({
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [locationAddressInput, setLocationAddressInput] = useState('');
   const [isDetectingGps, setIsDetectingGps] = useState(false);
+  const [gpsError, setGpsError] = useState('');
   const [isDemoMode, setIsDemoMode] = useState(false);
   const [isDemoPanelOpen, setIsDemoPanelOpen] = useState(false);
   const showDemoPill = useDemoPill();
@@ -125,7 +126,7 @@ const RestaurantListing = ({
 
   // Check backend health for DEMO_MODE
   useEffect(() => {
-    fetch('http://localhost:3001/api/health')
+    fetch(`${API_BASE}/health`)
       .then(res => res.json())
       .then(data => {
         if (data && typeof data.demoMode === 'boolean') {
@@ -638,8 +639,13 @@ const RestaurantListing = ({
   };
 
   const handleDetectGps = () => {
-    if (!navigator.geolocation) return;
+    const isUnsecureLAN = typeof window !== 'undefined' && !window.isSecureContext && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+    if (isUnsecureLAN || !navigator.geolocation) {
+      setGpsError('Location needs HTTPS. Choose your area instead');
+      return;
+    }
     setIsDetectingGps(true);
+    setGpsError('');
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const { latitude, longitude } = pos.coords;
@@ -656,6 +662,7 @@ const RestaurantListing = ({
       },
       () => {
         setIsDetectingGps(false);
+        setGpsError('Location needs HTTPS. Choose your area instead');
       },
       { timeout: 7000 }
     );
@@ -1242,6 +1249,11 @@ const RestaurantListing = ({
             >
               {isDetectingGps ? 'Detecting GPS...' : '📡 Use Current Location (GPS)'}
             </button>
+            {gpsError && (
+              <div style={{ color: '#E05638', fontSize: '12px', marginTop: '6px', textAlign: 'center', fontWeight: '500' }}>
+                {gpsError}
+              </div>
+            )}
 
             <div className="preset-locations-grid">
               {PRESET_LOCATIONS.map(p => (

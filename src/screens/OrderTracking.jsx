@@ -3,7 +3,7 @@ import './OrderTracking.css';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import Toast from '../components/Toast';
-import { apiService } from '../services/apiService';
+import { apiService, API_BASE } from '../services/apiService';
 import { useDemoPill } from '../utils/useDemoPill';
 
 // Remove Leaflet's default image icon lookup to avoid any 404 image errors in Vite
@@ -179,7 +179,7 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome, theme = 
 
   // Check health for demo mode
   useEffect(() => {
-    fetch('http://localhost:3001/api/health')
+    fetch(`${API_BASE}/health`)
       .then(res => res.json())
       .then(data => {
         if (data && typeof data.demoMode === 'boolean') {

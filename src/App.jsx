@@ -120,7 +120,7 @@ function App() {
       } else if (res?.valid && res.user) {
         setUserProfile(res.user);
       } else if (res?.unreachable) {
-        setSessionToast({ message: 'Backend server appears unreachable (port 3001).', type: 'error' });
+        setSessionToast({ message: 'Backend server appears unreachable. Please ensure the server is running.', type: 'error' });
       }
     });
   }, []);

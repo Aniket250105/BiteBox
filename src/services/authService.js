@@ -1,6 +1,6 @@
 // BiteBox Authentication Service connected to SQLite Backend API
 
-const API_BASE = 'http://localhost:3001/api';
+export const API_BASE = (import.meta.env?.VITE_API_BASE ?? '/api').replace(/\/+$/, '');
 const SESSION_STORAGE_KEY = 'bitebox_session';
 const TOKEN_STORAGE_KEY = 'bitebox_token';
 
@@ -67,7 +67,7 @@ export const authService = {
       return sessionUser;
     } catch (err) {
       if (isNetworkError(err)) {
-        throw new Error('Backend server is unreachable. Please verify the server is running on http://localhost:3001.');
+        throw new Error('Backend server is unreachable. Please verify the server is running.');
       }
       throw err;
     }
@@ -99,7 +99,7 @@ export const authService = {
       return sessionUser;
     } catch (err) {
       if (isNetworkError(err)) {
-        throw new Error('Backend server is unreachable. Please verify the server is running on http://localhost:3001.');
+        throw new Error('Backend server is unreachable. Please verify the server is running.');
       }
       throw err;
     }

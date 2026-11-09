@@ -272,7 +272,11 @@ const CartCheckout = ({
   };
 
   const handleDetectGps = () => {
-    if (!navigator.geolocation) return;
+    const isUnsecureLAN = typeof window !== 'undefined' && !window.isSecureContext && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+    if (isUnsecureLAN || !navigator.geolocation) {
+      setToast({ message: 'Location needs HTTPS. Choose your area instead', type: 'warning' });
+      return;
+    }
     setIsDetectingGps(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -285,7 +289,10 @@ const CartCheckout = ({
         setIsDetectingGps(false);
         setShowLocationModal(false);
       },
-      () => setIsDetectingGps(false),
+      () => {
+        setIsDetectingGps(false);
+        setToast({ message: 'Location needs HTTPS. Choose your area instead', type: 'warning' });
+      },
       { timeout: 7000 }
     );
   };

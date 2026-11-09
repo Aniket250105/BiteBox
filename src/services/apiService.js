@@ -1,6 +1,6 @@
 // BiteBox API Service for Restaurants, Menus, and Coupons
 
-const API_BASE = 'http://localhost:3001/api';
+export const API_BASE = (import.meta.env?.VITE_API_BASE ?? '/api').replace(/\/+$/, '');
 
 function handleNetworkError(err) {
   const msg = (err?.message || '').toLowerCase();
@@ -17,6 +17,16 @@ function handleNetworkError(err) {
 }
 
 export const apiService = {
+  // Check backend health for demo mode and connectivity
+  async fetchHealth() {
+    try {
+      const res = await fetch(`${API_BASE}/health`);
+      if (!res.ok) return { demoMode: true };
+      return await res.json();
+    } catch {
+      return { demoMode: true };
+    }
+  },
   // Fetch restaurants (filtered by area if provided)
   async fetchRestaurants(area = '') {
     try {

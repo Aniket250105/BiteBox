@@ -33,6 +33,87 @@ npm test
 
 ---
 
+## 📱 Run on Your Phone (Local Development)
+
+You can run and test BiteBox on your physical phone (iOS Safari or Android Chrome) while running the dev server on your laptop.
+
+### 1. Ensure Both Devices Are on the Same Wi-Fi Network
+- Connect your phone and laptop to the **same Wi-Fi network**.
+- **Alternative (Mobile Hotspot)**: If your college or corporate Wi-Fi isolates devices (client isolation prevents LAN devices from talking to each other), enable the **Personal Hotspot** on your phone and connect your laptop to your phone's hotspot instead.
+
+### 2. Find Your Laptop's Local IP Address
+- **Windows**: Open PowerShell or Command Prompt, run:
+  ```powershell
+  ipconfig
+  ```
+  Look for your active adapter (e.g. `Wireless LAN adapter Wi-Fi`) and note the **IPv4 Address** (e.g. `192.168.1.15` or `192.168.43.x`).
+- **macOS / Linux**: Open Terminal and run:
+  ```bash
+  ipconfig getifaddr en0   # macOS Wi-Fi
+  # or
+  ip route get 1.2.3.4 | awk '{print $7}'   # Linux
+  ```
+
+### 3. Start the Dev Server
+From the project root:
+```bash
+npm run dev
+```
+Vite runs with `server.host: true` and `strictPort: true`, displaying:
+```
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: http://<YOUR_LAPTOP_IP>:5173/
+```
+The built-in dev proxy automatically forwards `/api/*` calls to the backend on `http://localhost:3001` as same-origin requests.
+
+### 4. Windows Firewall Prompt
+- If Windows Defender Firewall displays a prompt asking whether to allow Node.js or Vite on private networks, click **Allow access** (Private networks).
+
+### 5. Open on Your Phone
+In Safari (iOS) or Chrome (Android) on your phone, navigate to:
+```
+http://<YOUR_LAPTOP_IP>:5173/
+```
+Example: `http://192.168.1.15:5173/`
+
+- **Demo Controls**: To show the evaluator rehearsal panel on mobile, append `?demo=1` to the URL:
+  `http://<YOUR_LAPTOP_IP>:5173/?demo=1`
+
+### 6. Geolocation & HTTPS Notice
+- In modern mobile browsers, pages served over plain HTTP on a local network (`http://<ip>:5173`) are considered an **unsecure context** (`isSecureContext === false`).
+- Mobile browsers block raw GPS access (`navigator.geolocation`) without HTTPS.
+- BiteBox detects this gracefully and presents the friendly notice:
+  > **"Location needs HTTPS. Choose your area instead"**
+- Tap any of the preset Bengaluru hubs (**Presidency University**, **Indiranagar**, **Koramangala**, or **MG Road**) to instantly explore restaurants and menus with guaranteed cached data.
+
+### 7. Alternative: Android USB Port-Forwarding (Full GPS & Secure Context)
+If you want to test live GPS coordinates on an Android phone without HTTPS:
+1. Connect your Android phone to your laptop via USB and enable **USB Debugging** (in Developer Options).
+2. Open Google Chrome on your laptop and go to: `chrome://inspect/#devices`.
+3. Click **Port forwarding...** and add a rule:
+   - Port: `5173` -> IP address and port: `localhost:5173`
+4. On your phone's Chrome browser, navigate to:
+   ```
+   http://localhost:5173/
+   ```
+   Because Chrome treats `localhost` as a secure context even over HTTP, the GPS API is fully enabled!
+
+### 8. ⚠️ Security Note for Shared Networks
+- BiteBox binds to `0.0.0.0` in dev mode. When connected to a public Wi-Fi network, **anyone on the same local network can navigate to your dev server and access the demo endpoints** (e.g. `/api/demo/reset-database`).
+- For sensitive environments, test via a private mobile hotspot or use the USB port forwarding method above.
+
+### 9. Troubleshooting Checklist
+- **Cannot connect / connection timed out**:
+  1. Check Windows Firewall: ensure port 5173 is allowed on your Private network.
+  2. Verify laptop and phone are on the exact same Wi-Fi subnet.
+  3. If on public/university Wi-Fi with client isolation, switch to your phone's mobile hotspot.
+- **Backend API unreachable error on phone**:
+  - Ensure `npm run dev` is running (which starts both backend port 3001 and Vite frontend port 5173). The Vite proxy forwards `/api` to port 3001.
+- **Wrong IP address**:
+  - If you have virtual network adapters (WSL, VirtualBox, VMware), `ipconfig` might list several IPs. Use the IP of the physical Wi-Fi adapter.
+
+---
+
 ## 🔑 Demo Credentials
 
 | Role | Email / Identifier | Password | Default Address |

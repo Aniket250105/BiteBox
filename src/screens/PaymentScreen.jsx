@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './PaymentScreen.css';
 import { SiGooglepay, SiPhonepe, SiPaytm } from 'react-icons/si';
-import { apiService } from '../services/apiService';
+import { apiService, API_BASE } from '../services/apiService';
 import Toast from '../components/Toast';
 import SlideToPay from '../components/SlideToPay';
 import { useDemoPill } from '../utils/useDemoPill';
@@ -50,7 +50,7 @@ const PaymentScreen = ({ orderDetails, onBack, onReturnToCart, onSuccess, theme 
 
   // Check backend health for demo mode
   useEffect(() => {
-    fetch('http://localhost:3001/api/health')
+    fetch(`${API_BASE}/health`)
       .then(res => res.json())
       .then(data => {
         if (data && typeof data.demoMode === 'boolean') {

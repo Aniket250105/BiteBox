@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './AuthLocationFlow.css';
 import { authService, DEMO_CREDENTIALS } from '../services/authService';
-import { apiService } from '../services/apiService';
+import { apiService, API_BASE } from '../services/apiService';
 import { PRESET_LOCATIONS, generateRouteWaypoints } from '../services/locationData';
 import { useDemoPill } from '../utils/useDemoPill';
 
@@ -24,7 +24,7 @@ const AuthLocationFlow = ({ onComplete, initialMessage, theme = 'light', onToggl
 
   // Fetch health to verify DEMO_MODE
   useEffect(() => {
-    fetch('http://localhost:3001/api/health')
+    fetch(`${API_BASE}/health`)
       .then(res => res.json())
       .then(data => {
         if (data && typeof data.demoMode === 'boolean') {
@@ -45,7 +45,7 @@ const AuthLocationFlow = ({ onComplete, initialMessage, theme = 'light', onToggl
   React.useEffect(() => {
     authService.checkHealth().then(isHealthy => {
       if (!isHealthy && !initialMessage) {
-        setAuthError('Backend server appears offline (http://localhost:3001). Please ensure "npm run dev" is running.');
+        setAuthError('Backend server appears offline. Please ensure "npm run dev" is running.');
       }
     });
   }, [initialMessage]);
@@ -164,10 +164,11 @@ const AuthLocationFlow = ({ onComplete, initialMessage, theme = 'light', onToggl
     setLocationError('');
   };
 
-  // Detect live browser GPS
+  // Detect live browser GPS (handles unsecure LAN context with clear message)
   const handleDetectLocation = () => {
-    if (!navigator.geolocation) {
-      setLocationError('Geolocation is not supported by your browser. Please choose an area below.');
+    const isUnsecureLAN = typeof window !== 'undefined' && !window.isSecureContext && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+    if (isUnsecureLAN || !navigator.geolocation) {
+      setLocationError('Location needs HTTPS. Choose your area instead');
       return;
     }
 
@@ -193,9 +194,11 @@ const AuthLocationFlow = ({ onComplete, initialMessage, theme = 'light', onToggl
       },
       (err) => {
         setIsDetectingGps(false);
-        setLocationError('Location permission denied or unavailable. Falling back to Bengaluru presets.');
-        // Default to Presidency University
-        handleSelectPreset(PRESET_LOCATIONS[0]);
+        setLocationError('Location needs HTTPS. Choose your area instead');
+        // Keep default hub selectable so user can pick
+        if (!selectedLocation) {
+          handleSelectPreset(PRESET_LOCATIONS[0]);
+        }
       },
       { timeout: 7000, enableHighAccuracy: true }
     );

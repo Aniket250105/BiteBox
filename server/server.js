@@ -13,8 +13,12 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// CORS restricted to Vite dev origin as requested
-const allowedOrigins = ['http://localhost:5173', 'http://127.0.0.1:5173'];
+// CORS restricted to allowed origins; with the Vite dev proxy, requests from phones are same-origin.
+// If any extra origin is needed in dev, read from EXTRA_ALLOWED_ORIGINS environment variable.
+const extraOrigins = process.env.EXTRA_ALLOWED_ORIGINS
+  ? process.env.EXTRA_ALLOWED_ORIGINS.split(',').map(s => s.trim()).filter(Boolean)
+  : [];
+const allowedOrigins = ['http://localhost:5173', 'http://127.0.0.1:5173', ...extraOrigins];
 app.use(cors({
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps, curl, or Postman)
