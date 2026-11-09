@@ -161,7 +161,7 @@
 
 /* OpenStreetMap Dark Theme Tile Filter */
 [data-theme='dark'] .leaflet-tile {
-  filter: brightness(0.65) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7);
+  filter: var(--map-tile-filter);
 }
 
 /* Leaflet Attribution Styling - legible in both themes */

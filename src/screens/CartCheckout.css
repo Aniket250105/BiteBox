@@ -373,9 +373,10 @@
   border-left: var(--glass-border);
   border-right: var(--glass-border);
   border-radius: 26px 26px 0 0;
-  padding: 14px 18px max(18px, env(safe-area-inset-bottom, 18px));
+  padding: 16px 20px max(24px, env(safe-area-inset-bottom, 24px));
   display: flex;
   align-items: center;
+  gap: 16px;
   box-shadow: 0 -12px 28px rgba(120, 70, 30, 0.12), var(--glass-highlight);
   z-index: 10;
   margin-top: auto;
@@ -386,22 +387,39 @@
   box-shadow: 0 -12px 28px rgba(0, 0, 0, 0.5);
 }
 
+.bottombar-total-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
 .bottombar-total-col small {
   font-size: 11px;
   color: var(--text-muted);
   display: block;
+  line-height: 1.2;
 }
 
 .bottombar-total-col b {
   font-size: 22px;
   letter-spacing: -0.5px;
   color: var(--text-main);
+  line-height: 1.2;
+  margin-top: 2px;
 }
 
 .continue-btn {
   margin-left: auto;
   font-size: 15px;
-  padding: 14px 22px;
+  font-weight: 700;
+  padding: 13px 24px;
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-btn);
+  box-shadow: 0 6px 16px rgba(255, 107, 44, 0.35);
 }
 
 /* Quote Warning Banner */

@@ -125,7 +125,7 @@
     --map-park: #1B2B22;
     --map-water: #182836;
     --map-roads: #2E2E36;
-    --map-tile-filter: brightness(0.65) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7);
+    --map-tile-filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
     
     /* Contrast reversal for dark pills: light surface with dark text */
     --darkpill-bg: #F5F1EC;
@@ -195,7 +195,7 @@
   --map-park: #1B2B22;
   --map-water: #182836;
   --map-roads: #2E2E36;
-  --map-tile-filter: brightness(0.65) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7);
+  --map-tile-filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
   
   --darkpill-bg: #F5F1EC;
   --darkpill-text: #17171C;

@@ -401,7 +401,7 @@ const RestaurantListing = ({
       }
     }, 320);
     return () => clearTimeout(timer);
-  }, [isSheetExpanded, useSchematicMap]);
+  }, [isSheetExpanded, useSchematicMap, theme]);
 
   // 2. Update Leaflet Markers whenever pins or selection changes
   useEffect(() => {
