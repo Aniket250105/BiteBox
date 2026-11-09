@@ -14,7 +14,7 @@ const Toast = ({ message, type = 'info', onClose }) => {
   if (!message) return null;
 
   return (
-    <div className={`toast-container slide-in-top ${type}`} role="status" aria-live="polite">
+    <div className={`toast-container ${type}`} role="status" aria-live="polite">
       {type === 'error' && <span className="toast-icon" aria-hidden="true">⚠️</span>}
       <span className="toast-message">{message}</span>
     </div>
