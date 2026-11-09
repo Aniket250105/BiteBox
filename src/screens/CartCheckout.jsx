@@ -485,6 +485,7 @@ const CartCheckout = ({
                     fallbackEmoji={item.isVeg ? '🥗' : '🍗'} 
                     alt={item.name}
                     isPlate={true}
+                    isVeg={item.isVeg}
                   />
                 </div>
                 <div className="cart-dish-info">

@@ -313,9 +313,12 @@ function App() {
     <div className="app-container">
       {/* Decorative, static background layer for glass refraction (hidden from screen readers) */}
       <div className="decorative-glass-bg" aria-hidden="true">
-        <div className="glass-blob glass-blob-saffron" />
-        <div className="glass-blob glass-blob-peach" />
-        <div className="glass-blob glass-blob-mint" />
+        <div className="glass-orb glass-orb-saffron" />
+        <div className="glass-orb glass-orb-coral" />
+        <div className="glass-orb glass-orb-peach" />
+        <div className="glass-orb glass-orb-lilac" />
+        <div className="glass-orb glass-orb-mint" />
+        <div className="glass-noise-overlay" />
       </div>
 
       <Toast 

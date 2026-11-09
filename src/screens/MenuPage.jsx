@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import './MenuPage.css';
 import ImageWithFallback from '../components/ImageWithFallback';
 import { apiService } from '../services/apiService';
@@ -32,6 +32,20 @@ const MenuPage = ({ restaurant, onBack, cart, updateCart, onViewCart, cartRestau
   const [activeCategory, setActiveCategory] = useState('');
   const [lastUpdatedId, setLastUpdatedId] = useState(null);
   const [replaceModal, setReplaceModal] = useState({ isOpen: false, itemId: null, qty: 1 });
+  const categoryPillsRef = useRef({});
+
+  // Smooth scroll active category pill into view when changed
+  useEffect(() => {
+    if (activeCategory && categoryPillsRef.current[activeCategory]) {
+      try {
+        categoryPillsRef.current[activeCategory].scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'center'
+        });
+      } catch {}
+    }
+  }, [activeCategory]);
 
   // Load menu items from API for the selected restaurant
   const loadMenu = useCallback(async () => {
@@ -203,6 +217,7 @@ const MenuPage = ({ restaurant, onBack, cart, updateCart, onViewCart, cartRestau
             {categories.map((cat) => (
               <button 
                 key={cat} 
+                ref={el => { categoryPillsRef.current[cat] = el; }}
                 type="button"
                 className={`category-pill ${activeCategory === cat ? 'on' : ''}`}
                 onClick={() => setActiveCategory(cat)}
@@ -270,6 +285,7 @@ const MenuPage = ({ restaurant, onBack, cart, updateCart, onViewCart, cartRestau
                         fallbackEmoji={item.isVeg ? '🥗' : '🍗'}
                         alt={item.name}
                         isPlate={true}
+                        isVeg={item.isVeg}
                       />
                     </div>
                   </div>

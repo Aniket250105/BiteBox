@@ -14,10 +14,15 @@ export function useDemoPill() {
       if (typeof window !== 'undefined') {
         const params = new URLSearchParams(window.location.search);
         if (params.get('demo') === '1') {
-          sessionStorage.setItem('bitebox_show_demo_pill', 'true');
           return true;
         }
-        return sessionStorage.getItem('bitebox_show_demo_pill') === 'true';
+        if (params.get('demo') === '0') {
+          sessionStorage.removeItem('bitebox_demo_pill_hotkey');
+          sessionStorage.removeItem('bitebox_show_demo_pill');
+          return false;
+        }
+        // Only show if user explicitly toggled it via Ctrl+Shift+D in this session
+        return sessionStorage.getItem('bitebox_demo_pill_hotkey') === 'true';
       }
     } catch {}
     return false;
@@ -31,7 +36,7 @@ export function useDemoPill() {
         setShowDemoPill(prev => {
           const next = !prev;
           try {
-            sessionStorage.setItem('bitebox_show_demo_pill', next ? 'true' : 'false');
+            sessionStorage.setItem('bitebox_demo_pill_hotkey', next ? 'true' : 'false');
           } catch {}
           window.dispatchEvent(new CustomEvent('bitebox:demo-pill-toggle', { detail: next }));
           return next;

@@ -181,6 +181,29 @@
   color: #137A52;
 }
 
+.restaurant-map-pin.pin-cluster {
+  background: #17171C;
+  color: #FFFFFF;
+  padding: 3px 10px;
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+.restaurant-map-pin.pin-cluster .pin-triangle {
+  border-top-color: #17171C;
+}
+
+[data-theme='dark'] .restaurant-map-pin.pin-cluster,
+.dark-theme .restaurant-map-pin.pin-cluster {
+  background: #F5F1EC;
+  color: #17171C;
+}
+
+[data-theme='dark'] .restaurant-map-pin.pin-cluster .pin-triangle,
+.dark-theme .restaurant-map-pin.pin-cluster .pin-triangle {
+  border-top-color: #F5F1EC;
+}
+
 .restaurant-map-pin.pin-closed {
   background: #ECE7E1;
   color: #6B655D;
@@ -528,7 +551,7 @@
 .discover-chip {
   padding: 8px 14px;
   border-radius: 20px;
-  background: var(--glass-fill-standard);
+  background: var(--glass-fill-strong);
   backdrop-filter: var(--glass-blur-sm);
   -webkit-backdrop-filter: var(--glass-blur-sm);
   border: var(--glass-border);

@@ -399,9 +399,14 @@
 
 .bottombar-total-col small {
   font-size: 11px;
-  color: var(--text-muted);
+  color: #4B4B55;
   display: block;
   line-height: 1.2;
+}
+
+[data-theme='dark'] .bottombar-total-col small,
+.dark-theme .bottombar-total-col small {
+  color: #B5B5BE;
 }
 
 .bottombar-total-col b {

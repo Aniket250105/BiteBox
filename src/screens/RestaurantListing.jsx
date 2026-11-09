@@ -411,11 +411,6 @@ const RestaurantListing = ({
 
     const [lat, lng] = customerCoords;
 
-    // Center map view on customer
-    try {
-      map.setView([lat, lng], 14.2, { animate: false });
-    } catch {}
-
     // Clean up previous markers
     markersGroup.clearLayers();
 
@@ -432,7 +427,7 @@ const RestaurantListing = ({
     L.marker([lat, lng], { icon: customerIcon, zIndexOffset: 1000 }).addTo(markersGroup);
 
     // 2. Dashed 3 km Radius Circle
-    L.circle([lat, lng], {
+    const threeKmCircle = L.circle([lat, lng], {
       radius: 3000,
       color: '#FF6B2C',
       weight: 2,
@@ -440,6 +435,14 @@ const RestaurantListing = ({
       fillColor: '#FF6B2C',
       fillOpacity: 0.08
     }).addTo(markersGroup);
+
+    // Fit map view to fully encompass the 3 km circle so circle and chip are visible
+    try {
+      const circleBounds = threeKmCircle.getBounds().pad(0.06);
+      map.fitBounds(circleBounds, { animate: false });
+    } catch {
+      map.setView([lat, lng], 13, { animate: false });
+    }
 
     // 3. "3 km" Chip Badge on Southern Edge of Circle (~0.024 deg south, ~0.012 deg east)
     const chipLat = lat - 0.022;
@@ -452,38 +455,96 @@ const RestaurantListing = ({
     });
     L.marker([chipLat, chipLng], { icon: chipIcon, zIndexOffset: 999 }).addTo(markersGroup);
 
-    // 4. Restaurant Pins (only within 3 km, capped at 40, in sync with filters)
+    // 4. Cluster pins within ~100m into "N places" pills
+    function getDistanceMeters(lat1, lon1, lat2, lon2) {
+      const dLat = (lat2 - lat1) * (Math.PI / 180);
+      const dLon = (lon2 - lon1) * (Math.PI / 180);
+      const a = (lat1 + lat2) / 2 * (Math.PI / 180);
+      const x = dLon * Math.cos(a) * 6371000;
+      const y = dLat * 6371000;
+      return Math.sqrt(x * x + y * y);
+    }
+
+    const clusters = [];
     pinnedRestaurants.forEach(r => {
-      const isSelected = selectedPinRestaurantId === r.id;
-      const isClosed = !r.isOpen;
-      const pinLabel = isClosed 
-        ? 'Closed' 
-        : (r.rating !== null && r.rating !== undefined ? `★ ${r.rating}` : '★ New');
-      
-      const pinClass = isClosed ? 'pin-closed' : 'pin-open';
-      const selectedClass = isSelected ? 'pin-selected' : '';
-
-      const pinIcon = L.divIcon({
-        className: 'leaflet-restaurant-pin-container',
-        html: `
-          <div class="restaurant-map-pin ${pinClass} ${selectedClass}">
-            <span>${pinLabel}</span>
-            <div class="pin-triangle"></div>
-          </div>
-        `,
-        iconSize: [52, 28],
-        iconAnchor: [26, 28]
-      });
-
-      const marker = L.marker([r.lat, r.lng], { icon: pinIcon });
-      marker.on('click', () => {
-        setSelectedPinRestaurantId(r.id);
-        const rowEl = listRowsRef.current[r.id];
-        if (rowEl) {
-          rowEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      let matchedCluster = null;
+      for (const c of clusters) {
+        if (getDistanceMeters(c.centerLat, c.centerLng, r.lat, r.lng) <= 100) {
+          matchedCluster = c;
+          break;
         }
-      });
-      marker.addTo(markersGroup);
+      }
+      if (matchedCluster) {
+        matchedCluster.items.push(r);
+      } else {
+        clusters.push({
+          centerLat: r.lat,
+          centerLng: r.lng,
+          items: [r]
+        });
+      }
+    });
+
+    clusters.forEach(cluster => {
+      if (cluster.items.length === 1) {
+        const r = cluster.items[0];
+        const isSelected = selectedPinRestaurantId === r.id;
+        const isClosed = !r.isOpen;
+        const pinLabel = isClosed 
+          ? 'Closed' 
+          : (r.rating !== null && r.rating !== undefined ? `★ ${r.rating}` : '★ New');
+        
+        const pinClass = isClosed ? 'pin-closed' : 'pin-open';
+        const selectedClass = isSelected ? 'pin-selected' : '';
+
+        const pinIcon = L.divIcon({
+          className: 'leaflet-restaurant-pin-container',
+          html: `
+            <div class="restaurant-map-pin ${pinClass} ${selectedClass}">
+              <span>${pinLabel}</span>
+              <div class="pin-triangle"></div>
+            </div>
+          `,
+          iconSize: [52, 28],
+          iconAnchor: [26, 28]
+        });
+
+        const marker = L.marker([r.lat, r.lng], { icon: pinIcon });
+        marker.on('click', () => {
+          setSelectedPinRestaurantId(r.id);
+          const rowEl = listRowsRef.current[r.id];
+          if (rowEl) {
+            rowEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        });
+        marker.addTo(markersGroup);
+      } else {
+        // Multi-place cluster pill
+        const isAnySelected = cluster.items.some(r => r.id === selectedPinRestaurantId);
+        const count = cluster.items.length;
+        const pinIcon = L.divIcon({
+          className: 'leaflet-restaurant-pin-container',
+          html: `
+            <div class="restaurant-map-pin pin-cluster ${isAnySelected ? 'pin-selected' : ''}">
+              <span>📍 ${count} places</span>
+              <div class="pin-triangle"></div>
+            </div>
+          `,
+          iconSize: [80, 28],
+          iconAnchor: [40, 28]
+        });
+
+        const marker = L.marker([cluster.centerLat, cluster.centerLng], { icon: pinIcon, zIndexOffset: isAnySelected ? 900 : 500 });
+        marker.on('click', () => {
+          const targetId = cluster.items[0].id;
+          setSelectedPinRestaurantId(targetId);
+          const rowEl = listRowsRef.current[targetId];
+          if (rowEl) {
+            rowEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        });
+        marker.addTo(markersGroup);
+      }
     });
 
     // Safely invalidate size if loaded

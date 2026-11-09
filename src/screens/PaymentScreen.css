@@ -113,7 +113,7 @@
   border-radius: 14px;
   font-size: 13px;
   font-weight: 700;
-  color: var(--text-muted);
+  color: #4B4B55;
   background: none;
   border: none;
   cursor: pointer;
@@ -122,6 +122,11 @@
   align-items: center;
   justify-content: center;
   transition: all 0.15s ease;
+}
+
+[data-theme='dark'] .seg-btn,
+.dark-theme .seg-btn {
+  color: #B5B5BE;
 }
 
 .seg-btn.on {
