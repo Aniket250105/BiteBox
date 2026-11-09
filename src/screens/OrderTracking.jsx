@@ -148,6 +148,8 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome, theme = 
   const [resetLoading, setResetLoading] = useState(false);
   const [forceRejectionDemo, setForceRejectionDemo] = useState(false);
   const [useSchematicMap, setUseSchematicMap] = useState(false);
+  const [isDemoReplaying, setIsDemoReplaying] = useState(false);
+  const isDemoReplayingRef = useRef(false);
   const [tileErrorOccurred, setTileErrorOccurred] = useState(false);
   const [toast, setToast] = useState({ message: '', type: '' });
 
@@ -199,10 +201,10 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome, theme = 
 
   // Poll backend for real order status
   const fetchOrderState = useCallback(async () => {
-    if (!orderId) return;
+    if (!orderId || isDemoReplayingRef.current) return;
     try {
       const order = await apiService.fetchOrderById(orderId);
-      if (order) {
+      if (order && !isDemoReplayingRef.current) {
         setLiveOrder(prevOrder => {
           if (
             prevOrder &&
@@ -303,7 +305,13 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome, theme = 
   const deliveryAddress = liveOrder?.delivery_address || orderDetails?.deliveryAddress || userProfile?.address || 'Current Address';
   const restaurantName = liveOrder?.restaurant?.name || restaurant?.name || orderDetails?.restaurant?.name || 'Spicy Symphony';
   const isCOD = (liveOrder?.payment?.payment_method || orderDetails?.paymentMethod) === 'COD';
-  const assignedAgent = liveOrder?.agent || null;
+  const assignedAgent = liveOrder?.agent || (currentStageIndex >= 1 ? {
+    name: 'Ramesh Kumar',
+    rating: '4.9',
+    vehicle_model: 'Hero Splendor Plus',
+    vehicle_plate: 'KA-04-EK-9821',
+    phone: '+91 98765 43210'
+  } : null);
 
   // Initialize Leaflet Map ONCE
   useEffect(() => {
@@ -524,6 +532,9 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome, theme = 
             apiService.advanceOrderStage(orderId, 'delivered').catch(() => {});
           }
           setCurrentStageIndex(5);
+          setIsAutoSimulating(false);
+          setIsDemoReplaying(false);
+          isDemoReplayingRef.current = false;
           setToast({ message: '🎉 Your order has been delivered! Enjoy your meal.', type: 'success' });
           return 1;
         }
@@ -540,31 +551,57 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome, theme = 
     };
   }, [currentStageIndex, speedMultiplier, orderId, liveOrder?.status]);
 
-  // Simulate Next Stage via Real Server API
+  // Simulate Next Stage via Real Server API (with robust local fallback)
   const handleSimulateNext = async () => {
-    if (!orderId || isRejected || currentStageIndex >= 5) return;
+    if (isRejected || currentStageIndex >= 5) return;
 
     try {
       if (currentStageIndex === 0) {
-        const res = await apiService.submitRestaurantDecision(orderId, 'ACCEPT');
+        if (orderId) {
+          try {
+            const res = await apiService.submitRestaurantDecision(orderId, 'ACCEPT');
+            if (res?.order) setLiveOrder(res.order);
+          } catch (e) {
+            console.warn('Decision API note:', e.message);
+          }
+        }
         setToast({ message: '✅ Restaurant accepted order. Delivery partner assigned!', type: 'success' });
-        setLiveOrder(res.order);
         setCurrentStageIndex(1);
       } else {
-        const res = await apiService.advanceOrderStage(orderId);
-        setToast({ message: res.message || 'Advanced to next stage.', type: 'success' });
-        setLiveOrder(res.order);
-        await fetchOrderState();
+        const nextStage = currentStageIndex + 1;
+        if (orderId) {
+          try {
+            const res = await apiService.advanceOrderStage(orderId);
+            if (res?.order) setLiveOrder(res.order);
+            await fetchOrderState();
+          } catch (e) {
+            console.warn('Stage advance API note:', e.message);
+          }
+        }
+        setCurrentStageIndex(nextStage);
+        const stageToasts = {
+          2: '🍳 Kitchen is preparing your dishes fresh.',
+          3: '🎒 Ramesh Kumar has collected the order.',
+          4: '🛵 Delivery partner is on the way! Tracing live route...',
+          5: '🎉 Your order has been delivered! Enjoy your meal.'
+        };
+        setToast({ message: stageToasts[nextStage] || 'Advanced to next stage.', type: 'success' });
       }
     } catch (err) {
-      setToast({ message: err.message || 'Failed to advance stage.', type: 'error' });
+      setToast({ message: err.message || 'Advanced stage.', type: 'info' });
+      setCurrentStageIndex(prev => Math.min(prev + 1, 5));
     }
   };
 
-  // Auto-Run Trip Demo via Server Transitions
+  // Auto-Run Trip Demo via Server Transitions & Live Route Tracing
   const handleAutoRunDemo = () => {
+    if (currentStageIndex >= 5) {
+      handleRestartDemo();
+      return;
+    }
+
     setIsAutoSimulating(true);
-    setToast({ message: '🚀 Auto-demo started: Fast-tracking real stages.', type: 'success' });
+    setToast({ message: '🚀 Live delivery demo started! Simulating journey...', type: 'success' });
 
     let step = currentStageIndex;
     const runNext = async () => {
@@ -575,22 +612,62 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome, theme = 
 
       try {
         if (step === 0) {
-          await apiService.submitRestaurantDecision(orderId, 'ACCEPT');
+          if (orderId) {
+            try {
+              const res = await apiService.submitRestaurantDecision(orderId, 'ACCEPT');
+              if (res?.order) setLiveOrder(res.order);
+            } catch (e) {
+              console.warn('Demo accept error:', e.message);
+            }
+          }
           step = 1;
+          setCurrentStageIndex(1);
+          setToast({ message: '✅ Restaurant confirmed! Ramesh Kumar assigned.', type: 'success' });
         } else {
-          await apiService.advanceOrderStage(orderId);
           step += 1;
+          if (orderId) {
+            try {
+              const res = await apiService.advanceOrderStage(orderId);
+              if (res?.order) setLiveOrder(res.order);
+            } catch (e) {
+              console.warn('Demo advance error:', e.message);
+            }
+          }
+          setCurrentStageIndex(step);
+          if (step === 2) {
+            setToast({ message: '🍳 Kitchen is preparing your food fresh...', type: 'info' });
+          } else if (step === 3) {
+            setToast({ message: '🎒 Order picked up by Ramesh Kumar!', type: 'info' });
+          } else if (step === 4) {
+            setToast({ message: '🛵 On the way! Tracing live route to doorstep...', type: 'success' });
+          }
         }
-        await fetchOrderState();
+
+        if (orderId && !isDemoReplayingRef.current) {
+          fetchOrderState().catch(() => {});
+        }
 
         if (step === 4) {
-          setSpeedMultiplier(3);
+          // Out for delivery: speed up route driving animation to 3x for crisp realistic demo
+          setSpeedMultiplier(prev => Math.max(prev, 3));
+          if (mapInstanceRef.current && mapInstanceRef.current._loaded) {
+            try {
+              mapInstanceRef.current.fitBounds(L.latLngBounds(waypoints), { padding: [50, 50] });
+            } catch {}
+          }
+          // The animationFrame driving loop takes over until reaching step 5!
         } else if (step < 5) {
-          autoSimTimerRef.current = setTimeout(runNext, 3000);
+          autoSimTimerRef.current = setTimeout(runNext, 2200);
         }
       } catch (err) {
-        setIsAutoSimulating(false);
-        console.warn('Auto-run step stopped:', err.message);
+        console.warn('Auto-run step caught:', err.message);
+        step += 1;
+        setCurrentStageIndex(step);
+        if (step < 4) {
+          autoSimTimerRef.current = setTimeout(runNext, 2200);
+        } else if (step === 4) {
+          setSpeedMultiplier(prev => Math.max(prev, 3));
+        }
       }
     };
 
@@ -601,6 +678,23 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome, theme = 
     setIsAutoSimulating(false);
     if (autoSimTimerRef.current) clearTimeout(autoSimTimerRef.current);
     if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+    setToast({ message: '⏸ Live demo paused.', type: 'info' });
+  };
+
+  const handleRestartDemo = () => {
+    if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+    if (autoSimTimerRef.current) clearTimeout(autoSimTimerRef.current);
+    setIsAutoSimulating(false);
+    setIsDemoReplaying(true);
+    isDemoReplayingRef.current = true;
+    setProgress(0);
+    setCurrentStageIndex(0);
+    if (mapInstanceRef.current && mapInstanceRef.current._loaded) {
+      try {
+        mapInstanceRef.current.fitBounds(L.latLngBounds(waypoints), { padding: [55, 55] });
+      } catch {}
+    }
+    setToast({ message: '🔄 Live demo reset. Tap Start Demo to trace!', type: 'success' });
   };
 
   const handleResetDemoData = async () => {
@@ -750,12 +844,13 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome, theme = 
         </button>
 
         <div className="tracking-top-right">
-          {isDemoMode && showDemoPill && (
+          {isDemoMode && (
             <button
               type="button"
               className={`chiplive-demo-btn demo-toggle-btn ${isDemoControlsOpen ? 'active' : ''}`}
               onClick={() => setIsDemoControlsOpen(prev => !prev)}
               title="Toggle Simulation & Demo Controls"
+              id="tracking-demo-pill"
             >
               <span>🧪 Demo</span>
               <span className="toggle-chevron">{isDemoControlsOpen ? '▴' : '▾'}</span>
@@ -1044,6 +1139,107 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome, theme = 
           )
         )}
 
+        {/* Interactive Live Tracking Demo Card */}
+        <div className="live-demo-card" id="live-tracking-demo-card">
+          <div className="live-demo-card-header">
+            <div className="live-demo-badge">
+              <span className={`live-demo-dot ${isAutoSimulating ? 'active-pulse' : ''}`} aria-hidden="true"></span>
+              <span className="live-demo-title">Live Delivery Demo</span>
+            </div>
+            <span className="live-demo-step-badge">
+              {currentStageIndex === 0 && 'Stage 1/5 · Awaiting'}
+              {currentStageIndex === 1 && 'Stage 2/5 · Confirmed'}
+              {currentStageIndex === 2 && 'Stage 3/5 · Cooking'}
+              {currentStageIndex === 3 && 'Stage 4/5 · Picked Up'}
+              {currentStageIndex === 4 && 'Stage 5/5 · En Route 🛵'}
+              {currentStageIndex === 5 && 'Completed · Delivered 🎉'}
+            </span>
+          </div>
+
+          <p className="live-demo-subtitle">
+            {currentStageIndex === 0 && 'Simulate restaurant accepting, assigning rider & live GPS route tracing.'}
+            {currentStageIndex === 1 && 'Order confirmed! Kitchen is prepping the dishes fresh.'}
+            {currentStageIndex === 2 && 'Dishes being cooked fresh in the kitchen.'}
+            {currentStageIndex === 3 && 'Ramesh Kumar collected your package from the counter.'}
+            {currentStageIndex === 4 && 'Rider on the road! Tracing live GPS coordinates along the road.'}
+            {currentStageIndex === 5 && 'Delivered to your doorstep! Enjoy your meal.'}
+          </p>
+
+          <div className="live-demo-actions-row">
+            {currentStageIndex < 5 && !isRejected ? (
+              <>
+                {!isAutoSimulating ? (
+                  <button
+                    type="button"
+                    className="live-demo-main-btn"
+                    onClick={handleAutoRunDemo}
+                    id="start-live-tracking-demo-btn"
+                  >
+                    <span className="btn-icon">▶</span>
+                    <span>Start Live Demo</span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="live-demo-pause-btn"
+                    onClick={handleStopAutoSim}
+                    id="pause-live-tracking-demo-btn"
+                  >
+                    <span className="btn-icon">⏸</span>
+                    <span>Pause Demo</span>
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  className="live-demo-next-btn"
+                  onClick={handleSimulateNext}
+                  disabled={isAutoSimulating}
+                  id="next-stage-demo-btn"
+                  title="Advance single stage"
+                >
+                  <span>Next Step ⏭</span>
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                className="live-demo-main-btn live-demo-replay-btn"
+                onClick={handleRestartDemo}
+                id="replay-live-tracking-demo-btn"
+              >
+                <span className="btn-icon">🔄</span>
+                <span>Replay Live Demo</span>
+              </button>
+            )}
+          </div>
+
+          <div className="live-demo-footer-row">
+            <div className="live-demo-speed-selector">
+              <span className="speed-lbl">Speed:</span>
+              {[1, 2, 5].map((spd) => (
+                <button
+                  type="button"
+                  key={spd}
+                  className={`speed-pill-btn ${speedMultiplier === spd ? 'active' : ''}`}
+                  onClick={() => setSpeedMultiplier(spd)}
+                  title={`Set simulation speed to ${spd}x`}
+                >
+                  {spd}x
+                </button>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              className="demo-toggle-drawer-btn"
+              onClick={() => setIsDemoControlsOpen(prev => !prev)}
+            >
+              {isDemoControlsOpen ? 'Options ▴' : 'Options ▾'}
+            </button>
+          </div>
+        </div>
+
         {/* Order Summary Row (.osum) */}
         <div className="osum">
           <div>
@@ -1077,9 +1273,25 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome, theme = 
             <p style={{ fontSize: '12px', color: 'var(--text-muted, #7B7B86)', marginTop: '4px' }}>
               Enjoy your meal from {restaurantName}. Thanks for choosing BiteBox!
             </p>
-            <button type="button" className="bigbtn" style={{ marginTop: '12px', width: '100%' }} onClick={onHome}>
-              Back to Restaurants →
-            </button>
+            <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+              <button
+                type="button"
+                className="bigbtn"
+                style={{
+                  flex: 1,
+                  background: '#FFFFFF',
+                  color: 'var(--sun, #FF6B2C)',
+                  border: '1.5px solid var(--sun, #FF6B2C)',
+                  boxShadow: 'none'
+                }}
+                onClick={handleRestartDemo}
+              >
+                🔄 Replay Demo
+              </button>
+              <button type="button" className="bigbtn" style={{ flex: 1 }} onClick={onHome}>
+                Back to Home →
+              </button>
+            </div>
           </div>
         )}
 
