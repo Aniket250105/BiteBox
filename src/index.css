@@ -45,11 +45,11 @@
   --amount-hero-text: #FFFFFF;
   
   /* Glassmorphism Design Tokens - Light Theme (Light, airy & luminous) */
-  --glass-fill-standard: rgba(255, 255, 255, 0.70);
-  --glass-fill-strong: rgba(255, 255, 255, 0.82);
-  --glass-border: 1px solid rgba(255, 255, 255, 0.90);
-  --glass-highlight: inset 0 1.5px 0 #FFFFFF;
-  --glass-shadow: 0 8px 32px rgba(160, 90, 30, 0.10);
+  --glass-fill-standard: rgba(255, 255, 255, 0.62);
+  --glass-fill-strong: rgba(255, 255, 255, 0.74);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.75);
+  --glass-highlight: inset 0 1.5px 0.5px rgba(255, 255, 255, 0.95), inset 0 -0.5px 0 rgba(0, 0, 0, 0.04);
+  --glass-shadow: 0 10px 32px rgba(120, 60, 20, 0.12), 0 2px 6px rgba(0, 0, 0, 0.04);
   --glass-blur: blur(18px) saturate(160%);
   --glass-blur-sm: blur(12px) saturate(150%);
   --glass-saffron: rgba(255, 107, 44, 0.14);
@@ -278,11 +278,11 @@
   --amount-hero-bg: #17171C;
   --amount-hero-text: #FFFFFF;
   
-  --glass-fill-standard: rgba(255, 255, 255, 0.70);
-  --glass-fill-strong: rgba(255, 255, 255, 0.82);
-  --glass-border: 1px solid rgba(255, 255, 255, 0.90);
-  --glass-highlight: inset 0 1.5px 0 #FFFFFF;
-  --glass-shadow: 0 8px 32px rgba(160, 90, 30, 0.10);
+  --glass-fill-standard: rgba(255, 255, 255, 0.62);
+  --glass-fill-strong: rgba(255, 255, 255, 0.74);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.75);
+  --glass-highlight: inset 0 1.5px 0.5px rgba(255, 255, 255, 0.95), inset 0 -0.5px 0 rgba(0, 0, 0, 0.04);
+  --glass-shadow: 0 10px 32px rgba(120, 60, 20, 0.12), 0 2px 6px rgba(0, 0, 0, 0.04);
   --glass-blur: blur(18px) saturate(160%);
   --glass-blur-sm: blur(12px) saturate(150%);
   --glass-saffron: rgba(255, 107, 44, 0.14);
@@ -361,16 +361,16 @@ html[data-glass="off"] * {
 
 /* Decorative background layer for glass refraction */
 .decorative-glass-bg {
-  position: fixed;
+  position: absolute;
   inset: 0;
   pointer-events: none;
   overflow: hidden;
   z-index: 0;
-  opacity: 0.45;
+  opacity: 0.70;
 }
 
 [data-theme='light'] .decorative-glass-bg {
-  opacity: 0.45;
+  opacity: 0.70;
 }
 
 [data-theme='dark'] .decorative-glass-bg,
@@ -391,31 +391,31 @@ html[data-glass="off"] .decorative-glass-bg {
 .glass-blob {
   position: absolute;
   border-radius: 50%;
-  filter: blur(60px);
+  filter: blur(55px);
 }
 
 .glass-blob-saffron {
-  top: -80px;
-  right: -60px;
-  width: 260px;
-  height: 260px;
-  background: radial-gradient(circle, #FF8F3F 0%, rgba(255, 143, 63, 0) 70%);
+  top: -40px;
+  right: -40px;
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle, rgba(255, 143, 63, 0.55) 0%, rgba(255, 143, 63, 0) 70%);
 }
 
 .glass-blob-peach {
-  top: 38%;
-  left: -80px;
-  width: 280px;
-  height: 280px;
-  background: radial-gradient(circle, #FFC9A3 0%, rgba(255, 201, 163, 0) 70%);
+  top: 40%;
+  left: -60px;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(255, 201, 163, 0.70) 0%, rgba(255, 201, 163, 0) 70%);
 }
 
 .glass-blob-mint {
-  bottom: 80px;
-  right: -50px;
-  width: 250px;
-  height: 250px;
-  background: radial-gradient(circle, #BFE8D2 0%, rgba(191, 232, 210, 0) 70%);
+  bottom: 60px;
+  right: -40px;
+  width: 280px;
+  height: 280px;
+  background: radial-gradient(circle, rgba(160, 225, 195, 0.65) 0%, rgba(160, 225, 195, 0) 70%);
 }
 
 [data-theme='dark'] .glass-blob-saffron,
@@ -431,6 +431,23 @@ html[data-glass="off"] .decorative-glass-bg {
 [data-theme='dark'] .glass-blob-mint,
 .dark-theme .glass-blob-mint {
   background: radial-gradient(circle, #2D664A 0%, rgba(45, 102, 74, 0) 70%);
+}
+
+/* Allow glass refraction layer to show through screen containers */
+.discover-screen,
+.menu-screen,
+.cart-screen,
+.payment-screen,
+.order-tracking-screen {
+  background-color: transparent !important;
+}
+
+html[data-glass="off"] .discover-screen,
+html[data-glass="off"] .menu-screen,
+html[data-glass="off"] .cart-screen,
+html[data-glass="off"] .payment-screen,
+html[data-glass="off"] .order-tracking-screen {
+  background-color: var(--bg-page) !important;
 }
 
 * {
