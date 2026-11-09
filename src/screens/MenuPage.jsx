@@ -128,7 +128,7 @@ const MenuPage = ({ restaurant, onBack, cart, updateCart, onViewCart, cartRestau
         <div className="menu-hero-ambient-circle-1" />
         <div className="menu-hero-ambient-circle-2" />
 
-        {/* Back Button with 44px touch target */}
+        {/* Navigation Bar with Back Button on Left and Theme Toggle on Top Right */}
         <div className="menu-hero-nav">
           <button 
             type="button" 
@@ -141,11 +141,10 @@ const MenuPage = ({ restaurant, onBack, cart, updateCart, onViewCart, cartRestau
           {onToggleTheme && (
             <button
               type="button"
-              className="circbtn menu-back-btn"
+              className="circbtn menu-theme-toggle-btn"
               onClick={onToggleTheme}
               title={theme === 'dark' ? 'Switch to Light theme' : 'Switch to Dark theme'}
               aria-label={theme === 'dark' ? 'Switch to Light theme' : 'Switch to Dark theme'}
-              style={{ marginLeft: 'auto' }}
             >
               <span>{theme === 'dark' ? '☀️' : '🌙'}</span>
             </button>
