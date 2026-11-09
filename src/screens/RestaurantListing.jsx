@@ -88,6 +88,21 @@ const RestaurantListing = ({
   const showDemoPill = useDemoPill();
   const [isResetting, setIsResetting] = useState(false);
   const [resetNotice, setResetNotice] = useState('');
+  const [isGlassOn, setIsGlassOn] = useState(() => {
+    return document.documentElement.getAttribute('data-glass') !== 'off';
+  });
+
+  const handleToggleGlass = () => {
+    const next = !isGlassOn;
+    setIsGlassOn(next);
+    if (next) {
+      document.documentElement.removeAttribute('data-glass');
+      try { localStorage.removeItem('bitebox_glass_mode'); } catch {}
+    } else {
+      document.documentElement.setAttribute('data-glass', 'off');
+      try { localStorage.setItem('bitebox_glass_mode', 'off'); } catch {}
+    }
+  };
   
   // Sheet Expansion & Drag state
   const [isSheetExpanded, setIsSheetExpanded] = useState(false);
@@ -820,24 +835,44 @@ const RestaurantListing = ({
                 Re-seeds stock & clears active orders between rehearsals.
               </p>
             </div>
-            <button
-              type="button"
-              className="btn-demo-fill"
-              style={{
-                backgroundColor: '#D32F2F',
-                color: '#FFFFFF',
-                border: 'none',
-                padding: '6px 12px',
-                borderRadius: 'var(--radius-full)',
-                fontWeight: '700',
-                fontSize: '0.72rem',
-                cursor: 'pointer'
-              }}
-              onClick={handleResetDemoData}
-              disabled={isResetting}
-            >
-              {isResetting ? 'Resetting...' : '🔄 Reset Demo Data'}
-            </button>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <button
+                type="button"
+                className="btn-glass-toggle"
+                style={{
+                  background: isGlassOn ? 'var(--sunsoft)' : 'var(--bg-surface)',
+                  color: isGlassOn ? 'var(--sun)' : 'var(--text-main)',
+                  border: '1.5px solid var(--border-line)',
+                  padding: '6px 12px',
+                  borderRadius: 'var(--radius-full)',
+                  fontWeight: '700',
+                  fontSize: '0.72rem',
+                  cursor: 'pointer'
+                }}
+                onClick={handleToggleGlass}
+                title="Toggle Glassmorphism surfaces"
+              >
+                🪟 Glass: {isGlassOn ? 'ON' : 'OFF'}
+              </button>
+              <button
+                type="button"
+                className="btn-demo-fill"
+                style={{
+                  backgroundColor: '#D32F2F',
+                  color: '#FFFFFF',
+                  border: 'none',
+                  padding: '6px 12px',
+                  borderRadius: 'var(--radius-full)',
+                  fontWeight: '700',
+                  fontSize: '0.72rem',
+                  cursor: 'pointer'
+                }}
+                onClick={handleResetDemoData}
+                disabled={isResetting}
+              >
+                {isResetting ? 'Resetting...' : '🔄 Reset Demo Data'}
+              </button>
+            </div>
           </div>
           {resetNotice && (
             <div style={{ marginTop: '6px', fontSize: '0.72rem', color: 'var(--sun)', fontWeight: '600' }}>
@@ -849,7 +884,7 @@ const RestaurantListing = ({
 
       {/* 2. Draggable Bottom Sheet */}
       <div 
-        className={`discover-bottom-sheet ${isSheetExpanded ? 'expanded' : ''}`}
+        className={`discover-bottom-sheet ${isSheetExpanded ? 'expanded' : ''} ${isDraggingSheet ? 'is-dragging' : ''}`}
         style={{
           transform: isDraggingSheet 
             ? `translateY(${sheetTranslateY}px)` 

@@ -20,6 +20,21 @@ const PaymentScreen = ({ orderDetails, onBack, onReturnToCart, onSuccess }) => {
   const [failureInfo, setFailureInfo] = useState(null);
   const [attempts, setAttempts] = useState(1);
   const [toast, setToast] = useState({ message: '', type: '' });
+  const [isGlassOn, setIsGlassOn] = useState(() => {
+    return document.documentElement.getAttribute('data-glass') !== 'off';
+  });
+
+  const handleToggleGlass = () => {
+    const next = !isGlassOn;
+    setIsGlassOn(next);
+    if (next) {
+      document.documentElement.removeAttribute('data-glass');
+      try { localStorage.removeItem('bitebox_glass_mode'); } catch {}
+    } else {
+      document.documentElement.setAttribute('data-glass', 'off');
+      try { localStorage.setItem('bitebox_glass_mode', 'off'); } catch {}
+    }
+  };
 
   // Card form state (strictly client-side only - never saved, stored, or sent over network)
   const [cardNumber, setCardNumber] = useState('');
@@ -252,8 +267,35 @@ const PaymentScreen = ({ orderDetails, onBack, onReturnToCart, onSuccess }) => {
 
         {/* Collapsible Demo Control Panel */}
         {isDemoOpen && (
-          <div className="demo-rehearsal-panel slide-in-top" style={{ position: 'relative', top: 'auto', left: 'auto', right: 'auto', margin: '10px 16px 0' }}>
+          <div className="demo-rehearsal-panel slide-in-top" style={{ position: 'relative', top: 'auto', left: 'auto', right: 'auto', margin: '10px 16px 0', display: 'flex', flexDirection: 'column', gap: '10px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <span className="font-bold text-xs uppercase tracking-wider text-primary">
+                  🪟 Glassmorphism Layer
+                </span>
+                <p className="text-xs text-secondary" style={{ marginTop: '2px', fontSize: '0.72rem' }}>
+                  Toggle translucent glass surfaces across the app
+                </p>
+              </div>
+              <button
+                type="button"
+                className="btn-glass-toggle"
+                style={{
+                  background: isGlassOn ? 'var(--sunsoft)' : 'var(--bg-surface)',
+                  color: isGlassOn ? 'var(--sun)' : 'var(--text-main)',
+                  border: '1.5px solid var(--border-line)',
+                  padding: '5px 12px',
+                  borderRadius: 'var(--radius-full)',
+                  fontWeight: '700',
+                  fontSize: '0.72rem',
+                  cursor: 'pointer'
+                }}
+                onClick={handleToggleGlass}
+              >
+                {isGlassOn ? 'Glass: ON' : 'Glass: OFF'}
+              </button>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px dashed var(--border-line)', paddingTop: '8px' }}>
               <div>
                 <span className="font-bold text-xs uppercase tracking-wider text-primary">
                   ⚡ Force Payment Failure

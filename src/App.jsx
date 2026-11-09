@@ -58,6 +58,17 @@ function App() {
 
   const isRestaurantRoute = window.location.pathname.startsWith('/restaurant') || window.location.search.includes('view=restaurant');
 
+  // Initialize glassmorphism state from user preference
+  React.useEffect(() => {
+    try {
+      if (localStorage.getItem('bitebox_glass_mode') === 'off') {
+        document.documentElement.setAttribute('data-glass', 'off');
+      } else {
+        document.documentElement.removeAttribute('data-glass');
+      }
+    } catch {}
+  }, []);
+
   // Listen for session expiry event dispatched from anywhere
   React.useEffect(() => {
     const handleExpired = () => {
@@ -280,6 +291,13 @@ function App() {
 
   return (
     <div className="app-container">
+      {/* Decorative, static background layer for glass refraction (hidden from screen readers) */}
+      <div className="decorative-glass-bg" aria-hidden="true">
+        <div className="glass-blob glass-blob-saffron" />
+        <div className="glass-blob glass-blob-peach" />
+        <div className="glass-blob glass-blob-mint" />
+      </div>
+
       <Toast 
         message={sessionToast.message} 
         type={sessionToast.type} 

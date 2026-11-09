@@ -54,14 +54,16 @@
   min-width: 44px;
   min-height: 44px;
   border-radius: 50%;
-  background: #FFFFFF;
-  color: #17171C;
+  background: var(--glass-fill-standard);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
+  color: var(--text-main);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 18px;
-  box-shadow: 0 6px 14px rgba(40, 20, 5, 0.16);
-  border: none;
+  box-shadow: var(--glass-shadow), var(--glass-highlight);
   cursor: pointer;
   transition: transform 0.15s ease;
 }
@@ -85,12 +87,15 @@
 /* 2. Overlapping Info Card */
 .menu-info-card {
   margin: -52px 16px 0;
-  background: var(--bg-surface);
+  background: var(--glass-fill-strong);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
   border-radius: var(--radius-info);
   padding: 16px;
   position: relative;
   z-index: 4;
-  box-shadow: 0 14px 28px rgba(120, 60, 20, 0.14);
+  box-shadow: var(--glass-shadow), var(--glass-highlight);
 }
 
 [data-theme='dark'] .menu-info-card,
@@ -176,9 +181,12 @@
   position: sticky;
   top: 0;
   z-index: 10;
-  background-color: var(--bg-page);
+  background-color: var(--glass-fill-strong);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-bottom: var(--glass-border);
+  box-shadow: var(--glass-shadow);
   padding: 14px 16px 12px;
-  backdrop-filter: blur(8px);
 }
 
 .menu-category-pills-scroll {
@@ -440,14 +448,17 @@
   margin: 0 auto;
   bottom: calc(18px + env(safe-area-inset-bottom, 0px));
   height: 60px;
-  background: var(--darkpill-bg);
+  background: var(--glass-darkpill);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: var(--glass-darkpill-border);
   border-radius: 30px;
   display: flex;
   align-items: center;
   padding: 0 8px 0 10px;
-  color: var(--darkpill-text);
+  color: var(--glass-darkpill-text);
   z-index: 100;
-  box-shadow: 0 16px 30px rgba(23, 23, 28, 0.4);
+  box-shadow: var(--glass-shadow);
   cursor: pointer;
   transition: transform 0.15s ease;
 }

@@ -8,19 +8,27 @@
   gap: 8px;
   padding: 12px 20px;
   border-radius: var(--radius-full);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
   z-index: 1000;
   max-width: 90%;
   width: max-content;
 }
 
 .toast-container.success {
-  background-color: var(--color-success);
+  background-color: rgba(19, 122, 82, 0.88);
   color: white;
 }
 
 .toast-container.error {
-  background-color: var(--color-primary);
+  background-color: rgba(217, 48, 37, 0.90);
+  color: white;
+}
+
+.toast-container.warning {
+  background-color: rgba(229, 100, 20, 0.90);
   color: white;
 }
 

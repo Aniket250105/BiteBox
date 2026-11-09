@@ -11,13 +11,24 @@
 .cart-content-scroll {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-line) transparent;
   -webkit-overflow-scrolling: touch;
   padding-bottom: 24px;
 }
 
 /* 1. Top Bar */
 .cart-topbar {
-  padding: max(16px, env(safe-area-inset-top, 16px)) 16px 6px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--glass-fill-strong);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-bottom: var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  padding: max(16px, env(safe-area-inset-top, 16px)) 16px 10px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -277,6 +288,7 @@
 
 .ticket-code-input {
   flex: 1;
+  min-width: 0;
   border: none;
   background: transparent;
   font-size: 13px;
@@ -354,12 +366,17 @@
 .cart-bottombar {
   position: sticky;
   bottom: 0;
-  background: var(--bg-surface);
+  background: var(--glass-fill-strong);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-top: var(--glass-border);
+  border-left: var(--glass-border);
+  border-right: var(--glass-border);
   border-radius: 26px 26px 0 0;
   padding: 14px 18px max(18px, env(safe-area-inset-bottom, 18px));
   display: flex;
   align-items: center;
-  box-shadow: 0 -12px 28px rgba(120, 70, 30, 0.12);
+  box-shadow: 0 -12px 28px rgba(120, 70, 30, 0.12), var(--glass-highlight);
   z-index: 10;
   margin-top: auto;
 }
