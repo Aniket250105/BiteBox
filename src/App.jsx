@@ -69,14 +69,11 @@ function App() {
     } catch {}
   }, []);
 
-  // Initialize glassmorphism state from user preference
+  // Initialize glassmorphism state: permanently locked ON
   React.useEffect(() => {
     try {
-      if (localStorage.getItem('bitebox_glass_mode') === 'off') {
-        document.documentElement.setAttribute('data-glass', 'off');
-      } else {
-        document.documentElement.removeAttribute('data-glass');
-      }
+      localStorage.setItem('bitebox_glass_mode', 'on');
+      document.documentElement.removeAttribute('data-glass');
     } catch {}
   }, []);
 

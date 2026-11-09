@@ -161,21 +161,13 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome, theme = 
   const dragStartTranslateYRef = useRef(0);
   const hasMovedRef = useRef(false);
 
-  const [isGlassOn, setIsGlassOn] = useState(() => {
-    return document.documentElement.getAttribute('data-glass') !== 'off';
-  });
-
-  const handleToggleGlass = () => {
-    const next = !isGlassOn;
-    setIsGlassOn(next);
-    if (next) {
+  // Glassmorphism permanently locked to ON
+  useEffect(() => {
+    try {
+      localStorage.setItem('bitebox_glass_mode', 'on');
       document.documentElement.removeAttribute('data-glass');
-      try { localStorage.removeItem('bitebox_glass_mode'); } catch {}
-    } else {
-      document.documentElement.setAttribute('data-glass', 'off');
-      try { localStorage.setItem('bitebox_glass_mode', 'off'); } catch {}
-    }
-  };
+    } catch {}
+  }, []);
 
   // Check health for demo mode
   useEffect(() => {
@@ -844,19 +836,6 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome, theme = 
         </button>
 
         <div className="tracking-top-right">
-          {isDemoMode && (
-            <button
-              type="button"
-              className={`chiplive-demo-btn demo-toggle-btn ${isDemoControlsOpen ? 'active' : ''}`}
-              onClick={() => setIsDemoControlsOpen(prev => !prev)}
-              title="Toggle Simulation & Demo Controls"
-              id="tracking-demo-pill"
-            >
-              <span>🧪 Demo</span>
-              <span className="toggle-chevron">{isDemoControlsOpen ? '▴' : '▾'}</span>
-            </button>
-          )}
-
           <div className="chiplive" aria-label="Live tracking active">
             <i className="live-dot-pulse" aria-hidden="true"></i>
             <span>Live tracking</span>
@@ -1305,35 +1284,6 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome, theme = 
               <span style={{ fontSize: '11px', color: 'var(--text-muted, #7B7B86)' }}>
                 Stage 4b State Machine
               </span>
-            </div>
-
-            {/* Glassmorphism Toggle */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px dashed var(--border-line, #EFE6DC)' }}>
-              <div>
-                <span style={{ fontSize: '12px', fontWeight: '700', display: 'block', color: 'var(--sun, #FF6B2C)' }}>
-                  🪟 Glassmorphism Layer
-                </span>
-                <span style={{ fontSize: '11px', color: 'var(--text-muted, #7B7B86)' }}>
-                  Toggle translucent glass surfaces across the app
-                </span>
-              </div>
-              <button
-                type="button"
-                className="btn-glass-toggle"
-                style={{
-                  background: isGlassOn ? 'var(--sunsoft)' : 'var(--bg-surface)',
-                  color: isGlassOn ? 'var(--sun)' : 'var(--text-main)',
-                  border: '1.5px solid var(--border-line)',
-                  padding: '5px 12px',
-                  borderRadius: 'var(--radius-full)',
-                  fontWeight: '700',
-                  fontSize: '0.72rem',
-                  cursor: 'pointer'
-                }}
-                onClick={handleToggleGlass}
-              >
-                {isGlassOn ? 'Glass: ON' : 'Glass: OFF'}
-              </button>
             </div>
 
             {/* Force Restaurant Rejection Toggle */}

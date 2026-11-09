@@ -87,25 +87,14 @@ const RestaurantListing = ({
   const [isDetectingGps, setIsDetectingGps] = useState(false);
   const [gpsError, setGpsError] = useState('');
   const [isDemoMode, setIsDemoMode] = useState(false);
-  const [isDemoPanelOpen, setIsDemoPanelOpen] = useState(false);
-  const showDemoPill = useDemoPill();
-  const [isResetting, setIsResetting] = useState(false);
-  const [resetNotice, setResetNotice] = useState('');
-  const [isGlassOn, setIsGlassOn] = useState(() => {
-    return document.documentElement.getAttribute('data-glass') !== 'off';
-  });
 
-  const handleToggleGlass = () => {
-    const next = !isGlassOn;
-    setIsGlassOn(next);
-    if (next) {
+  // Glassmorphism permanently locked to ON
+  useEffect(() => {
+    try {
+      localStorage.setItem('bitebox_glass_mode', 'on');
       document.documentElement.removeAttribute('data-glass');
-      try { localStorage.removeItem('bitebox_glass_mode'); } catch {}
-    } else {
-      document.documentElement.setAttribute('data-glass', 'off');
-      try { localStorage.setItem('bitebox_glass_mode', 'off'); } catch {}
-    }
-  };
+    } catch {}
+  }, []);
   
   // Sheet Expansion & Drag state
   const [isSheetExpanded, setIsSheetExpanded] = useState(false);
@@ -844,17 +833,6 @@ const RestaurantListing = ({
               </button>
             )}
 
-            {isDemoMode && showDemoPill && (
-              <button
-                type="button"
-                className={`demo-toggle-chip ${isDemoPanelOpen ? 'active' : ''}`}
-                onClick={() => setIsDemoPanelOpen(!isDemoPanelOpen)}
-                title="Toggle Demo Controls"
-              >
-                <span>🧪 Demo</span>
-              </button>
-            )}
-
             <button
               type="button"
               className="discover-avatar-btn"
@@ -918,85 +896,6 @@ const RestaurantListing = ({
           )}
         </div>
       </div>
-
-      {/* Collapsible Demo Rehearsal Panel */}
-      {isDemoMode && isDemoPanelOpen && (
-        <div className="demo-rehearsal-panel slide-in-top">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-            <div>
-              <span className="font-bold text-xs uppercase tracking-wider" style={{ color: 'var(--sun)' }}>
-                🕹️ Evaluator Rehearsal Controls
-              </span>
-              <p className="text-xs text-secondary" style={{ marginTop: '2px', fontSize: '0.72rem' }}>
-                Re-seeds stock & clears active orders between rehearsals.
-              </p>
-            </div>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              {onToggleTheme && (
-                <button
-                  type="button"
-                  className="btn-theme-toggle"
-                  style={{
-                    background: 'var(--glass-fill-standard)',
-                    color: 'var(--text-main)',
-                    border: '1.5px solid var(--border-line)',
-                    padding: '6px 12px',
-                    borderRadius: 'var(--radius-full)',
-                    fontWeight: '700',
-                    fontSize: '0.72rem',
-                    cursor: 'pointer'
-                  }}
-                  onClick={onToggleTheme}
-                  title="Toggle Theme"
-                >
-                  {theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode'}
-                </button>
-              )}
-              <button
-                type="button"
-                className="btn-glass-toggle"
-                style={{
-                  background: isGlassOn ? 'var(--sunsoft)' : 'var(--bg-surface)',
-                  color: isGlassOn ? 'var(--sun)' : 'var(--text-main)',
-                  border: '1.5px solid var(--border-line)',
-                  padding: '6px 12px',
-                  borderRadius: 'var(--radius-full)',
-                  fontWeight: '700',
-                  fontSize: '0.72rem',
-                  cursor: 'pointer'
-                }}
-                onClick={handleToggleGlass}
-                title="Toggle Glassmorphism surfaces"
-              >
-                🪟 Glass: {isGlassOn ? 'ON' : 'OFF'}
-              </button>
-              <button
-                type="button"
-                className="btn-demo-fill"
-                style={{
-                  backgroundColor: '#D32F2F',
-                  color: '#FFFFFF',
-                  border: 'none',
-                  padding: '6px 12px',
-                  borderRadius: 'var(--radius-full)',
-                  fontWeight: '700',
-                  fontSize: '0.72rem',
-                  cursor: 'pointer'
-                }}
-                onClick={handleResetDemoData}
-                disabled={isResetting}
-              >
-                {isResetting ? 'Resetting...' : '🔄 Reset Demo Data'}
-              </button>
-            </div>
-          </div>
-          {resetNotice && (
-            <div style={{ marginTop: '6px', fontSize: '0.72rem', color: 'var(--sun)', fontWeight: '600' }}>
-              ✓ {resetNotice}
-            </div>
-          )}
-        </div>
-      )}
 
       {/* 2. Draggable Bottom Sheet */}
       <div 

@@ -240,67 +240,7 @@ const AuthLocationFlow = ({ onComplete, initialMessage, theme = 'light', onToggl
             <p className="brand-tagline text-xs text-secondary">
               {authMode === 'login' ? 'Delicious food, delivered fast' : 'Join BiteBox & start ordering'}
             </p>
-
-            {/* Discreet Demo Toggle (Revealed only when ?demo=1 or Ctrl+Shift+D) */}
-            {showDemoPill && (
-              <div className="auth-demo-toggle-row">
-                <button
-                  type="button"
-                  className={`demo-toggle-chip ${isDemoOpen ? 'active' : ''}`}
-                  onClick={() => setIsDemoOpen(!isDemoOpen)}
-                  title="Toggle Demo Credentials"
-                >
-                  <span>🧪 Demo</span>
-                  <span>{isDemoOpen ? '▴' : '▾'}</span>
-                </button>
-              </div>
-            )}
           </div>
-
-          {/* Quick Demo Helper (Shown only when demo toggle is expanded) */}
-          {isDemoOpen && (
-            <div className="demo-helper-box slide-in-top">
-              <div className="demo-helper-info">
-                <span className="demo-helper-title">⚡ Evaluator Quick Login:</span>
-                <span className="demo-helper-email">aniket@bitebox.com (password123)</span>
-              </div>
-              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '4px' }}>
-                <button
-                  type="button"
-                  className="btn-demo-fill"
-                  onClick={handleFillDemo}
-                >
-                  Auto-Fill
-                </button>
-                <button
-                  type="button"
-                  className="btn-demo-fill"
-                  style={{ backgroundColor: 'var(--color-text-secondary)' }}
-                  onClick={handleSimulateExpired}
-                  title="Simulate expired token"
-                >
-                  Test Expiry
-                </button>
-                {isDemoMode && (
-                  <button
-                    type="button"
-                    className="btn-demo-fill"
-                    style={{ backgroundColor: '#D32F2F' }}
-                    onClick={handleResetDemoData}
-                    disabled={resetLoading}
-                    title="Re-seed database, restore stock, and clear orders"
-                  >
-                    {resetLoading ? 'Resetting...' : '🔄 Reset Demo Data'}
-                  </button>
-                )}
-              </div>
-              {demoNotice && (
-                <div style={{ marginTop: '6px', fontSize: '0.72rem', color: 'var(--color-primary)', fontWeight: '600' }}>
-                  ✓ {demoNotice}
-                </div>
-              )}
-            </div>
-          )}
 
           {/* Segmented Tab Bar */}
           <div className="auth-tabs">
