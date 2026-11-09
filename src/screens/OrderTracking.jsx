@@ -565,7 +565,7 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome, theme = 
             console.warn('Decision API note:', e.message);
           }
         }
-        setToast({ message: '✅ Restaurant accepted order. Delivery partner assigned!', type: 'success' });
+        setToast({ message: 'Restaurant accepted order. Delivery partner assigned!', type: 'success' });
         setCurrentStageIndex(1);
       } else {
         const nextStage = currentStageIndex + 1;
@@ -622,7 +622,7 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome, theme = 
           }
           step = 1;
           setCurrentStageIndex(1);
-          setToast({ message: '✅ Restaurant confirmed! Ramesh Kumar assigned.', type: 'success' });
+          setToast({ message: 'Restaurant confirmed! Ramesh Kumar assigned.', type: 'success' });
         } else {
           step += 1;
           if (orderId) {

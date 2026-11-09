@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
 import './Toast.css';
 
-const Toast = ({ message, type, onClose }) => {
+const Toast = ({ message, type = 'info', onClose }) => {
   useEffect(() => {
     if (message) {
       const timer = setTimeout(() => {
         onClose();
-      }, 2500); // auto-dismiss after 2.5s
+      }, 2200); // auto-dismiss after 2.2s
       return () => clearTimeout(timer);
     }
   }, [message, onClose]);
@@ -14,11 +14,9 @@ const Toast = ({ message, type, onClose }) => {
   if (!message) return null;
 
   return (
-    <div className={`toast-container slide-in-bottom ${type}`}>
-      <span className="toast-icon">
-        {type === 'success' ? '✅' : '⚠️'}
-      </span>
-      <span className="toast-message font-medium">{message}</span>
+    <div className={`toast-container slide-in-top ${type}`} role="status" aria-live="polite">
+      {type === 'error' && <span className="toast-icon" aria-hidden="true">⚠️</span>}
+      <span className="toast-message">{message}</span>
     </div>
   );
 };
