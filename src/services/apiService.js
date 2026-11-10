@@ -86,8 +86,8 @@ export const apiService = {
     }
   },
 
-  // Fetch nearby restaurants (within 3 km radius) using OpenStreetMap / Cache
-  async fetchNearbyRestaurants({ lat, lng, radiusKm = 3 }) {
+  // Fetch nearby restaurants (within 5 km radius) using OpenStreetMap / Cache
+  async fetchNearbyRestaurants({ lat, lng, radiusKm = 5 }) {
     try {
       const token = localStorage.getItem('bitebox_token');
       const headers = { 'Content-Type': 'application/json' };

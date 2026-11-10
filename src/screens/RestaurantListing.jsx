@@ -161,7 +161,7 @@ const RestaurantListing = ({
     setDisplayLimit(20);
 
     const [lat, lng] = customerCoords;
-    const cacheKey = `bitebox_nearby_${Number(lat).toFixed(3)}_${Number(lng).toFixed(3)}`;
+    const cacheKey = `bitebox_nearby_${Number(lat).toFixed(3)}_${Number(lng).toFixed(3)}_5km`;
     let hasLoadedFromCache = false;
     try {
       const cachedStr = sessionStorage.getItem(cacheKey);
@@ -181,7 +181,7 @@ const RestaurantListing = ({
     }
 
     try {
-      const res = await apiService.fetchNearbyRestaurants({ lat, lng, radiusKm: 3 });
+      const res = await apiService.fetchNearbyRestaurants({ lat, lng, radiusKm: 5 });
       setRestaurants(res.restaurants || []);
       setFallbackNotice(res.notice || null);
       setError(null);
@@ -272,10 +272,10 @@ const RestaurantListing = ({
 
   const visibleRestaurants = filteredRestaurants.slice(0, displayLimit);
 
-  // Pin only restaurants within 3 km of customer's location (capped at 40)
+  // Pin only restaurants within 5 km of customer's location (capped at 40)
   const pinnedRestaurants = React.useMemo(() => {
     return filteredRestaurants
-      .filter(r => (r.distanceKm === null || r.distanceKm <= 3.0) && r.lat && r.lng)
+      .filter(r => (r.distanceKm === null || r.distanceKm <= 5.0) && r.lat && r.lng)
       .slice(0, 40);
   }, [filteredRestaurants]);
 
@@ -416,9 +416,9 @@ const RestaurantListing = ({
     });
     L.marker([lat, lng], { icon: customerIcon, zIndexOffset: 1000 }).addTo(markersGroup);
 
-    // 2. Dashed 3 km Radius Circle
-    const threeKmCircle = L.circle([lat, lng], {
-      radius: 3000,
+    // 2. Dashed 5 km Radius Circle
+    const fiveKmCircle = L.circle([lat, lng], {
+      radius: 5000,
       color: '#FF6B2C',
       weight: 2,
       dashArray: '7, 6',
@@ -426,20 +426,20 @@ const RestaurantListing = ({
       fillOpacity: 0.08
     }).addTo(markersGroup);
 
-    // Fit map view to fully encompass the 3 km circle so circle and chip are visible
+    // Fit map view to fully encompass the 5 km circle so circle and chip are visible
     try {
-      const circleBounds = threeKmCircle.getBounds().pad(0.06);
+      const circleBounds = fiveKmCircle.getBounds().pad(0.06);
       map.fitBounds(circleBounds, { animate: false });
     } catch {
       map.setView([lat, lng], 13, { animate: false });
     }
 
-    // 3. "3 km" Chip Badge on Southern Edge of Circle (~0.024 deg south, ~0.012 deg east)
-    const chipLat = lat - 0.022;
-    const chipLng = lng + 0.012;
+    // 3. "5 km" Chip Badge on Southern Edge of Circle (~0.038 deg south, ~0.020 deg east)
+    const chipLat = lat - 0.038;
+    const chipLng = lng + 0.020;
     const chipIcon = L.divIcon({
       className: 'leaflet-radius-chip-container',
-      html: `<div class="radius-chip-badge">3 km</div>`,
+      html: `<div class="radius-chip-badge">5 km</div>`,
       iconSize: [48, 22],
       iconAnchor: [24, 11]
     });
@@ -711,7 +711,7 @@ const RestaurantListing = ({
 
   const userInitial = (userProfile?.name?.trim()?.charAt(0) || 'A').toUpperCase();
   const displayAddress = userProfile.address || 'Select location';
-  const placesWithin3KmCount = restaurants.filter(r => r.distanceKm === null || r.distanceKm <= 3.0).length;
+  const placesWithin5KmCount = restaurants.filter(r => r.distanceKm === null || r.distanceKm <= 5.0).length;
 
   return (
     <div className={`discover-screen ${isSheetExpanded ? 'sheet-is-expanded' : ''}`}>
@@ -746,12 +746,12 @@ const RestaurantListing = ({
                 <path d="M196 0 V372" />
                 <path d="M296 0 V372" />
               </g>
-              {/* 3 km Dashed Accent Circle */}
-              <circle cx="185" cy="245" r="98" fill="rgba(255,107,44,.09)" stroke="#FF6B2C" strokeWidth="2" strokeDasharray="7 6" />
-              {/* 3 km Chip */}
+              {/* 5 km Dashed Accent Circle */}
+              <circle cx="185" cy="245" r="115" fill="rgba(255,107,44,.09)" stroke="#FF6B2C" strokeWidth="2" strokeDasharray="7 6" />
+              {/* 5 km Chip */}
               <g transform="translate(238, 310)">
                 <rect width="48" height="22" rx="11" fill="#FF6B2C" />
-                <text x="24" y="15" fontSize="11" fontWeight="700" fill="#FFFFFF" textAnchor="middle">3 km</text>
+                <text x="24" y="15" fontSize="11" fontWeight="700" fill="#FFFFFF" textAnchor="middle">5 km</text>
               </g>
               {/* Customer dot with halo */}
               <circle cx="185" cy="245" r="22" className="schematic-customer-halo" />
@@ -947,7 +947,7 @@ const RestaurantListing = ({
         {/* Section Header */}
         <div className="discover-section-header">
           <b>Nearby</b>
-          <span>{placesWithin3KmCount} {placesWithin3KmCount === 1 ? 'place' : 'places'} within 3 km</span>
+          <span>{placesWithin5KmCount} {placesWithin5KmCount === 1 ? 'place' : 'places'} within 5 km</span>
         </div>
 
         {/* Fallback Notice Banner */}
@@ -1011,11 +1011,11 @@ const RestaurantListing = ({
           {!isLoading && !error && filteredRestaurants.length === 0 && (
             <div className="friendly-error-state">
               <div className="friendly-error-icon">🍽️</div>
-              <div className="friendly-error-title">No restaurants within 3 km</div>
+              <div className="friendly-error-title">No restaurants within 5 km</div>
               <div className="friendly-error-desc">
                 {searchQuery.trim()
                   ? `No restaurants match "${searchQuery}". Try a different keyword.`
-                  : `No restaurants found within 3 km of ${displayAddress}. Tap below to retry or switch delivery location.`}
+                  : `No restaurants found within 5 km of ${displayAddress}. Tap below to retry or switch delivery location.`}
               </div>
               <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: '12px' }}>
                 <button type="button" className="btn-retry" onClick={loadRestaurants}>

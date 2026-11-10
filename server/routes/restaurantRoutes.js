@@ -95,8 +95,8 @@ router.get('/nearby', authMiddleware, nearbyRateLimiter, async (req, res) => {
       return res.status(400).json({ error: 'Invalid coordinates. Latitude must be between -90 and 90, longitude between -180 and 180.' });
     }
 
-    const maxRadius = Number(process.env.DELIVERY_RADIUS_KM) || 3;
-    const requestedRadius = Number(radiusKm) || 3;
+    const maxRadius = Number(process.env.DELIVERY_RADIUS_KM) || 5;
+    const requestedRadius = Number(radiusKm) || 5;
     const effectiveRadius = Math.min(Math.max(0.5, requestedRadius), maxRadius);
 
     const result = await getNearbyRestaurants({

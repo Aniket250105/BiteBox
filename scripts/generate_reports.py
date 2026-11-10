@@ -20,3 +20,4 @@ with open(DESKTOP_HTML_PATH, "w", encoding="utf-8") as f:
     f.write(raw)
 
 print(f"[SUCCESS] Wrote HTML report to:\n  1. {HTML_PATH}\n  2. {DESKTOP_HTML_PATH}")
+

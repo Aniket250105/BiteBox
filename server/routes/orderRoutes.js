@@ -24,7 +24,7 @@ function computeOrderQuote({ restaurantId, items, deliveryAddress, deliveryLat, 
   }
 
   // Verify delivery eligibility
-  const maxRadiusKm = Number(process.env.DELIVERY_RADIUS_KM) || 3;
+  const maxRadiusKm = Number(process.env.DELIVERY_RADIUS_KM) || 5;
 
   let lat = Number(deliveryLat);
   let lng = Number(deliveryLng);
@@ -49,7 +49,7 @@ function computeOrderQuote({ restaurantId, items, deliveryAddress, deliveryLat, 
     }
 
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-      const err = new Error('Delivery coordinates are required to verify the 3 km delivery radius.');
+      const err = new Error(`Delivery coordinates are required to verify the ${maxRadiusKm} km delivery radius.`);
       err.statusCode = 400;
       throw err;
     }

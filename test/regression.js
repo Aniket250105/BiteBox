@@ -921,7 +921,7 @@ async function runRegressionSuite() {
   });
   assert(distantOsmQuoteRes.status === 400, 'OSM restaurant beyond 3 km rejected by server quote with HTTP 400');
   const distantQuoteData = await distantOsmQuoteRes.json();
-  assert(distantQuoteData.error.includes('3 km delivery radius'), `Clear 3 km radius error: "${distantQuoteData.error}"`);
+  assert(distantQuoteData.error.includes('delivery radius'), `Clear delivery radius error: "${distantQuoteData.error}"`);
 
   // 8c. Seeded restaurant with GPS coordinates in fallback mode is accepted
   const seedGpsQuoteRes = await fetch(`${API_URL}/orders/quote`, {

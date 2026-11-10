@@ -213,8 +213,8 @@ export function upsertOsmRestaurants(targetDb, restaurants) {
 /**
  * Executes an Overpass query with timeout and mirror fallback
  */
-export async function fetchFromOverpass(lat, lng, radiusKm = 3) {
-  const safeRadius = Math.min(Math.max(0.5, Number(radiusKm) || 3), 3.5);
+export async function fetchFromOverpass(lat, lng, radiusKm = 5) {
+  const safeRadius = Math.min(Math.max(0.5, Number(radiusKm) || 5), 6.0);
   // Calculate bounding box around center to utilize Overpass spatial quadtile index
   const numLat = Number(lat) || 13.0;
   const numLng = Number(lng) || 77.5;
@@ -328,13 +328,13 @@ export function getSeededFallbackRestaurants(targetDb, lat, lng) {
 export async function getNearbyRestaurants({
   lat,
   lng,
-  radiusKm = 3,
+  radiusKm = 5,
   targetDb = db,
   overpassFetcher = fetchFromOverpass
 }) {
   const numLat = Number(lat);
   const numLng = Number(lng);
-  const effectiveRadius = Math.min(Math.max(0.5, Number(radiusKm) || 3), Number(process.env.DELIVERY_RADIUS_KM) || 3);
+  const effectiveRadius = Math.min(Math.max(0.5, Number(radiusKm) || 5), Number(process.env.DELIVERY_RADIUS_KM) || 5);
   
   // Cache cell centre: coordinates rounded to 3 decimal places (~110m grid)
   const cellLat = Number(numLat.toFixed(3));

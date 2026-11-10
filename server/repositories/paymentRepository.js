@@ -25,7 +25,7 @@ export const paymentRepository = {
       // Verify OSM restaurant delivery radius
       const restaurant = db.prepare(`SELECT * FROM restaurants WHERE id = ?`).get(order.restaurant_id);
       if (restaurant && restaurant.source === 'osm') {
-        const maxRadiusKm = Number(process.env.DELIVERY_RADIUS_KM) || 3;
+        const maxRadiusKm = Number(process.env.DELIVERY_RADIUS_KM) || 5;
         if (Number.isFinite(order.delivery_lat) && Number.isFinite(order.delivery_lng)) {
           const dist = haversineDistanceKm(order.delivery_lat, order.delivery_lng, restaurant.lat, restaurant.lng);
           if (dist > maxRadiusKm) {
