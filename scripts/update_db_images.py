@@ -10,3 +10,4 @@ for db_name in ['bitebox.db', 'bitebox.test.db', 'bitebox.verify.db']:
         conn.close()
     except Exception as e:
         print(f"{db_name}: error {e}")
+
