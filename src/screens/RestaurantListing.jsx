@@ -1091,13 +1091,6 @@ const RestaurantListing = ({
                           <i className="dotsep" />
                           <span>{restaurant.deliveryTime || restaurant.delivery_time_est || '20–30 min'}</span>
 
-                          {Boolean(restaurant.priceForTwo || restaurant.price_for_two) && (
-                            <>
-                              <i className="dotsep" />
-                              <span>₹{restaurant.priceForTwo || restaurant.price_for_two} for two</span>
-                            </>
-                          )}
-
                           {(restaurant.isDemoFallback || restaurant.source === 'seed' || (restaurant.distanceKm && restaurant.distanceKm > 5.0)) && (
                             <span className="badge-demo-restaurant">Demo restaurant</span>
                           )}
