@@ -48,7 +48,7 @@ const tokenCustomer1 = jwt.sign(
 // Ensure a second customer exists for access-control checks
 db.prepare(`
   INSERT OR IGNORE INTO customers (id, name, email, phone, password_hash, default_address)
-  VALUES (2, 'Priya Singh', 'priya@bitebox.com', '9812345678', 'dummy_hash', 'Koramangala')
+  VALUES (2, 'Priya Singh', 'priya@bitebox.com', '9812345678', '$2b$10$/sOtJBOMluDquDz56jKSSuAVZ6JywHY2AcdxYhPZsbP7hanGr8oAW', 'Koramangala')
 `).run();
 
 const tokenCustomer2 = jwt.sign(
