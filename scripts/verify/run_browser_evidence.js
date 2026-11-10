@@ -630,3 +630,4 @@ runBrowserVerification().catch(err => {
   console.error('Browser verification failed:', err);
   process.exit(1);
 });
+
