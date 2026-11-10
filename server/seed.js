@@ -115,7 +115,7 @@ export function seedDatabase(targetDb = db) {
   // --- Items for Burger & Co. (r2) - 17 items ---
   // Starters
   insertMenuItem.run('m203', 'r2', 'Starters', 'Peri Peri Fries', 130, 1, 1, 50, 'Golden crispy french fries sprinkled with spicy peri peri seasoning.', 'https://images.unsplash.com/photo-1576107232684-1279f3908594?w=300&q=80');
-  insertMenuItem.run('m205', 'r2', 'Starters', 'Cheese Garlic Bread', 140, 1, 1, 40, 'Toasted artisan baguette with roasted garlic and melted mozzarella.', 'https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?w=300&q=80');
+  insertMenuItem.run('m205', 'r2', 'Starters', 'Cheese Garlic Bread', 140, 1, 1, 40, 'Toasted artisan baguette with roasted garlic and melted mozzarella.', '/dishes/garlic_bread.jpg');
   insertMenuItem.run('m206', 'r2', 'Starters', 'Crispy Onion Rings', 120, 1, 1, 40, 'Batter-fried golden onion rings served with barbecue dip.', 'https://images.unsplash.com/photo-1639024471287-032f66453916?w=300&q=80');
   insertMenuItem.run('m207', 'r2', 'Starters', 'BBQ Chicken Popcorn', 190, 0, 1, 35, 'Bite-sized crispy spiced chicken poppers with smoky dip.', 'https://images.unsplash.com/photo-1562967914-608f82629710?w=300&q=80');
   // Mains
@@ -174,7 +174,7 @@ export function seedDatabase(targetDb = db) {
   insertMenuItem.run('m409', 'r4', 'Mains', 'Margherita Pizza (8-inch)', 220, 1, 1, 30, 'Classic hand-tossed pizza with fresh basil and mozzarella.', 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300&q=80');
   insertMenuItem.run('m410', 'r4', 'Mains', 'Chicken Pepperoni Pizza (8-inch)', 290, 0, 1, 25, 'Loaded with smoky chicken pepperoni and extra cheese.', 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300&q=80');
   // Breads
-  insertMenuItem.run('m411', 'r4', 'Breads', 'Garlic Breadsticks with Dip', 120, 1, 1, 40, 'Freshly baked soft breadsticks seasoned with garlic butter.', 'https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?w=300&q=80');
+  insertMenuItem.run('m411', 'r4', 'Breads', 'Garlic Breadsticks with Dip', 120, 1, 1, 40, 'Freshly baked soft breadsticks seasoned with garlic butter.', '/dishes/garlic_bread.jpg');
   insertMenuItem.run('m412', 'r4', 'Breads', 'Stuffed Cheesy Garlic Pockets', 140, 1, 1, 35, 'Crisp pastry crust filled with sweet corn and liquid cheddar.', 'https://images.unsplash.com/photo-1585109649139-366815a0d713?w=300&q=80');
   // Desserts
   insertMenuItem.run('m413', 'r4', 'Desserts', 'Dark Chocolate Brownie', 130, 1, 1, 30, 'Decadent chocolate brownie served warm.', 'https://images.unsplash.com/photo-1607958996333-41aef7caefaa?w=300&q=80');

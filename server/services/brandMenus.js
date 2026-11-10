@@ -4,7 +4,7 @@
 export const BRAND_POOLS = {
   dominos: {
     Starters: [
-      { name: 'Garlic Breadsticks', veg: true, basePrice: 129, desc: 'Crisp on outside, soft inside, brushed with savory garlic butter and herbs.', img: 'https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?w=300&q=80' },
+      { name: 'Garlic Breadsticks', veg: true, basePrice: 129, desc: 'Crisp on outside, soft inside, brushed with savory garlic butter and herbs.', img: '/dishes/garlic_bread.jpg' },
       { name: 'Stuffed Garlic Bread (Jalapeno & Corn)', veg: true, basePrice: 169, desc: 'Freshly baked garlic bread stuffed with mozzarella, sweet corn, and spicy jalapenos.', img: 'https://images.unsplash.com/photo-1585109649139-366815a0d713?w=300&q=80' },
       { name: 'Paneer Zingy Parcel', veg: true, basePrice: 139, desc: 'Golden pastry pocket filled with paneer chunks tossed in spicy harissa sauce.', img: 'https://images.unsplash.com/photo-1585109649139-366815a0d713?w=300&q=80' },
       { name: 'Cheesy Jalapeno Dip', veg: true, basePrice: 40, desc: 'Velvety cheese dip infused with pickled jalapenos for pizza crusts.', img: 'https://images.unsplash.com/photo-1531749668029-2db88e4276c7?w=300&q=80' },
@@ -23,7 +23,7 @@ export const BRAND_POOLS = {
       { name: 'Non-Veg Supreme Pizza', veg: false, basePrice: 549, desc: 'Black olives, grilled mushrooms, pepper barbecue chicken, and peri peri chicken.', img: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300&q=80' }
     ],
     Breads: [
-      { name: 'Classic Garlic Bread', veg: true, basePrice: 119, desc: 'Soft baked baguette slathered in fragrant garlic herb butter.', img: 'https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?w=300&q=80' },
+      { name: 'Classic Garlic Bread', veg: true, basePrice: 119, desc: 'Soft baked baguette slathered in fragrant garlic herb butter.', img: '/dishes/garlic_bread.jpg' },
       { name: 'Crinkle Peri Peri Fries', veg: true, basePrice: 119, desc: 'Crispy crinkle cut potatoes sprinkled with peri peri masala.', img: 'https://images.unsplash.com/photo-1576107232684-1279f3908594?w=300&q=80' },
       { name: 'Cheesy Garlic Breadsticks', veg: true, basePrice: 159, desc: 'Breadsticks baked with mozzarella cheese and Italian seasoning.', img: 'https://images.unsplash.com/photo-1585109649139-366815a0d713?w=300&q=80' },
       { name: 'Cheesy Dip with Garlic Herb', veg: true, basePrice: 45, desc: 'Creamy melted cheese dip with herbs and roasted garlic notes.', img: 'https://images.unsplash.com/photo-1531749668029-2db88e4276c7?w=300&q=80' }
@@ -44,7 +44,7 @@ export const BRAND_POOLS = {
 
   ikea: {
     Starters: [
-      { name: 'IKEA Garlic Bread Baguette (2pcs)', veg: true, basePrice: 120, desc: 'Toasted Nordic sourdough baguette brushed with parsley garlic butter.', img: 'https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?w=300&q=80' },
+      { name: 'IKEA Garlic Bread Baguette (2pcs)', veg: true, basePrice: 120, desc: 'Toasted Nordic sourdough baguette brushed with parsley garlic butter.', img: '/dishes/garlic_bread.jpg' },
       { name: 'Swedish Vegetable Spring Roll (2pcs)', veg: true, basePrice: 140, desc: 'Crisp golden wraps filled with cabbage, leeks, and carrots with sweet chili dip.', img: 'https://images.unsplash.com/photo-1581438761655-ebb4e43add30?w=300&q=80' },
       { name: 'Roasted Tomato Basil Bisque', veg: true, basePrice: 130, desc: 'Warm creamy European tomato soup topped with croutons and basil oil.', img: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&q=80' },
       { name: 'Nordic Garden Salad with Vinaigrette', veg: true, basePrice: 160, desc: 'Mixed organic greens, cherry tomatoes, pickled beets, and honey-mustard dressing.', img: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=300&q=80' },
@@ -63,7 +63,7 @@ export const BRAND_POOLS = {
       { name: 'Chicken Tikka Biryani Platter', veg: false, basePrice: 320, desc: 'Spiced basmati rice layered with tandoori chicken chunks and mint raita.', img: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=300&q=80' }
     ],
     Breads: [
-      { name: 'Nordic Garlic Herb Baguette', veg: true, basePrice: 90, desc: 'Crusty artisan loaf baked fresh with salted European butter and herbs.', img: 'https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?w=300&q=80' },
+      { name: 'Nordic Garlic Herb Baguette', veg: true, basePrice: 90, desc: 'Crusty artisan loaf baked fresh with salted European butter and herbs.', img: '/dishes/garlic_bread.jpg' },
       { name: 'Multigrain Soft Dinner Roll (2pcs)', veg: true, basePrice: 70, desc: 'Nutritious oat and rye rolls served with salted butter pats.', img: 'https://images.unsplash.com/photo-1509722747041-616f39b57569?w=300&q=80' },
       { name: 'Salted Bavarian Pretzel', veg: true, basePrice: 85, desc: 'Traditional twisted pretzel with crunchy sea salt grains.', img: 'https://images.unsplash.com/photo-1509722747041-616f39b57569?w=300&q=80' },
       { name: 'Sourdough Slices with Herb Butter', veg: true, basePrice: 95, desc: 'Rustic open-crumb sourdough slices lightly toasted.', img: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=300&q=80' }
@@ -208,7 +208,7 @@ export const BRAND_POOLS = {
     Starters: [
       { name: 'Crispy Veg Puff', veg: true, basePrice: 45, desc: 'Golden flaky bakery pastry stuffed with spiced potatoes, carrots, and green peas.', img: 'https://images.unsplash.com/photo-1585109649139-366815a0d713?w=300&q=80' },
       { name: 'Spicy Paneer Tikka Puff', veg: true, basePrice: 55, desc: 'Puff pastry stuffed with marinated cottage cheese cubes and capsicum.', img: 'https://images.unsplash.com/photo-1585109649139-366815a0d713?w=300&q=80' },
-      { name: 'Cheese Garlic Toast (3pcs)', veg: true, basePrice: 85, desc: 'Toasted bread slices smothered with garlic herb butter and melted mozzarella.', img: 'https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?w=300&q=80' },
+      { name: 'Cheese Garlic Toast (3pcs)', veg: true, basePrice: 85, desc: 'Toasted bread slices smothered with garlic herb butter and melted mozzarella.', img: '/dishes/garlic_bread.jpg' },
       { name: 'French Fries with Dip', veg: true, basePrice: 80, desc: 'Crispy salted golden potato fries served with tomato ketchup and mayo.', img: 'https://images.unsplash.com/photo-1576107232684-1279f3908594?w=300&q=80' },
       { name: 'Golden Egg Puff', veg: false, basePrice: 50, desc: 'Flaky bakery puff with a boiled egg half wrapped in caramelized onion masala.', img: 'https://images.unsplash.com/photo-1585109649139-366815a0d713?w=300&q=80' },
       { name: 'Chicken Masala Puff', veg: false, basePrice: 60, desc: 'Flaky pastry pocket packed with spicy minced chicken filling.', img: 'https://images.unsplash.com/photo-1585109649139-366815a0d713?w=300&q=80' }
@@ -245,7 +245,7 @@ export const BRAND_POOLS = {
   truffles: {
     Starters: [
       { name: 'Peri Peri Crinkle Fries', veg: true, basePrice: 130, desc: 'Crispy crinkle cut potatoes tossed in spicy African peri peri rub.', img: 'https://images.unsplash.com/photo-1576107232684-1279f3908594?w=300&q=80' },
-      { name: 'Truffles Cheese Garlic Bread', veg: true, basePrice: 150, desc: 'Baguette slices toasted with herb garlic butter and bubbling mozzarella.', img: 'https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?w=300&q=80' },
+      { name: 'Truffles Cheese Garlic Bread', veg: true, basePrice: 150, desc: 'Baguette slices toasted with herb garlic butter and bubbling mozzarella.', img: '/dishes/garlic_bread.jpg' },
       { name: 'Crispy Golden Onion Rings (8pcs)', veg: true, basePrice: 140, desc: 'Crisp batter fried thick onion rings with house tartar dip.', img: 'https://images.unsplash.com/photo-1639024471287-032f66453916?w=300&q=80' },
       { name: 'Jalapeno Cheese Poppers (5pcs)', veg: true, basePrice: 160, desc: 'Molten cheese and diced jalapeno poppers fried crunchy.', img: 'https://images.unsplash.com/photo-1531749668029-2db88e4276c7?w=300&q=80' },
       { name: 'Truffles Buffalo Wings (6pcs)', veg: false, basePrice: 260, desc: 'Crispy fried wings tossed in tangy spicy Buffalo cayenne sauce.', img: 'https://images.unsplash.com/photo-1562967914-608f82629710?w=300&q=80' },
@@ -264,7 +264,7 @@ export const BRAND_POOLS = {
     ],
     Breads: [
       { name: 'Cheesy Loaded Jalapeno Fries', veg: true, basePrice: 170, desc: 'Skin-on fries drenched in warm cheddar sauce and pickled jalapenos.', img: 'https://images.unsplash.com/photo-1585109649139-366815a0d713?w=300&q=80' },
-      { name: 'Herb Butter Garlic Rolls (2pcs)', veg: true, basePrice: 90, desc: 'Warm soft buns brushed with whipped roasted garlic butter.', img: 'https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?w=300&q=80' },
+      { name: 'Herb Butter Garlic Rolls (2pcs)', veg: true, basePrice: 90, desc: 'Warm soft buns brushed with whipped roasted garlic butter.', img: '/dishes/garlic_bread.jpg' },
       { name: 'Loaded Nachos with Salsa & Queso', veg: true, basePrice: 180, desc: 'Crisp corn tortilla chips with spicy tomato salsa and liquid cheese.', img: 'https://images.unsplash.com/photo-1551782450-a2132b4ba21d?w=300&q=80' },
       { name: 'Cheesy Bacon Loaded Fries', veg: false, basePrice: 190, desc: 'Skin-on fries smothered in cheese sauce and crispy chicken bacon bits.', img: 'https://images.unsplash.com/photo-1585109649139-366815a0d713?w=300&q=80' }
     ],
@@ -286,7 +286,7 @@ export const BRAND_POOLS = {
     Starters: [
       { name: 'Spinach & Corn Quiche', veg: true, basePrice: 150, desc: 'Flaky buttery shortcrust tart filled with savory custard, spinach, and sweet corn.', img: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=300&q=80' },
       { name: 'Cheese Butter Croissant', veg: true, basePrice: 140, desc: 'All-butter laminated French pastry filled with melted gruyere cheese.', img: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=300&q=80' },
-      { name: 'Sundried Tomato Focaccia Bites (4pcs)', veg: true, basePrice: 160, desc: 'Toasted herb focaccia squares topped with basil pesto and bocconcini.', img: 'https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?w=300&q=80' },
+      { name: 'Sundried Tomato Focaccia Bites (4pcs)', veg: true, basePrice: 160, desc: 'Toasted herb focaccia squares topped with basil pesto and bocconcini.', img: '/dishes/garlic_bread.jpg' },
       { name: 'Mushroom & Thyme Vol-au-Vent (2pcs)', veg: true, basePrice: 150, desc: 'Puff pastry cases filled with creamy garlic sautéed button mushrooms.', img: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&q=80' },
       { name: 'Chicken & Mushroom Pot Pie', veg: false, basePrice: 180, desc: 'Golden baked puff crust over creamy shredded chicken and button mushrooms.', img: 'https://images.unsplash.com/photo-1585109649139-366815a0d713?w=300&q=80' },
       { name: 'Peri Peri Chicken Savory Puff', veg: false, basePrice: 120, desc: 'Crispy bakery bake packed with shredded chicken tossed in peri peri.', img: 'https://images.unsplash.com/photo-1585109649139-366815a0d713?w=300&q=80' }
@@ -303,8 +303,8 @@ export const BRAND_POOLS = {
     Breads: [
       { name: 'Artisan Sourdough Loaf (Whole)', veg: true, basePrice: 150, desc: 'Slow-fermented rustic loaf with blistered crust and open chewy crumb.', img: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=300&q=80' },
       { name: 'Brioche Cinnamon Roll', veg: true, basePrice: 120, desc: 'Soft pillowy bun swirled with aromatic cinnamon butter and cream cheese glaze.', img: 'https://images.unsplash.com/photo-1509722747041-616f39b57569?w=300&q=80' },
-      { name: 'French Baguette', veg: true, basePrice: 90, desc: 'Crisp golden crust with light airy crumb, baked daily.', img: 'https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?w=300&q=80' },
-      { name: 'Rosemary Sea Salt Focaccia', veg: true, basePrice: 110, desc: 'Olive oil soaked Italian flatbread topped with fresh rosemary leaves.', img: 'https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?w=300&q=80' }
+      { name: 'French Baguette', veg: true, basePrice: 90, desc: 'Crisp golden crust with light airy crumb, baked daily.', img: '/dishes/garlic_bread.jpg' },
+      { name: 'Rosemary Sea Salt Focaccia', veg: true, basePrice: 110, desc: 'Olive oil soaked Italian flatbread topped with fresh rosemary leaves.', img: '/dishes/garlic_bread.jpg' }
     ],
     Desserts: [
       { name: 'Glen\'s Red Velvet Cupcakes (2pcs)', veg: true, basePrice: 140, desc: 'The iconic Bengaluru cupcakes: moist crimson sponge topped with velvety cream cheese.', img: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=300&q=80' },

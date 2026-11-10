@@ -147,8 +147,8 @@ export const CUISINE_POOLS = {
 
   pizza_italian: {
     Starters: [
-      { name: 'Cheesy Garlic Bread Baguette', veg: true, basePrice: 150, desc: 'Crusty loaf loaded with garlic butter herbs and melted mozzarella.', img: 'https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?w=300&q=80' },
-      { name: 'Classic Tomato Basil Bruschetta (4pcs)', veg: true, basePrice: 170, desc: 'Toasted baguette rounds topped with diced tomatoes, fresh basil, and extra virgin olive oil.', img: 'https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?w=300&q=80' },
+      { name: 'Cheesy Garlic Bread Baguette', veg: true, basePrice: 150, desc: 'Crusty loaf loaded with garlic butter herbs and melted mozzarella.', img: '/dishes/garlic_bread.jpg' },
+      { name: 'Classic Tomato Basil Bruschetta (4pcs)', veg: true, basePrice: 170, desc: 'Toasted baguette rounds topped with diced tomatoes, fresh basil, and extra virgin olive oil.', img: '/dishes/garlic_bread.jpg' },
       { name: 'Crispy Arancini Rice Balls (4pcs)', veg: true, basePrice: 190, desc: 'Golden fried arborio risotto rounds filled with mozzarella molten center.', img: 'https://images.unsplash.com/photo-1531749668029-2db88e4276c7?w=300&q=80' },
       { name: 'Caprese Salad with Pesto', veg: true, basePrice: 210, desc: 'Fresh bocconcini mozzarella, heirloom tomatoes, and basil pesto glaze.', img: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=300&q=80' },
       { name: 'Stuffed Garlic Mushrooms', veg: true, basePrice: 195, desc: 'Oven-baked button mushrooms stuffed with herbs and parmesan.', img: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&q=80' },
@@ -167,9 +167,9 @@ export const CUISINE_POOLS = {
       { name: 'Lasagna Bolognese al Forno', veg: false, basePrice: 360, desc: 'Baked pasta sheets layered with minced meat ragu, bechamel, and mozzarella.', img: 'https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=300&q=80' }
     ],
     Breads: [
-      { name: 'Herb Focaccia with Olive Dip', veg: true, basePrice: 120, desc: 'Rosemary, thyme, and sea salt infused focaccia bread slices.', img: 'https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?w=300&q=80' },
+      { name: 'Herb Focaccia with Olive Dip', veg: true, basePrice: 120, desc: 'Rosemary, thyme, and sea salt infused focaccia bread slices.', img: '/dishes/garlic_bread.jpg' },
       { name: 'Cheesy Garlic Pull-Apart Bread', veg: true, basePrice: 145, desc: 'Warm pull-apart loaf baked with roasted garlic and melted mozzarella.', img: 'https://images.unsplash.com/photo-1585109649139-366815a0d713?w=300&q=80' },
-      { name: 'Rosemary Sea Salt Breadsticks', veg: true, basePrice: 95, desc: 'Crunchy baked grissini breadsticks served with marinara dip.', img: 'https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?w=300&q=80' },
+      { name: 'Rosemary Sea Salt Breadsticks', veg: true, basePrice: 95, desc: 'Crunchy baked grissini breadsticks served with marinara dip.', img: '/dishes/garlic_bread.jpg' },
       { name: 'Stuffed Garlic Pockets (3pcs)', veg: true, basePrice: 140, desc: 'Flaky crust pockets stuffed with corn and jalapeño cheese.', img: 'https://images.unsplash.com/photo-1585109649139-366815a0d713?w=300&q=80' }
     ],
     Desserts: [
@@ -210,7 +210,7 @@ export const CUISINE_POOLS = {
     Breads: [
       { name: 'Artisan Sourdough Loaf (Whole)', veg: true, basePrice: 140, desc: 'Naturally fermented rustic loaf with a chewy crumb and blistered golden crust.', img: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=300&q=80' },
       { name: 'Cinnamon Swirl Brioche', veg: true, basePrice: 110, desc: 'Warm sweet brioche pastry rolled with fragrant cinnamon sugar glaze.', img: 'https://images.unsplash.com/photo-1509722747041-616f39b57569?w=300&q=80' },
-      { name: 'Garlic & Rosemary Focaccia', veg: true, basePrice: 120, desc: 'Olive oil infused Italian flatbread topped with sea salt and fresh rosemary.', img: 'https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?w=300&q=80' },
+      { name: 'Garlic & Rosemary Focaccia', veg: true, basePrice: 120, desc: 'Olive oil infused Italian flatbread topped with sea salt and fresh rosemary.', img: '/dishes/garlic_bread.jpg' },
       { name: 'Blueberry Crumble Muffin', veg: true, basePrice: 100, desc: 'Moist bakery muffin bursting with fresh blueberries and buttery sugar streusel.', img: 'https://images.unsplash.com/photo-1586985289688-ca3cf47d3e6e?w=300&q=80' },
       { name: 'Chocolate Chip Brioche Bun', veg: true, basePrice: 90, desc: 'Soft sweet bakery bun studded with Belgian dark chocolate chips.', img: 'https://images.unsplash.com/photo-1509722747041-616f39b57569?w=300&q=80' },
       { name: 'Butter Brioche Toast with Jam', veg: true, basePrice: 80, desc: 'Two thick golden brioche slices served with strawberry preserve and salted butter.', img: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=300&q=80' }
@@ -255,7 +255,7 @@ export const CUISINE_POOLS = {
     ],
     Breads: [
       { name: 'Cheesy Jalapeno Loaded Fries', veg: true, basePrice: 170, desc: 'Skin-on fries smothered in hot liquid cheddar and pickled jalapenos.', img: 'https://images.unsplash.com/photo-1585109649139-366815a0d713?w=300&q=80' },
-      { name: 'Garlic Parmesan Rolls (2pcs)', veg: true, basePrice: 110, desc: 'Warm herb infused mini rolls with whipped garlic butter.', img: 'https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?w=300&q=80' },
+      { name: 'Garlic Parmesan Rolls (2pcs)', veg: true, basePrice: 110, desc: 'Warm herb infused mini rolls with whipped garlic butter.', img: '/dishes/garlic_bread.jpg' },
       { name: 'Buttered Sweet Corn on the Cob', veg: true, basePrice: 90, desc: 'Sweet golden corn cob slathered in salted butter and cracked pepper.', img: 'https://images.unsplash.com/photo-1551782450-a2132b4ba21d?w=300&q=80' },
       { name: 'Salted French Fries Regular', veg: true, basePrice: 100, desc: 'Classic golden salted fries fried to crisp perfection.', img: 'https://images.unsplash.com/photo-1576107232684-1279f3908594?w=300&q=80' }
     ],
