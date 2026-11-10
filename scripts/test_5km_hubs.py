@@ -42,3 +42,4 @@ for name, lat, lng in [("Indiranagar", 12.9830, 77.6350), ("Koramangala", 12.934
                 print(f"   * {v[0]} ({v[1]} km) - {v[2]}")
     except Exception as e:
         print(f"[{name}] Error: {e}")
+

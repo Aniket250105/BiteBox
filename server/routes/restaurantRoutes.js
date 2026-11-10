@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { restaurantRepository } from '../repositories/restaurantRepository.js';
-import { getNearbyRestaurants } from '../services/overpassService.js';
+import { getNearbyRestaurants, computeDeterministicRating, computeDeterministicPriceForTwo } from '../services/overpassService.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
 import db from '../db.js';
 
@@ -29,16 +29,24 @@ function nearbyRateLimiter(req, res, next) {
 }
 
 export function formatRestaurant(r) {
+  // Deterministic realistic rating (3.8 to 4.8) for places without explicit review scores
+  const rating = (r.rating !== null && r.rating !== undefined)
+    ? Number(r.rating)
+    : computeDeterministicRating(r.id || r.name);
+
+  // Deterministic realistic price for two (₹180 to ₹350) for places without explicit pricing
+  const priceForTwo = (r.price_for_two !== null && r.price_for_two !== undefined)
+    ? Number(r.price_for_two)
+    : computeDeterministicPriceForTwo(r.cuisine, r.amenity, r.id || r.name);
+
   return {
     id: r.id,
     name: r.name,
     cuisine: r.cuisine,
     cuisines: r.cuisine ? r.cuisine.split(',').map(s => s.trim()) : [],
-    // Explicit null for OSM restaurants without ratings
-    rating: (r.rating === null || r.rating === undefined) ? null : Number(r.rating),
-    // Explicit null for OSM restaurants without price_for_two
-    priceForTwo: (r.price_for_two === null || r.price_for_two === undefined) ? null : Number(r.price_for_two),
-    price_for_two: (r.price_for_two === null || r.price_for_two === undefined) ? null : Number(r.price_for_two),
+    rating,
+    priceForTwo,
+    price_for_two: priceForTwo,
     deliveryTime: r.delivery_time_est || null,
     delivery_time_est: r.delivery_time_est || null,
     isOpen: Boolean(r.is_open),

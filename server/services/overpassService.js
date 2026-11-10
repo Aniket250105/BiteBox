@@ -49,6 +49,39 @@ export function computeDeliveryTimeEst(distanceKm) {
 }
 
 /**
+ * Deterministic rating generator for OSM restaurants: 3.8 to 4.8
+ */
+export function computeDeterministicRating(idOrName = '') {
+  let hash = 0;
+  const str = String(idOrName || 'restaurant');
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash * 31 + str.charCodeAt(i)) % 10000;
+  }
+  // Realistic rating between 3.8 and 4.8 (steps of 0.1)
+  const rating = 3.8 + (hash % 11) * 0.1;
+  return Number(rating.toFixed(1));
+}
+
+/**
+ * Deterministic price for two based on cuisine and establishment identity
+ */
+export function computeDeterministicPriceForTwo(cuisine = '', amenity = '', idOrName = '') {
+  const c = `${cuisine} ${amenity}`.toLowerCase();
+  if (c.includes('cafe') || c.includes('coffee') || c.includes('bakery')) return 200;
+  if (c.includes('south indian') || c.includes('dosa') || c.includes('idli') || c.includes('tiffin')) return 180;
+  if (c.includes('fast_food') || c.includes('burger') || c.includes('pizza') || c.includes('snack') || c.includes('juice')) return 220;
+  if (c.includes('biryani') || c.includes('kebab') || c.includes('tandoor') || c.includes('mutton') || c.includes('chicken')) return 350;
+  if (c.includes('chinese') || c.includes('asian') || c.includes('noodle')) return 280;
+  
+  // Deterministic variation between 200 and 350
+  let hash = 0;
+  const str = String(idOrName || 'place');
+  for (let i = 0; i < str.length; i++) hash = (hash * 17 + str.charCodeAt(i)) % 100;
+  const tiers = [200, 250, 300, 350];
+  return tiers[hash % tiers.length];
+}
+
+/**
  * Selects an image and emoji based on cuisine
  */
 export function getCuisineVisuals(cuisineStr = '', amenity = '') {
