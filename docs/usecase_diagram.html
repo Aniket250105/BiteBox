@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+  body { width: 1400px; height: 800px; background: linear-gradient(135deg, #FFF9F5 0%, #FFF3EC 50%, #FDFBF7 100%); padding: 30px; display: flex; flex-direction: column; justify-content: space-between; }
+  .header { text-align: center; margin-bottom: 15px; }
+  .header h1 { font-size: 28px; font-weight: 800; color: #1E1E1E; }
+  .header p { font-size: 14px; color: #7A7265; margin-top: 4px; }
+
+  .diagram-container { display: flex; gap: 24px; flex: 1; align-items: stretch; }
+  
+  .actor-col { width: 200px; display: flex; flex-direction: column; justify-content: space-around; gap: 16px; }
+  .actor-card { background: #FFFFFF; border: 1.5px solid #EAE2D5; border-radius: 16px; padding: 16px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+  .actor-icon { font-size: 32px; margin-bottom: 6px; }
+  .actor-name { font-size: 15px; font-weight: 800; color: #2C2523; }
+  .actor-role { font-size: 11px; color: #8C827A; margin-top: 2px; }
+
+  .system-boundary { flex: 1; background: rgba(255, 255, 255, 0.9); border: 2px dashed #FF6B2C; border-radius: 20px; padding: 20px 24px; display: flex; flex-direction: column; justify-content: space-between; position: relative; box-shadow: 0 8px 24px rgba(255,107,44,0.05); }
+  .boundary-title { position: absolute; top: -12px; left: 30px; background: #FF6B2C; color: #FFFFFF; font-size: 12px; font-weight: 800; padding: 3px 12px; border-radius: 20px; letter-spacing: 0.5px; text-transform: uppercase; }
+
+  .usecases-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 10px; }
+  .usecase-pill { background: #FFF9F5; border: 1px solid #FFD8C7; border-radius: 24px; padding: 12px 14px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: center; align-items: center; }
+  .usecase-name { font-size: 13px; font-weight: 700; color: #2C2523; }
+  .usecase-meta { font-size: 10px; color: #8C827A; margin-top: 3px; }
+  .usecase-tag { font-size: 9px; font-weight: 800; background: #FFF0EB; color: #FF6B2C; padding: 1px 6px; border-radius: 4px; margin-top: 4px; }
+
+  .footer { display: flex; justify-content: space-between; border-top: 1px solid #EAE2D5; padding-top: 10px; font-size: 12px; color: #8C827A; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>BiteBox Use Case Model</h1>
+  <p>Core System Actors, Boundaries and Primary Functional Transactions</p>
+</div>
+
+<div class="diagram-container">
+  <!-- PRIMARY ACTOR -->
+  <div class="actor-col">
+    <div class="actor-card">
+      <div class="actor-icon">👤</div>
+      <div class="actor-name">Customer</div>
+      <div class="actor-role">End-user ordering food</div>
+    </div>
+    <div class="actor-card">
+      <div class="actor-icon">🛵</div>
+      <div class="actor-name">Delivery Partner</div>
+      <div class="actor-role">Assigned courier (Ramesh K)</div>
+    </div>
+  </div>
+
+  <!-- SYSTEM BOUNDARY -->
+  <div class="system-boundary">
+    <div class="boundary-title">BiteBox Core Application Boundary</div>
+    
+    <div class="usecases-grid">
+      <div class="usecase-pill">
+        <div class="usecase-name">UC1: Register & Authenticate</div>
+        <div class="usecase-meta">JWT token & bcrypt session</div>
+        <span class="usecase-tag">Customer</span>
+      </div>
+
+      <div class="usecase-pill">
+        <div class="usecase-name">UC2: Set Geolocation / Hub</div>
+        <div class="usecase-meta">GPS detection or 4 campus hubs</div>
+        <span class="usecase-tag">Customer</span>
+      </div>
+
+      <div class="usecase-pill">
+        <div class="usecase-name">UC3: Browse Nearby Places</div>
+        <div class="usecase-meta">Haversine radius filter &lt;= 3.0km</div>
+        <span class="usecase-tag">Customer · OSM</span>
+      </div>
+
+      <div class="usecase-pill">
+        <div class="usecase-name">UC4: View Categorized Menu</div>
+        <div class="usecase-meta">Live stock check &amp; veg tags</div>
+        <span class="usecase-tag">Customer</span>
+      </div>
+
+      <div class="usecase-pill">
+        <div class="usecase-name">UC5: Manage Cart &amp; Coupons</div>
+        <div class="usecase-meta">Single-restaurant rule &amp; promo codes</div>
+        <span class="usecase-tag">Customer</span>
+      </div>
+
+      <div class="usecase-pill">
+        <div class="usecase-name">UC6: Price Quote &amp; Slide-to-Pay</div>
+        <div class="usecase-meta">GST 5% + ₹40 fee; UPI/Card/COD</div>
+        <span class="usecase-tag">Customer · Payment</span>
+      </div>
+
+      <div class="usecase-pill">
+        <div class="usecase-name">UC7: Review Incoming Orders</div>
+        <div class="usecase-meta">Awaiting restaurant decision queue</div>
+        <span class="usecase-tag">Restaurant</span>
+      </div>
+
+      <div class="usecase-pill">
+        <div class="usecase-name">UC8: Accept / Reject Order</div>
+        <div class="usecase-meta">Trigger agent or auto 100% refund</div>
+        <span class="usecase-tag">Restaurant</span>
+      </div>
+
+      <div class="usecase-pill">
+        <div class="usecase-name">UC9: Advance Order Stages</div>
+        <div class="usecase-meta">Confirmed → Cooking → Picked Up</div>
+        <span class="usecase-tag">Restaurant · Rider</span>
+      </div>
+
+      <div class="usecase-pill">
+        <div class="usecase-name">UC10: Live Telemetry &amp; Routing</div>
+        <div class="usecase-meta">Leaflet animated scooter with bearing</div>
+        <span class="usecase-tag">Customer · Rider</span>
+      </div>
+
+      <div class="usecase-pill">
+        <div class="usecase-name">UC11: Reconcile COD on Delivery</div>
+        <div class="usecase-meta">Payment status PENDING → SUCCESS</div>
+        <span class="usecase-tag">Rider · Customer</span>
+      </div>
+
+      <div class="usecase-pill">
+        <div class="usecase-name">UC12: Multi-Tier Cache Fallback</div>
+        <div class="usecase-meta">Cache → Snapshot → Seeded</div>
+        <span class="usecase-tag">OSM Service</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECONDARY ACTORS -->
+  <div class="actor-col">
+    <div class="actor-card">
+      <div class="actor-icon">🍳</div>
+      <div class="actor-name">Restaurant Partner</div>
+      <div class="actor-role">Kitchen portal manager</div>
+    </div>
+    <div class="actor-card">
+      <div class="actor-icon">🌐</div>
+      <div class="actor-name">OpenStreetMap</div>
+      <div class="actor-role">Overpass Geospatial API</div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <span>CSE2271 Mini Project · Presidency University · School of Computer Science & Engineering</span>
+  <span>BiteBox Use Case Specification · Traceable to UC1–UC8</span>
+</div>
+
+</body>
+</html>
+
