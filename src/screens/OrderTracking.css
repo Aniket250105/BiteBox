@@ -787,6 +787,181 @@
   color: #B7791F;
 }
 
+/* --------------------------------------------------------------------------
+   Refund Receipt Breakdown Card
+   -------------------------------------------------------------------------- */
+.refund-receipt-box {
+  background: var(--bg-surface-elevated, #FAFAF9);
+  border: 1.5px solid var(--border-line, #EFE6DC);
+  border-radius: 16px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+
+.refund-receipt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed var(--border-line, #EFE6DC);
+}
+
+.refund-receipt-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-main, #17171C);
+}
+
+.refund-status-tag {
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.refund-status-tag.tag-refunded {
+  background: #E6F6EE;
+  color: #137A52;
+}
+
+.refund-status-tag.tag-cod {
+  background: #FFF4D6;
+  color: #B7791F;
+}
+
+.refund-receipt-details {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font-size: 12px;
+}
+
+.receipt-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--text-muted, #7B7B86);
+}
+
+.receipt-val {
+  font-weight: 600;
+  color: var(--text-main, #17171C);
+}
+
+.receipt-row.highlight-row {
+  margin-top: 2px;
+  padding-top: 6px;
+  border-top: 1px dashed var(--border-line, #EFE6DC);
+}
+
+.receipt-row.highlight-row .receipt-val {
+  color: #137A52;
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.text-success {
+  color: #137A52 !important;
+}
+
+.font-bold {
+  font-weight: 700 !important;
+}
+
+.rejection-actions-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.btn-replay-demo-outline {
+  width: 100%;
+  background: transparent;
+  border: 1.5px solid var(--border-line, #EFE6DC);
+  color: var(--text-main, #17171C);
+  border-radius: 20px;
+  padding: 12px 18px;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btn-replay-demo-outline:hover {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: var(--text-muted, #7B7B86);
+}
+
+.btn-replay-demo-outline:active {
+  transform: scale(0.98);
+}
+
+.live-demo-reject-row {
+  margin-top: 8px;
+  width: 100%;
+}
+
+.live-demo-reject-btn {
+  width: 100%;
+  background: #FFF2F2;
+  color: #D32F2F;
+  border: 1.5px solid #FFCDD2;
+  border-radius: var(--radius-full, 9999px);
+  padding: 10px 14px;
+  font-size: 12.5px;
+  font-weight: 700;
+  font-family: var(--font-heading, 'Outfit', sans-serif);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 42px;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 6px rgba(211, 47, 47, 0.08);
+}
+
+.live-demo-reject-btn:hover {
+  background: #FFEBEE;
+  border-color: #D32F2F;
+  transform: translateY(-1px);
+}
+
+.live-demo-reject-btn:active {
+  transform: scale(0.98);
+}
+
+.demo-portal-link-btn {
+  width: 100%;
+  background: #F0F7FF;
+  color: #0284C7;
+  border: 1.5px solid #BAE6FD;
+  border-radius: 12px;
+  padding: 9px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 8px;
+  transition: all 0.15s ease;
+}
+
+.demo-portal-link-btn:hover {
+  background: #E0F2FE;
+  border-color: #0284C7;
+}
+
 .rejected-return-btn,
 .bigbtn {
   display: block;

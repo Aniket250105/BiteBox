@@ -147,6 +147,7 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome, theme = 
   const [isDemoMode, setIsDemoMode] = useState(true);
   const [resetLoading, setResetLoading] = useState(false);
   const [forceRejectionDemo, setForceRejectionDemo] = useState(false);
+  const [isProcessingRejection, setIsProcessingRejection] = useState(false);
   const [useSchematicMap, setUseSchematicMap] = useState(false);
   const [isDemoReplaying, setIsDemoReplaying] = useState(false);
   const isDemoReplayingRef = useRef(false);
@@ -673,6 +674,58 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome, theme = 
     setToast({ message: '⏸ Live demo paused.', type: 'info' });
   };
 
+  // Dedicated Restaurant Rejection & Payment Refund Demo Handler (Stage 4b)
+  const handleDemoRejectOrder = async (customReason) => {
+    if (isProcessingRejection || isRejected) return;
+    setIsProcessingRejection(true);
+    handleStopAutoSim();
+
+    const reasonToUse = customReason || 'Kitchen overloaded & ingredients out of stock';
+
+    try {
+      if (orderId) {
+        const res = await apiService.submitRestaurantDecision(orderId, 'REJECT', reasonToUse);
+        if (res?.order) {
+          setLiveOrder(res.order);
+        }
+        await fetchOrderState();
+      } else {
+        // Fallback for demo orders without live server connection
+        setLiveOrder(prev => ({
+          ...(prev || {}),
+          status: 'rejected',
+          rejection_reason: reasonToUse,
+          payment: {
+            ...(prev?.payment || {}),
+            status: isCOD ? 'NONE' : 'REFUNDED',
+            refund_status: isCOD ? 'NONE' : 'REFUNDED',
+            refund_amount: isCOD ? 0 : totalAmount
+          }
+        }));
+      }
+
+      setToast({
+        message: isCOD 
+          ? '⚡ Demo: Restaurant rejected order. (COD order cancelled - no charge).'
+          : `⚡ Demo: Restaurant rejected order. Full refund of ₹${totalAmount} processed!`,
+        type: 'warning'
+      });
+    } catch (err) {
+      console.warn('Demo rejection note:', err.message);
+      setToast({
+        message: err.message || 'Restaurant rejected order simulation applied.',
+        type: 'warning'
+      });
+      setLiveOrder(prev => ({
+        ...(prev || {}),
+        status: 'rejected',
+        rejection_reason: reasonToUse
+      }));
+    } finally {
+      setIsProcessingRejection(false);
+    }
+  };
+
   const handleRestartDemo = () => {
     if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
     if (autoSimTimerRef.current) clearTimeout(autoSimTimerRef.current);
@@ -681,6 +734,14 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome, theme = 
     isDemoReplayingRef.current = true;
     setProgress(0);
     setCurrentStageIndex(0);
+    // If was rejected, reset local status to allow replaying live tracking demo
+    if (liveOrder?.status === 'rejected') {
+      setLiveOrder(prev => ({
+        ...(prev || {}),
+        status: 'paid, awaiting restaurant decision',
+        rejection_reason: null
+      }));
+    }
     if (mapInstanceRef.current && mapInstanceRef.current._loaded) {
       try {
         mapInstanceRef.current.fitBounds(L.latLngBounds(waypoints), { padding: [55, 55] });
@@ -995,29 +1056,64 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome, theme = 
             </div>
 
             <p className="rejection-desc">
-              We're sorry! The restaurant was unable to accept your order.
+              We're sorry! The restaurant was unable to fulfill your order.
             </p>
 
             <div className="rejected-reason-box">
-              <strong className="block text-xs uppercase tracking-wider text-secondary mb-1">Reason</strong>
+              <strong className="block text-xs uppercase tracking-wider text-secondary mb-1">Kitchen Reason</strong>
               <span>{liveOrder?.rejection_reason || 'Kitchen overloaded with pending orders.'}</span>
             </div>
 
-            <div className="rejected-refund-container">
-              {isCOD ? (
-                <span className="rejected-refund-pill pill-nocharge">
-                  💵 No charge made (Pay on delivery cancelled)
+            {/* Comprehensive Refund Receipt Box */}
+            <div className="refund-receipt-box">
+              <div className="refund-receipt-header">
+                <span className="refund-receipt-title">💳 Payment & Refund Summary</span>
+                <span className={`refund-status-tag ${isCOD ? 'tag-cod' : 'tag-refunded'}`}>
+                  {isCOD ? 'NO CHARGE (COD)' : 'REFUNDED'}
                 </span>
-              ) : (
-                <span className="rejected-refund-pill pill-refunded">
-                  💰 ₹{totalAmount} refunded to original payment method
-                </span>
-              )}
+              </div>
+
+              <div className="refund-receipt-details">
+                <div className="receipt-row">
+                  <span className="receipt-label">Payment Method:</span>
+                  <span className="receipt-val">{isCOD ? 'Cash on Delivery (COD)' : (liveOrder?.payment?.payment_method || orderDetails?.paymentMethod || 'UPI / Online')}</span>
+                </div>
+                <div className="receipt-row">
+                  <span className="receipt-label">Amount Deducted:</span>
+                  <span className="receipt-val">₹{totalAmount}</span>
+                </div>
+                <div className="receipt-row highlight-row">
+                  <span className="receipt-label">Refund Processed:</span>
+                  <span className="receipt-val text-success font-bold">
+                    {isCOD ? '₹0 (Cancelled without charge)' : `₹${totalAmount} (100% Full Refund)`}
+                  </span>
+                </div>
+                {!isCOD && (
+                  <div className="receipt-row">
+                    <span className="receipt-label">Refund Mode:</span>
+                    <span className="receipt-val text-success">Instant Reversal to Original Account</span>
+                  </div>
+                )}
+                <div className="receipt-row">
+                  <span className="receipt-label">Inventory Status:</span>
+                  <span className="receipt-val text-success">✓ Stock Restored in Database</span>
+                </div>
+              </div>
             </div>
 
-            <button type="button" className="rejected-return-btn bigbtn" onClick={onHome}>
-              ← Return to Restaurant Listing
-            </button>
+            <div className="rejection-actions-group">
+              <button type="button" className="rejected-return-btn bigbtn" onClick={onHome}>
+                ← Return to Restaurant Listing
+              </button>
+              <button 
+                type="button" 
+                className="btn-replay-demo-outline"
+                onClick={handleRestartDemo}
+                title="Reset simulation to test delivery or rejection again"
+              >
+                🔄 Re-test / Reset Demo Order
+              </button>
+            </div>
           </div>
         ) : (
           /* 5-Stage Horizontal Stepper (.hstep) */
@@ -1248,6 +1344,23 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome, theme = 
             )}
           </div>
 
+          {/* Quick 1-Click Order Rejection & Refund Demo Button */}
+          {!isRejected && currentStageIndex < 5 && (
+            <div className="live-demo-reject-row">
+              <button
+                type="button"
+                className="live-demo-reject-btn"
+                onClick={() => handleDemoRejectOrder()}
+                disabled={isProcessingRejection}
+                id="reject-order-demo-btn"
+                title="Simulate kitchen rejection & instant payment refund (Stage 4b)"
+              >
+                <span className="btn-icon">❌</span>
+                <span>{isProcessingRejection ? 'Processing Refund...' : 'Simulate Rejection & Refund Demo'}</span>
+              </button>
+            </div>
+          )}
+
           <div className="live-demo-footer-row">
             <div className="live-demo-speed-selector">
               <span className="speed-lbl">Speed:</span>
@@ -1303,6 +1416,31 @@ const OrderTracking = ({ restaurant, orderDetails, userProfile, onHome, theme = 
                 style={{ width: '18px', height: '18px', accentColor: '#F57C00', cursor: 'pointer' }}
               />
             </div>
+
+            {/* Direct Rejection & Refund Button */}
+            {!isRejected && (
+              <div style={{ padding: '8px 0', borderBottom: '1px dashed var(--border-line, #EFE6DC)' }}>
+                <button
+                  type="button"
+                  className="live-demo-reject-btn"
+                  style={{ width: '100%', minHeight: '38px', padding: '8px 12px' }}
+                  onClick={() => handleDemoRejectOrder()}
+                  disabled={isProcessingRejection}
+                >
+                  <span>❌ Trigger Rejection & Full Refund Now</span>
+                </button>
+              </div>
+            )}
+
+            {/* Dual Viewport Link to Kitchen Partner Portal */}
+            <button
+              type="button"
+              className="demo-portal-link-btn"
+              onClick={() => window.open('/?view=restaurant', '_blank')}
+              title="Open Kitchen Partner Portal in a new tab for dual-screen testing"
+            >
+              <span>🍳 Open Kitchen Partner Portal (Dual Screen Demo) ↗</span>
+            </button>
 
             {/* Step Advance & Auto-Run Buttons */}
             <div className="demo-action-row">

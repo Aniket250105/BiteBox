@@ -34,9 +34,9 @@ const RestaurantPortal = () => {
     return () => clearInterval(interval);
   }, [loadOrders]);
 
-  const handleDecision = async (orderId, decision) => {
+  const handleDecision = async (orderId, decision, customReason) => {
     setProcessingId(orderId);
-    const reason = selectedReasons[orderId] || REJECTION_REASONS[0];
+    const reason = customReason || selectedReasons[orderId] || REJECTION_REASONS[0];
 
     try {
       const res = await apiService.submitRestaurantDecision(orderId, decision, reason);
@@ -229,15 +229,31 @@ const RestaurantPortal = () => {
                   )}
 
                   {canAdvance && (
-                    <button 
-                      className="btn-advance" 
-                      onClick={() => handleAdvance(ord.id)}
-                      disabled={processingId === ord.id}
-                    >
-                      {processingId === ord.id 
-                        ? 'Updating...' 
-                        : `Advance Stage (${ord.status === 'confirmed' ? 'Preparing' : ord.status === 'preparing' ? 'Picked Up' : ord.status === 'picked_up' ? 'Out for Delivery' : 'Delivered'}) ▶`}
-                    </button>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', width: '100%', flexWrap: 'wrap' }}>
+                      <button 
+                        className="btn-advance" 
+                        onClick={() => handleAdvance(ord.id)}
+                        disabled={processingId === ord.id}
+                        style={{ flex: 1 }}
+                      >
+                        {processingId === ord.id 
+                          ? 'Updating...' 
+                          : `Advance Stage (${ord.status === 'confirmed' ? 'Preparing' : ord.status === 'preparing' ? 'Picked Up' : ord.status === 'picked_up' ? 'Out for Delivery' : 'Delivered'}) ▶`}
+                      </button>
+
+                      {['confirmed', 'preparing'].includes(ord.status) && (
+                        <button
+                          type="button"
+                          className="btn-reject"
+                          style={{ padding: '8px 12px', fontSize: '12px' }}
+                          onClick={() => handleDecision(ord.id, 'REJECT', 'Kitchen equipment failure during cooking')}
+                          disabled={processingId === ord.id}
+                          title="Simulate kitchen cancellation & instant refund"
+                        >
+                          ❌ Cancel & Refund
+                        </button>
+                      )}
+                    </div>
                   )}
 
                   {isDelivered && (

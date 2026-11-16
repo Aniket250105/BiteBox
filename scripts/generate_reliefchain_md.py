@@ -594,3 +594,4 @@ with open(MD_PATH, "w", encoding="utf-8") as f:
     f.write(full_md)
 
 print(f"Updated full markdown report at: {MD_PATH}")
+

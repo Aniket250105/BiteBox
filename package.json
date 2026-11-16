@@ -9,6 +9,7 @@
     "server": "node server/server.js",
     "seed": "node server/seed.js",
     "test": "node test/regression.js",
+    "db:show": "node server/scripts/inspectDb.js",
     "warm-cache": "node server/scripts/warmCache.js",
     "build": "vite build",
     "lint": "oxlint",

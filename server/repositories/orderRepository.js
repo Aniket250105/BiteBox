@@ -142,8 +142,12 @@ export const orderRepository = {
         };
       }
 
-      // Must be currently awaiting restaurant decision
-      if (order.status !== 'paid, awaiting restaurant decision') {
+      // Must be currently awaiting restaurant decision (or in active prep for demo rejection)
+      const allowedStatuses = cleanDecision === 'ACCEPT' 
+        ? ['paid, awaiting restaurant decision'] 
+        : ['paid, awaiting restaurant decision', 'confirmed', 'preparing'];
+
+      if (!allowedStatuses.includes(order.status)) {
         const err = new Error(`Cannot make decision. Order is currently in "${order.status}" status.`);
         err.statusCode = 400;
         throw err;

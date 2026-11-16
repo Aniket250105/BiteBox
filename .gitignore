@@ -25,11 +25,19 @@ dist-ssr
 
 # Environment and database
 .env
+.env.*
+!.env.example
 bitebox.db
+bitebox.backup.db
+bitebox.verify.db
 bitebox.test.db
 bitebox.test.db*
 *.db
 *.db-journal
 *.db-wal
 *.db-shm
+*.bak
+*.sqbpro
+*.sqlite
+*.sqlite3
 scratch/
